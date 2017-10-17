@@ -10,6 +10,9 @@
 		A2B45CA81F94E61400249454 /* secp256k1.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A2B45C9E1F94E61400249454 /* secp256k1.framework */; };
 		A2B45CAD1F94E61400249454 /* secp256k1Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B45CAC1F94E61400249454 /* secp256k1Tests.swift */; };
 		A2B45CAF1F94E61400249454 /* secp256k1.h in Headers */ = {isa = PBXBuildFile; fileRef = A2B45CA11F94E61400249454 /* secp256k1.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A2B45CC61F94E63C00249454 /* secp256k1ref.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A2B45CBD1F94E63C00249454 /* secp256k1ref.framework */; };
+		A2B45CCB1F94E63C00249454 /* secp256k1refTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B45CCA1F94E63C00249454 /* secp256k1refTests.swift */; };
+		A2B45CCD1F94E63C00249454 /* secp256k1ref.h in Headers */ = {isa = PBXBuildFile; fileRef = A2B45CBF1F94E63C00249454 /* secp256k1ref.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -20,6 +23,13 @@
 			remoteGlobalIDString = A2B45C9D1F94E61400249454;
 			remoteInfo = secp256k1;
 		};
+		A2B45CC71F94E63C00249454 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A2B45C951F94E61400249454 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A2B45CBC1F94E63C00249454;
+			remoteInfo = secp256k1ref;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +39,12 @@
 		A2B45CA71F94E61400249454 /* secp256k1Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = secp256k1Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2B45CAC1F94E61400249454 /* secp256k1Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = secp256k1Tests.swift; sourceTree = "<group>"; };
 		A2B45CAE1F94E61400249454 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A2B45CBD1F94E63C00249454 /* secp256k1ref.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = secp256k1ref.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2B45CBF1F94E63C00249454 /* secp256k1ref.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = secp256k1ref.h; sourceTree = "<group>"; };
+		A2B45CC01F94E63C00249454 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A2B45CC51F94E63C00249454 /* secp256k1refTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = secp256k1refTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2B45CCA1F94E63C00249454 /* secp256k1refTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = secp256k1refTests.swift; sourceTree = "<group>"; };
+		A2B45CCC1F94E63C00249454 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,6 +63,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A2B45CB91F94E63C00249454 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A2B45CC21F94E63C00249454 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A2B45CC61F94E63C00249454 /* secp256k1ref.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -55,6 +86,8 @@
 			children = (
 				A2B45CA01F94E61400249454 /* secp256k1 */,
 				A2B45CAB1F94E61400249454 /* secp256k1Tests */,
+				A2B45CBE1F94E63C00249454 /* secp256k1ref */,
+				A2B45CC91F94E63C00249454 /* secp256k1refTests */,
 				A2B45C9F1F94E61400249454 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -64,6 +97,8 @@
 			children = (
 				A2B45C9E1F94E61400249454 /* secp256k1.framework */,
 				A2B45CA71F94E61400249454 /* secp256k1Tests.xctest */,
+				A2B45CBD1F94E63C00249454 /* secp256k1ref.framework */,
+				A2B45CC51F94E63C00249454 /* secp256k1refTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -86,6 +121,24 @@
 			path = secp256k1Tests;
 			sourceTree = "<group>";
 		};
+		A2B45CBE1F94E63C00249454 /* secp256k1ref */ = {
+			isa = PBXGroup;
+			children = (
+				A2B45CBF1F94E63C00249454 /* secp256k1ref.h */,
+				A2B45CC01F94E63C00249454 /* Info.plist */,
+			);
+			path = secp256k1ref;
+			sourceTree = "<group>";
+		};
+		A2B45CC91F94E63C00249454 /* secp256k1refTests */ = {
+			isa = PBXGroup;
+			children = (
+				A2B45CCA1F94E63C00249454 /* secp256k1refTests.swift */,
+				A2B45CCC1F94E63C00249454 /* Info.plist */,
+			);
+			path = secp256k1refTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -94,6 +147,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				A2B45CAF1F94E61400249454 /* secp256k1.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A2B45CBA1F94E63C00249454 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A2B45CCD1F94E63C00249454 /* secp256k1ref.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -136,6 +197,42 @@
 			productReference = A2B45CA71F94E61400249454 /* secp256k1Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		A2B45CBC1F94E63C00249454 /* secp256k1ref */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A2B45CCE1F94E63C00249454 /* Build configuration list for PBXNativeTarget "secp256k1ref" */;
+			buildPhases = (
+				A2B45CB81F94E63C00249454 /* Sources */,
+				A2B45CB91F94E63C00249454 /* Frameworks */,
+				A2B45CBA1F94E63C00249454 /* Headers */,
+				A2B45CBB1F94E63C00249454 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = secp256k1ref;
+			productName = secp256k1ref;
+			productReference = A2B45CBD1F94E63C00249454 /* secp256k1ref.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		A2B45CC41F94E63C00249454 /* secp256k1refTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A2B45CD11F94E63C00249454 /* Build configuration list for PBXNativeTarget "secp256k1refTests" */;
+			buildPhases = (
+				A2B45CC11F94E63C00249454 /* Sources */,
+				A2B45CC21F94E63C00249454 /* Frameworks */,
+				A2B45CC31F94E63C00249454 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A2B45CC81F94E63C00249454 /* PBXTargetDependency */,
+			);
+			name = secp256k1refTests;
+			productName = secp256k1refTests;
+			productReference = A2B45CC51F94E63C00249454 /* secp256k1refTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -151,6 +248,14 @@
 						ProvisioningStyle = Automatic;
 					};
 					A2B45CA61F94E61400249454 = {
+						CreatedOnToolsVersion = 9.0;
+						ProvisioningStyle = Automatic;
+					};
+					A2B45CBC1F94E63C00249454 = {
+						CreatedOnToolsVersion = 9.0;
+						ProvisioningStyle = Automatic;
+					};
+					A2B45CC41F94E63C00249454 = {
 						CreatedOnToolsVersion = 9.0;
 						ProvisioningStyle = Automatic;
 					};
@@ -170,6 +275,8 @@
 			targets = (
 				A2B45C9D1F94E61400249454 /* secp256k1 */,
 				A2B45CA61F94E61400249454 /* secp256k1Tests */,
+				A2B45CBC1F94E63C00249454 /* secp256k1ref */,
+				A2B45CC41F94E63C00249454 /* secp256k1refTests */,
 			);
 		};
 /* End PBXProject section */
@@ -183,6 +290,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A2B45CA51F94E61400249454 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A2B45CBB1F94E63C00249454 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A2B45CC31F94E63C00249454 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -207,6 +328,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A2B45CB81F94E63C00249454 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A2B45CC11F94E63C00249454 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A2B45CCB1F94E63C00249454 /* secp256k1refTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -214,6 +350,11 @@
 			isa = PBXTargetDependency;
 			target = A2B45C9D1F94E61400249454 /* secp256k1 */;
 			targetProxy = A2B45CA91F94E61400249454 /* PBXContainerItemProxy */;
+		};
+		A2B45CC81F94E63C00249454 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A2B45CBC1F94E63C00249454 /* secp256k1ref */;
+			targetProxy = A2B45CC71F94E63C00249454 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -398,6 +539,74 @@
 			};
 			name = Release;
 		};
+		A2B45CCF1F94E63C00249454 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = secp256k1ref/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.pebble8888.secp256k1ref;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+			};
+			name = Debug;
+		};
+		A2B45CD01F94E63C00249454 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = secp256k1ref/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.pebble8888.secp256k1ref;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+			};
+			name = Release;
+		};
+		A2B45CD21F94E63C00249454 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = secp256k1refTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.pebble8888.secp256k1refTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+			};
+			name = Debug;
+		};
+		A2B45CD31F94E63C00249454 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = secp256k1refTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.pebble8888.secp256k1refTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -424,6 +633,24 @@
 			buildConfigurations = (
 				A2B45CB61F94E61400249454 /* Debug */,
 				A2B45CB71F94E61400249454 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A2B45CCE1F94E63C00249454 /* Build configuration list for PBXNativeTarget "secp256k1ref" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A2B45CCF1F94E63C00249454 /* Debug */,
+				A2B45CD01F94E63C00249454 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A2B45CD11F94E63C00249454 /* Build configuration list for PBXNativeTarget "secp256k1refTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A2B45CD21F94E63C00249454 /* Debug */,
+				A2B45CD31F94E63C00249454 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
