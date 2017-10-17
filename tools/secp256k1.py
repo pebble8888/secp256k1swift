@@ -69,12 +69,6 @@ if isoncurve(B):
 else:
     assert False, "B is not on curve!"
 
-#print "    2*G= %x,%x" % (B2[0], B2[1])
-#C = add_pt(B, B2)
-#print "  G+2*G= %x,%x" % (C[0], C[1])
-#D = add_pt(B2, B2)
-#print "2*G+2*G= %x,%x" % (D[0], D[1])
-
 # 
 #privkey= 0xf8ef380d6c05116dbed78bfdd6e6625e57426af9a082b81c2fa27b06984c11f3
 #PUBKEY= scalarmult(B, privkey)
@@ -82,9 +76,6 @@ else:
 #
 #"""
 #for reference, the numbers printed should be:
-#2*G= (c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5,1ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a)
-#G+2*G= (f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9,388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672)
-#2*G+2*G= (e493dbf1c10d80f3581e4904930b1404cc6c13900ee0758474fa94abe8c4cd13,51ed993ea0d455b75642e2098ea51448d967ae33bfbdfe40cfe97bdc47739922)
 #-> pubkey= (71ee918bc19bb566e3a5f12c0cd0de620bec1025da6e98951355ebbde8727be3,37b3650efad4190b7328b1156304f2e9e23dbb7f2da50999dde50ea73b4c2688)
 #"""
 T = scalarmult(B, l)
