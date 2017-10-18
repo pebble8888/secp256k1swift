@@ -1,12 +1,13 @@
 #!/usr/bin/env python
+#
+# secp256k1
+# http://www.secg.org/SEC2-Ver-1.0.pdf
+# 
 
-#import sympy
-
+# q is prime
 q = 2**256 - 2**32 - 977
+# l is prime
 l = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
-
-#print sympy.isprime(q)
-#print sympy.isprime(l)
 
 def expmod(b,e,m):
     if e == 0: return 1
@@ -31,13 +32,13 @@ def add_pt(P, Q):
     y1 = P[1]
     x2 = Q[0]
     y2 = Q[1]
-    if y1 == 0: return Q
-    if y2 == 0: return P
+    if x1 == 0 and y1 == 0: return Q
+    if x2 == 0 and y2 == 0: return P
     if x1 == x2:
-        if y1 == y2:
-            return double_pt(P)
-        else:
+        if (y1 + y2) % q == 0:
             return [0, 0]
+        else:
+            return double_pt(P)
 
     lm = (y1-y2)*inv(x1-x2)
     x3 = expmod(lm,2,q)-(x1+x2)
