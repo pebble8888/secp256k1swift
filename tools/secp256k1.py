@@ -82,3 +82,7 @@ else:
 T = scalarmult(B, l)
 print "T  = (%x, %x)" % (T[0], T[1])
 
+privkey=0x00948dda57c9964c62703b1d54f40008e351da1cc0e0a562eac4c3f7dd369c5feb
+pubkey=scalarmult(B, privkey)
+print "calc_pubkey = (%x, %x)" % (pubkey[0], pubkey[1])
+

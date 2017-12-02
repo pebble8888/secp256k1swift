@@ -7,12 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0221CC3DE7C4A27DE9843191 /* Pods_secp256k1Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CF7C75B3688435A270AE312 /* Pods_secp256k1Tests.framework */; };
+		0C67A996169E42DD09A79A97 /* Pods_secp256k1refTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5EDE93308058882D5F2AFD35 /* Pods_secp256k1refTests.framework */; };
+		A2880C481FD2EBBD00018F97 /* secp256k1s.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2880C471FD2EBBD00018F97 /* secp256k1s.swift */; };
+		A2880C4B1FD2EEE700018F97 /* Summable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2880C491FD2EEE600018F97 /* Summable.swift */; };
+		A2880C4E1FD2F0A100018F97 /* BigInt+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2880C4D1FD2F0A100018F97 /* BigInt+Extension.swift */; };
 		A2B45CA81F94E61400249454 /* secp256k1.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A2B45C9E1F94E61400249454 /* secp256k1.framework */; };
 		A2B45CAD1F94E61400249454 /* secp256k1Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B45CAC1F94E61400249454 /* secp256k1Tests.swift */; };
 		A2B45CAF1F94E61400249454 /* secp256k1.h in Headers */ = {isa = PBXBuildFile; fileRef = A2B45CA11F94E61400249454 /* secp256k1.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A2B45CC61F94E63C00249454 /* secp256k1ref.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A2B45CBD1F94E63C00249454 /* secp256k1ref.framework */; };
 		A2B45CCB1F94E63C00249454 /* secp256k1refTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B45CCA1F94E63C00249454 /* secp256k1refTests.swift */; };
 		A2B45CCD1F94E63C00249454 /* secp256k1ref.h in Headers */ = {isa = PBXBuildFile; fileRef = A2B45CBF1F94E63C00249454 /* secp256k1ref.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D16F0E3C598726B28D210629 /* Pods_secp256k1.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD8FE2035503BB853B90B5D /* Pods_secp256k1.framework */; };
+		FB71E43E834A2F67781C1430 /* Pods_secp256k1ref.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EB7AE2E2026F83CFDA7DD4 /* Pods_secp256k1ref.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,6 +40,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		04EB7AE2E2026F83CFDA7DD4 /* Pods_secp256k1ref.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_secp256k1ref.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		0D543AFF0C176E21BC855443 /* Pods-secp256k1Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-secp256k1Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-secp256k1Tests/Pods-secp256k1Tests.debug.xcconfig"; sourceTree = "<group>"; };
+		1C1D27815C1406340EB617F7 /* Pods-secp256k1.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-secp256k1.debug.xcconfig"; path = "Pods/Target Support Files/Pods-secp256k1/Pods-secp256k1.debug.xcconfig"; sourceTree = "<group>"; };
+		487CBEEA7622B09A82812DD0 /* Pods-secp256k1ref.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-secp256k1ref.debug.xcconfig"; path = "Pods/Target Support Files/Pods-secp256k1ref/Pods-secp256k1ref.debug.xcconfig"; sourceTree = "<group>"; };
+		4CF7C75B3688435A270AE312 /* Pods_secp256k1Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_secp256k1Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5EDE93308058882D5F2AFD35 /* Pods_secp256k1refTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_secp256k1refTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		668F734073C520BD634711D5 /* Pods-secp256k1.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-secp256k1.release.xcconfig"; path = "Pods/Target Support Files/Pods-secp256k1/Pods-secp256k1.release.xcconfig"; sourceTree = "<group>"; };
+		7AD70A858E97C6C606FCBE96 /* Pods-secp256k1refTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-secp256k1refTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-secp256k1refTests/Pods-secp256k1refTests.debug.xcconfig"; sourceTree = "<group>"; };
+		A2880C471FD2EBBD00018F97 /* secp256k1s.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = secp256k1s.swift; sourceTree = "<group>"; };
+		A2880C491FD2EEE600018F97 /* Summable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Summable.swift; sourceTree = "<group>"; };
+		A2880C4D1FD2F0A100018F97 /* BigInt+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BigInt+Extension.swift"; sourceTree = "<group>"; };
 		A2B45C9E1F94E61400249454 /* secp256k1.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = secp256k1.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2B45CA11F94E61400249454 /* secp256k1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = secp256k1.h; sourceTree = "<group>"; };
 		A2B45CA21F94E61400249454 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -45,6 +63,10 @@
 		A2B45CC51F94E63C00249454 /* secp256k1refTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = secp256k1refTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2B45CCA1F94E63C00249454 /* secp256k1refTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = secp256k1refTests.swift; sourceTree = "<group>"; };
 		A2B45CCC1F94E63C00249454 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A67812152ABC1FF62F2D8A6B /* Pods-secp256k1ref.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-secp256k1ref.release.xcconfig"; path = "Pods/Target Support Files/Pods-secp256k1ref/Pods-secp256k1ref.release.xcconfig"; sourceTree = "<group>"; };
+		CC21612DB6450D7D74D14142 /* Pods-secp256k1refTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-secp256k1refTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-secp256k1refTests/Pods-secp256k1refTests.release.xcconfig"; sourceTree = "<group>"; };
+		EF84F73D481E352DB37CE431 /* Pods-secp256k1Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-secp256k1Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-secp256k1Tests/Pods-secp256k1Tests.release.xcconfig"; sourceTree = "<group>"; };
+		FAD8FE2035503BB853B90B5D /* Pods_secp256k1.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_secp256k1.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D16F0E3C598726B28D210629 /* Pods_secp256k1.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -60,6 +83,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A2B45CA81F94E61400249454 /* secp256k1.framework in Frameworks */,
+				0221CC3DE7C4A27DE9843191 /* Pods_secp256k1Tests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -67,6 +91,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FB71E43E834A2F67781C1430 /* Pods_secp256k1ref.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,12 +100,39 @@
 			buildActionMask = 2147483647;
 			files = (
 				A2B45CC61F94E63C00249454 /* secp256k1ref.framework in Frameworks */,
+				0C67A996169E42DD09A79A97 /* Pods_secp256k1refTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		52409F9EE55258B0FA5791A8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FAD8FE2035503BB853B90B5D /* Pods_secp256k1.framework */,
+				4CF7C75B3688435A270AE312 /* Pods_secp256k1Tests.framework */,
+				04EB7AE2E2026F83CFDA7DD4 /* Pods_secp256k1ref.framework */,
+				5EDE93308058882D5F2AFD35 /* Pods_secp256k1refTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		7DF8329902C530FC4FA8B70C /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				1C1D27815C1406340EB617F7 /* Pods-secp256k1.debug.xcconfig */,
+				668F734073C520BD634711D5 /* Pods-secp256k1.release.xcconfig */,
+				0D543AFF0C176E21BC855443 /* Pods-secp256k1Tests.debug.xcconfig */,
+				EF84F73D481E352DB37CE431 /* Pods-secp256k1Tests.release.xcconfig */,
+				487CBEEA7622B09A82812DD0 /* Pods-secp256k1ref.debug.xcconfig */,
+				A67812152ABC1FF62F2D8A6B /* Pods-secp256k1ref.release.xcconfig */,
+				7AD70A858E97C6C606FCBE96 /* Pods-secp256k1refTests.debug.xcconfig */,
+				CC21612DB6450D7D74D14142 /* Pods-secp256k1refTests.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		A2B45C941F94E61400249454 = {
 			isa = PBXGroup;
 			children = (
@@ -89,6 +141,8 @@
 				A2B45CBE1F94E63C00249454 /* secp256k1ref */,
 				A2B45CC91F94E63C00249454 /* secp256k1refTests */,
 				A2B45C9F1F94E61400249454 /* Products */,
+				7DF8329902C530FC4FA8B70C /* Pods */,
+				52409F9EE55258B0FA5791A8 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -124,8 +178,11 @@
 		A2B45CBE1F94E63C00249454 /* secp256k1ref */ = {
 			isa = PBXGroup;
 			children = (
+				A2880C4D1FD2F0A100018F97 /* BigInt+Extension.swift */,
+				A2880C491FD2EEE600018F97 /* Summable.swift */,
 				A2B45CBF1F94E63C00249454 /* secp256k1ref.h */,
 				A2B45CC01F94E63C00249454 /* Info.plist */,
+				A2880C471FD2EBBD00018F97 /* secp256k1s.swift */,
 			);
 			path = secp256k1ref;
 			sourceTree = "<group>";
@@ -165,10 +222,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A2B45CB21F94E61400249454 /* Build configuration list for PBXNativeTarget "secp256k1" */;
 			buildPhases = (
+				426A707DF703D98D3157604E /* [CP] Check Pods Manifest.lock */,
 				A2B45C991F94E61400249454 /* Sources */,
 				A2B45C9A1F94E61400249454 /* Frameworks */,
 				A2B45C9B1F94E61400249454 /* Headers */,
 				A2B45C9C1F94E61400249454 /* Resources */,
+				87F9898B77FFA72E89FDD8B8 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -183,9 +242,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A2B45CB51F94E61400249454 /* Build configuration list for PBXNativeTarget "secp256k1Tests" */;
 			buildPhases = (
+				70EC6F73CF6C0920A5796581 /* [CP] Check Pods Manifest.lock */,
 				A2B45CA31F94E61400249454 /* Sources */,
 				A2B45CA41F94E61400249454 /* Frameworks */,
 				A2B45CA51F94E61400249454 /* Resources */,
+				E53EF306D240E42512319310 /* [CP] Embed Pods Frameworks */,
+				B9137AE39BB71D23B1777C2B /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -201,10 +263,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A2B45CCE1F94E63C00249454 /* Build configuration list for PBXNativeTarget "secp256k1ref" */;
 			buildPhases = (
+				CD86E864DC9F45A87684E6AD /* [CP] Check Pods Manifest.lock */,
 				A2B45CB81F94E63C00249454 /* Sources */,
 				A2B45CB91F94E63C00249454 /* Frameworks */,
 				A2B45CBA1F94E63C00249454 /* Headers */,
 				A2B45CBB1F94E63C00249454 /* Resources */,
+				6B642EAE55DF587E900C0A47 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -219,9 +283,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A2B45CD11F94E63C00249454 /* Build configuration list for PBXNativeTarget "secp256k1refTests" */;
 			buildPhases = (
+				6748887D159C09FE7708C615 /* [CP] Check Pods Manifest.lock */,
 				A2B45CC11F94E63C00249454 /* Sources */,
 				A2B45CC21F94E63C00249454 /* Frameworks */,
 				A2B45CC31F94E63C00249454 /* Resources */,
+				04BF7B593CAF02C521976118 /* [CP] Embed Pods Frameworks */,
+				CCA0237D5B646EB97DDD6F2A /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -253,6 +320,7 @@
 					};
 					A2B45CBC1F94E63C00249454 = {
 						CreatedOnToolsVersion = 9.0;
+						LastSwiftMigration = 0910;
 						ProvisioningStyle = Automatic;
 					};
 					A2B45CC41F94E63C00249454 = {
@@ -312,6 +380,181 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		04BF7B593CAF02C521976118 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-secp256k1refTests/Pods-secp256k1refTests-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BigInt/BigInt.framework",
+				"${BUILT_PRODUCTS_DIR}/SipHash/SipHash.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BigInt.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SipHash.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-secp256k1refTests/Pods-secp256k1refTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		426A707DF703D98D3157604E /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-secp256k1-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		6748887D159C09FE7708C615 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-secp256k1refTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		6B642EAE55DF587E900C0A47 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-secp256k1ref/Pods-secp256k1ref-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		70EC6F73CF6C0920A5796581 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-secp256k1Tests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		87F9898B77FFA72E89FDD8B8 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-secp256k1/Pods-secp256k1-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B9137AE39BB71D23B1777C2B /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-secp256k1Tests/Pods-secp256k1Tests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CCA0237D5B646EB97DDD6F2A /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-secp256k1refTests/Pods-secp256k1refTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CD86E864DC9F45A87684E6AD /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-secp256k1ref-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E53EF306D240E42512319310 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-secp256k1Tests/Pods-secp256k1Tests-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BigInt/BigInt.framework",
+				"${BUILT_PRODUCTS_DIR}/SipHash/SipHash.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BigInt.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SipHash.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-secp256k1Tests/Pods-secp256k1Tests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		A2B45C991F94E61400249454 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -332,6 +575,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A2880C481FD2EBBD00018F97 /* secp256k1s.swift in Sources */,
+				A2880C4E1FD2F0A100018F97 /* BigInt+Extension.swift in Sources */,
+				A2880C4B1FD2EEE700018F97 /* Summable.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -473,6 +719,7 @@
 		};
 		A2B45CB31F94E61400249454 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1C1D27815C1406340EB617F7 /* Pods-secp256k1.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
@@ -494,6 +741,7 @@
 		};
 		A2B45CB41F94E61400249454 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 668F734073C520BD634711D5 /* Pods-secp256k1.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
@@ -515,6 +763,7 @@
 		};
 		A2B45CB61F94E61400249454 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0D543AFF0C176E21BC855443 /* Pods-secp256k1Tests.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -528,6 +777,7 @@
 		};
 		A2B45CB71F94E61400249454 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = EF84F73D481E352DB37CE431 /* Pods-secp256k1Tests.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -541,7 +791,9 @@
 		};
 		A2B45CCF1F94E63C00249454 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 487CBEEA7622B09A82812DD0 /* Pods-secp256k1ref.debug.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -556,13 +808,16 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.pebble8888.secp256k1ref;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
 		A2B45CD01F94E63C00249454 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A67812152ABC1FF62F2D8A6B /* Pods-secp256k1ref.release.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -583,7 +838,9 @@
 		};
 		A2B45CD21F94E63C00249454 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AD70A858E97C6C606FCBE96 /* Pods-secp256k1refTests.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = secp256k1refTests/Info.plist;
@@ -596,7 +853,9 @@
 		};
 		A2B45CD31F94E63C00249454 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = CC21612DB6450D7D74D14142 /* Pods-secp256k1refTests.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = secp256k1refTests/Info.plist;
