@@ -9,6 +9,8 @@
 import Foundation
 import BigInt
 
+// This implementation is easy to understand, but very slow.
+// You should not use this for an actual application.
 public struct secp256k1s {
     public struct Point : CustomDebugStringConvertible {
         public var x:BigInt
