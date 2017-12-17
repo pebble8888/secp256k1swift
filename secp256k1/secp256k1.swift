@@ -1,0 +1,1385 @@
+/**********************************************************************
+ * Copyright (c) 2013-2015 Pieter Wuille                              *
+ * Distributed under the MIT software license, see the accompanying   *
+ * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
+ **********************************************************************/
+//
+//  secp256k1.swift
+//  secp256k1
+//
+//  Created by pebble8888 on 2017/12/19.
+//  Copyright © 2017年 pebble8888. All rights reserved.
+//
+
+import Foundation
+
+/* These rules specify the order of arguments in API calls:
+ *
+ * 1. Context pointers go first, followed by output arguments, combined
+ *    output/input arguments, and finally input-only arguments.
+ * 2. Array lengths always immediately the follow the argument whose length
+ *    they describe, even if this violates rule 1.
+ * 3. Within the OUT/OUTIN/IN groups, pointers to data that is typically generated
+ *    later go first. This means: signatures, public nonces, private nonces,
+ *    messages, public keys, secret keys, tweaks.
+ * 4. Arguments that are not data pointers go last, from more complex to less
+ *    complex: function pointers, algorithm names, messages, void pointers,
+ *    counts, flags, booleans.
+ * 5. Opaque data pointers follow the function pointer they are to be passed to.
+ */
+
+/** Opaque data structure that holds context information (precomputed tables etc.).
+ *
+ *  The purpose of context structures is to cache large precomputed data tables
+ *  that are expensive to construct, and also to maintain the randomization data
+ *  for blinding.
+ *
+ *  Do not create a new context object for each operation, as construction is
+ *  far slower than all other API calls (~100 times slower than an ECDSA
+ *  verification).
+ *
+ *  A constructed context can safely be used from multiple threads
+ *  simultaneously, but API call that take a non-const pointer to a context
+ *  need exclusive access to it. In particular this is the case for
+ *  secp256k1_context_destroy and secp256k1_context_randomize.
+ *
+ *  Regarding randomization, either do it once at creation time (in which case
+ *  you do not need any locking for the other calls), or use a read-write lock.
+ */
+//typedef struct secp256k1_context_struct secp256k1_context;
+
+/** Opaque data structure that holds a parsed and valid public key.
+ *
+ *  The exact representation of data inside is implementation defined and not
+ *  guaranteed to be portable between different platforms or versions. It is
+ *  however guaranteed to be 64 bytes in size, and can be safely copied/moved.
+ *  If you need to convert to a format suitable for storage, transmission, or
+ *  comparison, use secp256k1_ec_pubkey_serialize and secp256k1_ec_pubkey_parse.
+ */
+struct secp256k1_pubkey {
+    public var data:[UInt8] // size:64
+    public mutating func clear(){
+        data = [UInt8](repeating: 0, count: 64)
+    }
+}
+
+/** Opaque data structured that holds a parsed ECDSA signature.
+ *
+ *  The exact representation of data inside is implementation defined and not
+ *  guaranteed to be portable between different platforms or versions. It is
+ *  however guaranteed to be 64 bytes in size, and can be safely copied/moved.
+ *  If you need to convert to a format suitable for storage, transmission, or
+ *  comparison, use the secp256k1_ecdsa_signature_serialize_* and
+ *  secp256k1_ecdsa_signature_parse_* functions.
+ */
+struct secp256k1_ecdsa_signature {
+    //unsigned char data[64];
+    public var data:[UInt8] // size:64
+    mutating func clear() {
+        data = [UInt8](repeating: 0, count: 64)
+    }
+}
+
+/** A pointer to a function to deterministically generate a nonce.
+ *
+ * Returns: 1 if a nonce was successfully generated. 0 will cause signing to fail.
+ * Out:     nonce32:   pointer to a 32-byte array to be filled by the function.
+ * In:      msg32:     the 32-byte message hash being verified (will not be NULL)
+ *          key32:     pointer to a 32-byte secret key (will not be NULL)
+ *          algo16:    pointer to a 16-byte array describing the signature
+ *                     algorithm (will be NULL for ECDSA for compatibility).
+ *          data:      Arbitrary data pointer that is passed through.
+ *          attempt:   how many iterations we have tried to find a nonce.
+ *                     This will almost always be 0, but different attempt values
+ *                     are required to result in a different nonce.
+ *
+ * Except for test cases, this function should compute some cryptographic hash of
+ * the message, the algorithm, the key and the attempt.
+ */
+typealias secp256k1_nonce_function = (
+    _ nonce32: inout [UInt8],
+    _ msg32:[UInt8],
+    _ key32:[UInt8],
+    _ algo16:[UInt8]?,
+    _ data: [UInt8]?,
+    _ counter: UInt
+) -> Bool
+
+/*
+# if !defined(SECP256K1_GNUC_PREREQ)
+#  if defined(__GNUC__)&&defined(__GNUC_MINOR__)
+#   define SECP256K1_GNUC_PREREQ(_maj,_min) \
+((__GNUC__<<16)+__GNUC_MINOR__>=((_maj)<<16)+(_min))
+#  else
+#   define SECP256K1_GNUC_PREREQ(_maj,_min) 0
+#  endif
+# endif
+ */
+
+/*
+# if (!defined(__STDC_VERSION__) || (__STDC_VERSION__ < 199901L) )
+#  if SECP256K1_GNUC_PREREQ(2,7)
+#   define SECP256K1_INLINE __inline__
+#  elif (defined(_MSC_VER))
+#   define SECP256K1_INLINE __inline
+#  else
+#   define SECP256K1_INLINE
+#  endif
+# else
+#  define SECP256K1_INLINE inline
+# endif
+
+#ifndef SECP256K1_API
+# if defined(_WIN32)
+#  ifdef SECP256K1_BUILD
+#   define SECP256K1_API __declspec(dllexport)
+#  else
+#   define SECP256K1_API
+#  endif
+# elif defined(__GNUC__) && defined(SECP256K1_BUILD)
+#  define SECP256K1_API __attribute__ ((visibility ("default")))
+# else
+#  define SECP256K1_API
+# endif
+#endif
+*/
+
+/**Warning attributes
+ * NONNULL is not used if SECP256K1_BUILD is set to avoid the compiler optimizing out
+ * some paranoid null checks. */
+ /*
+# if defined(__GNUC__) && SECP256K1_GNUC_PREREQ(3, 4)
+#  define SECP256K1_WARN_UNUSED_RESULT __attribute__ ((__warn_unused_result__))
+# else
+#  define SECP256K1_WARN_UNUSED_RESULT
+# endif
+# if !defined(SECP256K1_BUILD) && defined(__GNUC__) && SECP256K1_GNUC_PREREQ(3, 4)
+#  define SECP256K1_ARG_NONNULL(_x)  __attribute__ ((__nonnull__(_x)))
+# else
+#  define SECP256K1_ARG_NONNULL(_x)
+# endif
+ */
+
+/** All flags' lower 8 bits indicate what they're for. Do not use directly. */
+let SECP256K1_FLAGS_TYPE_MASK: UInt = ((1 << 8) - 1)
+let SECP256K1_FLAGS_TYPE_CONTEXT: UInt = (1 << 0)
+let SECP256K1_FLAGS_TYPE_COMPRESSION: UInt = (1 << 1)
+/** The higher bits contain the actual data. Do not use directly. */
+let SECP256K1_FLAGS_BIT_CONTEXT_VERIFY: UInt = (1 << 8)
+let SECP256K1_FLAGS_BIT_CONTEXT_SIGN: UInt = (1 << 9)
+let SECP256K1_FLAGS_BIT_COMPRESSION: UInt = (1 << 8)
+
+/** Flags to pass to secp256k1_context_create. */
+let SECP256K1_CONTEXT_VERIFY = (SECP256K1_FLAGS_TYPE_CONTEXT | SECP256K1_FLAGS_BIT_CONTEXT_VERIFY)
+let SECP256K1_CONTEXT_SIGN = (SECP256K1_FLAGS_TYPE_CONTEXT | SECP256K1_FLAGS_BIT_CONTEXT_SIGN)
+let SECP256K1_CONTEXT_NONE = (SECP256K1_FLAGS_TYPE_CONTEXT)
+
+/** Flag to pass to secp256k1_ec_pubkey_serialize and secp256k1_ec_privkey_export. */
+let SECP256K1_EC_COMPRESSED = (SECP256K1_FLAGS_TYPE_COMPRESSION | SECP256K1_FLAGS_BIT_COMPRESSION)
+let SECP256K1_EC_UNCOMPRESSED = (SECP256K1_FLAGS_TYPE_COMPRESSION)
+
+/** Prefix byte used to tag various encoded curvepoints for specific purposes */
+let SECP256K1_TAG_PUBKEY_EVEN: UInt8 = 0x02
+let SECP256K1_TAG_PUBKEY_ODD: UInt8 = 0x03
+let SECP256K1_TAG_PUBKEY_UNCOMPRESSED: UInt8 = 0x04
+let SECP256K1_TAG_PUBKEY_HYBRID_EVEN: UInt8 = 0x06
+let SECP256K1_TAG_PUBKEY_HYBRID_ODD: UInt8 = 0x07
+
+/** Create a secp256k1 context object.
+ *
+ *  Returns: a newly created context object.
+ *  In:      flags: which parts of the context to initialize.
+ *
+ *  See also secp256k1_context_randomize.
+ */
+/*
+SECP256K1_API secp256k1_context* secp256k1_context_create(
+unsigned int flags
+) SECP256K1_WARN_UNUSED_RESULT;
+ */
+
+/** Copies a secp256k1 context object.
+ *
+ *  Returns: a newly created context object.
+ *  Args:    ctx: an existing context to copy (cannot be NULL)
+ */
+/*
+SECP256K1_API secp256k1_context* secp256k1_context_clone(
+const secp256k1_context* ctx
+) SECP256K1_ARG_NONNULL(1) SECP256K1_WARN_UNUSED_RESULT;
+ */
+
+/** Destroy a secp256k1 context object.
+ *
+ *  The context pointer may not be used afterwards.
+ *  Args:   ctx: an existing context to destroy (cannot be NULL)
+ */
+/*
+SECP256K1_API void secp256k1_context_destroy(
+secp256k1_context* ctx
+);
+ */
+
+/** Set a callback function to be called when an illegal argument is passed to
+ *  an API call. It will only trigger for violations that are mentioned
+ *  explicitly in the header.
+ *
+ *  The philosophy is that these shouldn't be dealt with through a
+ *  specific return value, as calling code should not have branches to deal with
+ *  the case that this code itself is broken.
+ *
+ *  On the other hand, during debug stage, one would want to be informed about
+ *  such mistakes, and the default (crashing) may be inadvisable.
+ *  When this callback is triggered, the API function called is guaranteed not
+ *  to cause a crash, though its return value and output arguments are
+ *  undefined.
+ *
+ *  Args: ctx:  an existing context object (cannot be NULL)
+ *  In:   fun:  a pointer to a function to call when an illegal argument is
+ *              passed to the API, taking a message and an opaque pointer
+ *              (NULL restores a default handler that calls abort).
+ *        data: the opaque pointer to pass to fun above.
+ */
+/*
+SECP256K1_API void secp256k1_context_set_illegal_callback(
+secp256k1_context* ctx,
+void (*fun)(const char* message, void* data),
+const void* data
+) SECP256K1_ARG_NONNULL(1);
+ */
+
+/** Set a callback function to be called when an internal consistency check
+ *  fails. The default is crashing.
+ *
+ *  This can only trigger in case of a hardware failure, miscompilation,
+ *  memory corruption, serious bug in the library, or other error would can
+ *  otherwise result in undefined behaviour. It will not trigger due to mere
+ *  incorrect usage of the API (see secp256k1_context_set_illegal_callback
+ *  for that). After this callback returns, anything may happen, including
+ *  crashing.
+ *
+ *  Args: ctx:  an existing context object (cannot be NULL)
+ *  In:   fun:  a pointer to a function to call when an internal error occurs,
+ *              taking a message and an opaque pointer (NULL restores a default
+ *              handler that calls abort).
+ *        data: the opaque pointer to pass to fun above.
+ */
+/*
+SECP256K1_API void secp256k1_context_set_error_callback(
+secp256k1_context* ctx,
+void (*fun)(const char* message, void* data),
+const void* data
+) SECP256K1_ARG_NONNULL(1);
+ */
+
+/** Parse a variable-length public key into the pubkey object.
+ *
+ *  Returns: 1 if the public key was fully valid.
+ *           0 if the public key could not be parsed or is invalid.
+ *  Args: ctx:      a secp256k1 context object.
+ *  Out:  pubkey:   pointer to a pubkey object. If 1 is returned, it is set to a
+ *                  parsed version of input. If not, its value is undefined.
+ *  In:   input:    pointer to a serialized public key
+ *        inputlen: length of the array pointed to by input
+ *
+ *  This function supports parsing compressed (33 bytes, header byte 0x02 or
+ *  0x03), uncompressed (65 bytes, header byte 0x04), or hybrid (65 bytes, header
+ *  byte 0x06 or 0x07) format public keys.
+ */
+/*
+SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_pubkey_parse(
+const secp256k1_context* ctx,
+secp256k1_pubkey* pubkey,
+const unsigned char *input,
+size_t inputlen
+) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3);
+ */
+
+/** Serialize a pubkey object into a serialized byte sequence.
+ *
+ *  Returns: 1 always.
+ *  Args:   ctx:        a secp256k1 context object.
+ *  Out:    output:     a pointer to a 65-byte (if compressed==0) or 33-byte (if
+ *                      compressed==1) byte array to place the serialized key
+ *                      in.
+ *  In/Out: outputlen:  a pointer to an integer which is initially set to the
+ *                      size of output, and is overwritten with the written
+ *                      size.
+ *  In:     pubkey:     a pointer to a secp256k1_pubkey containing an
+ *                      initialized public key.
+ *          flags:      SECP256K1_EC_COMPRESSED if serialization should be in
+ *                      compressed format, otherwise SECP256K1_EC_UNCOMPRESSED.
+ */
+/*
+SECP256K1_API int secp256k1_ec_pubkey_serialize(
+const secp256k1_context* ctx,
+unsigned char *output,
+size_t *outputlen,
+const secp256k1_pubkey* pubkey,
+unsigned int flags
+) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3) SECP256K1_ARG_NONNULL(4);
+ */
+
+/** Parse an ECDSA signature in compact (64 bytes) format.
+ *
+ *  Returns: 1 when the signature could be parsed, 0 otherwise.
+ *  Args: ctx:      a secp256k1 context object
+ *  Out:  sig:      a pointer to a signature object
+ *  In:   input64:  a pointer to the 64-byte array to parse
+ *
+ *  The signature must consist of a 32-byte big endian R value, followed by a
+ *  32-byte big endian S value. If R or S fall outside of [0..order-1], the
+ *  encoding is invalid. R and S with value 0 are allowed in the encoding.
+ *
+ *  After the call, sig will always be initialized. If parsing failed or R or
+ *  S are zero, the resulting sig value is guaranteed to fail validation for any
+ *  message and public key.
+ */
+/*
+SECP256K1_API int secp256k1_ecdsa_signature_parse_compact(
+const secp256k1_context* ctx,
+secp256k1_ecdsa_signature* sig,
+const unsigned char *input64
+) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3);
+ */
+
+/** Parse a DER ECDSA signature.
+ *
+ *  Returns: 1 when the signature could be parsed, 0 otherwise.
+ *  Args: ctx:      a secp256k1 context object
+ *  Out:  sig:      a pointer to a signature object
+ *  In:   input:    a pointer to the signature to be parsed
+ *        inputlen: the length of the array pointed to be input
+ *
+ *  This function will accept any valid DER encoded signature, even if the
+ *  encoded numbers are out of range.
+ *
+ *  After the call, sig will always be initialized. If parsing failed or the
+ *  encoded numbers are out of range, signature validation with it is
+ *  guaranteed to fail for every message and public key.
+ */
+/*
+SECP256K1_API int secp256k1_ecdsa_signature_parse_der(
+const secp256k1_context* ctx,
+secp256k1_ecdsa_signature* sig,
+const unsigned char *input,
+size_t inputlen
+) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3);
+ */
+
+/** Serialize an ECDSA signature in DER format.
+ *
+ *  Returns: 1 if enough space was available to serialize, 0 otherwise
+ *  Args:   ctx:       a secp256k1 context object
+ *  Out:    output:    a pointer to an array to store the DER serialization
+ *  In/Out: outputlen: a pointer to a length integer. Initially, this integer
+ *                     should be set to the length of output. After the call
+ *                     it will be set to the length of the serialization (even
+ *                     if 0 was returned).
+ *  In:     sig:       a pointer to an initialized signature object
+ */
+/*
+SECP256K1_API int secp256k1_ecdsa_signature_serialize_der(
+const secp256k1_context* ctx,
+unsigned char *output,
+size_t *outputlen,
+const secp256k1_ecdsa_signature* sig
+) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3) SECP256K1_ARG_NONNULL(4);
+ */
+
+/** Serialize an ECDSA signature in compact (64 byte) format.
+ *
+ *  Returns: 1
+ *  Args:   ctx:       a secp256k1 context object
+ *  Out:    output64:  a pointer to a 64-byte array to store the compact serialization
+ *  In:     sig:       a pointer to an initialized signature object
+ *
+ *  See secp256k1_ecdsa_signature_parse_compact for details about the encoding.
+ */
+/*
+SECP256K1_API int secp256k1_ecdsa_signature_serialize_compact(
+const secp256k1_context* ctx,
+unsigned char *output64,
+const secp256k1_ecdsa_signature* sig
+) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3);
+ */
+
+/** Verify an ECDSA signature.
+ *
+ *  Returns: 1: correct signature
+ *           0: incorrect or unparseable signature
+ *  Args:    ctx:       a secp256k1 context object, initialized for verification.
+ *  In:      sig:       the signature being verified (cannot be NULL)
+ *           msg32:     the 32-byte message hash being verified (cannot be NULL)
+ *           pubkey:    pointer to an initialized public key to verify with (cannot be NULL)
+ *
+ * To avoid accepting malleable signatures, only ECDSA signatures in lower-S
+ * form are accepted.
+ *
+ * If you need to accept ECDSA signatures from sources that do not obey this
+ * rule, apply secp256k1_ecdsa_signature_normalize to the signature prior to
+ * validation, but be aware that doing so results in malleable signatures.
+ *
+ * For details, see the comments for that function.
+ */
+/*
+SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ecdsa_verify(
+const secp256k1_context* ctx,
+const secp256k1_ecdsa_signature *sig,
+const unsigned char *msg32,
+const secp256k1_pubkey *pubkey
+) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3) SECP256K1_ARG_NONNULL(4);
+ */
+
+/** Convert a signature to a normalized lower-S form.
+ *
+ *  Returns: 1 if sigin was not normalized, 0 if it already was.
+ *  Args: ctx:    a secp256k1 context object
+ *  Out:  sigout: a pointer to a signature to fill with the normalized form,
+ *                or copy if the input was already normalized. (can be NULL if
+ *                you're only interested in whether the input was already
+ *                normalized).
+ *  In:   sigin:  a pointer to a signature to check/normalize (cannot be NULL,
+ *                can be identical to sigout)
+ *
+ *  With ECDSA a third-party can forge a second distinct signature of the same
+ *  message, given a single initial signature, but without knowing the key. This
+ *  is done by negating the S value modulo the order of the curve, 'flipping'
+ *  the sign of the random point R which is not included in the signature.
+ *
+ *  Forgery of the same message isn't universally problematic, but in systems
+ *  where message malleability or uniqueness of signatures is important this can
+ *  cause issues. This forgery can be blocked by all verifiers forcing signers
+ *  to use a normalized form.
+ *
+ *  The lower-S form reduces the size of signatures slightly on average when
+ *  variable length encodings (such as DER) are used and is cheap to verify,
+ *  making it a good choice. Security of always using lower-S is assured because
+ *  anyone can trivially modify a signature after the fact to enforce this
+ *  property anyway.
+ *
+ *  The lower S value is always between 0x1 and
+ *  0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0,
+ *  inclusive.
+ *
+ *  No other forms of ECDSA malleability are known and none seem likely, but
+ *  there is no formal proof that ECDSA, even with this additional restriction,
+ *  is free of other malleability. Commonly used serialization schemes will also
+ *  accept various non-unique encodings, so care should be taken when this
+ *  property is required for an application.
+ *
+ *  The secp256k1_ecdsa_sign function will by default create signatures in the
+ *  lower-S form, and secp256k1_ecdsa_verify will not accept others. In case
+ *  signatures come from a system that cannot enforce this property,
+ *  secp256k1_ecdsa_signature_normalize must be called before verification.
+ */
+/*
+SECP256K1_API int secp256k1_ecdsa_signature_normalize(
+const secp256k1_context* ctx,
+secp256k1_ecdsa_signature *sigout,
+const secp256k1_ecdsa_signature *sigin
+) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(3);
+ */
+
+/** An implementation of RFC6979 (using HMAC-SHA256) as nonce generation function.
+ * If a data pointer is passed, it is assumed to be a pointer to 32 bytes of
+ * extra entropy.
+ */
+//SECP256K1_API extern const secp256k1_nonce_function secp256k1_nonce_function_rfc6979;
+
+/** A default safe nonce generation function (currently equal to secp256k1_nonce_function_rfc6979). */
+//SECP256K1_API extern const secp256k1_nonce_function secp256k1_nonce_function_default;
+
+/** Create an ECDSA signature.
+ *
+ *  Returns: 1: signature created
+ *           0: the nonce generation function failed, or the private key was invalid.
+ *  Args:    ctx:    pointer to a context object, initialized for signing (cannot be NULL)
+ *  Out:     sig:    pointer to an array where the signature will be placed (cannot be NULL)
+ *  In:      msg32:  the 32-byte message hash being signed (cannot be NULL)
+ *           seckey: pointer to a 32-byte secret key (cannot be NULL)
+ *           noncefp:pointer to a nonce generation function. If NULL, secp256k1_nonce_function_default is used
+ *           ndata:  pointer to arbitrary data used by the nonce generation function (can be NULL)
+ *
+ * The created signature is always in lower-S form. See
+ * secp256k1_ecdsa_signature_normalize for more details.
+ */
+/*
+SECP256K1_API int secp256k1_ecdsa_sign(
+const secp256k1_context* ctx,
+secp256k1_ecdsa_signature *sig,
+const unsigned char *msg32,
+const unsigned char *seckey,
+secp256k1_nonce_function noncefp,
+const void *ndata
+) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3) SECP256K1_ARG_NONNULL(4);
+ */
+
+/** Verify an ECDSA secret key.
+ *
+ *  Returns: 1: secret key is valid
+ *           0: secret key is invalid
+ *  Args:    ctx: pointer to a context object (cannot be NULL)
+ *  In:      seckey: pointer to a 32-byte secret key (cannot be NULL)
+ */
+/*
+SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_seckey_verify(
+const secp256k1_context* ctx,
+const unsigned char *seckey
+) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2);
+ */
+
+/** Compute the public key for a secret key.
+ *
+ *  Returns: 1: secret was valid, public key stores
+ *           0: secret was invalid, try again
+ *  Args:   ctx:        pointer to a context object, initialized for signing (cannot be NULL)
+ *  Out:    pubkey:     pointer to the created public key (cannot be NULL)
+ *  In:     seckey:     pointer to a 32-byte private key (cannot be NULL)
+ */
+/*
+SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_pubkey_create(
+const secp256k1_context* ctx,
+secp256k1_pubkey *pubkey,
+const unsigned char *seckey
+) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3);
+ */
+
+/** Negates a private key in place.
+ *
+ *  Returns: 1 always
+ *  Args:   ctx:        pointer to a context object
+ *  In/Out: pubkey:     pointer to the public key to be negated (cannot be NULL)
+ */
+/*
+SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_privkey_negate(
+const secp256k1_context* ctx,
+unsigned char *seckey
+) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2);
+ */
+
+/** Negates a public key in place.
+ *
+ *  Returns: 1 always
+ *  Args:   ctx:        pointer to a context object
+ *  In/Out: pubkey:     pointer to the public key to be negated (cannot be NULL)
+ */
+/*
+SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_pubkey_negate(
+const secp256k1_context* ctx,
+secp256k1_pubkey *pubkey
+) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2);
+ */
+
+/** Tweak a private key by adding tweak to it.
+ * Returns: 0 if the tweak was out of range (chance of around 1 in 2^128 for
+ *          uniformly random 32-byte arrays, or if the resulting private key
+ *          would be invalid (only when the tweak is the complement of the
+ *          private key). 1 otherwise.
+ * Args:    ctx:    pointer to a context object (cannot be NULL).
+ * In/Out:  seckey: pointer to a 32-byte private key.
+ * In:      tweak:  pointer to a 32-byte tweak.
+ */
+/*
+SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_privkey_tweak_add(
+const secp256k1_context* ctx,
+unsigned char *seckey,
+const unsigned char *tweak
+) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3);
+ */
+
+/** Tweak a public key by adding tweak times the generator to it.
+ * Returns: 0 if the tweak was out of range (chance of around 1 in 2^128 for
+ *          uniformly random 32-byte arrays, or if the resulting public key
+ *          would be invalid (only when the tweak is the complement of the
+ *          corresponding private key). 1 otherwise.
+ * Args:    ctx:    pointer to a context object initialized for validation
+ *                  (cannot be NULL).
+ * In/Out:  pubkey: pointer to a public key object.
+ * In:      tweak:  pointer to a 32-byte tweak.
+ */
+/*
+SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_pubkey_tweak_add(
+const secp256k1_context* ctx,
+secp256k1_pubkey *pubkey,
+const unsigned char *tweak
+) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3);
+ */
+
+/** Tweak a private key by multiplying it by a tweak.
+ * Returns: 0 if the tweak was out of range (chance of around 1 in 2^128 for
+ *          uniformly random 32-byte arrays, or equal to zero. 1 otherwise.
+ * Args:   ctx:    pointer to a context object (cannot be NULL).
+ * In/Out: seckey: pointer to a 32-byte private key.
+ * In:     tweak:  pointer to a 32-byte tweak.
+ */
+/*
+SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_privkey_tweak_mul(
+const secp256k1_context* ctx,
+unsigned char *seckey,
+const unsigned char *tweak
+) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3);
+ */
+
+/** Tweak a public key by multiplying it by a tweak value.
+ * Returns: 0 if the tweak was out of range (chance of around 1 in 2^128 for
+ *          uniformly random 32-byte arrays, or equal to zero. 1 otherwise.
+ * Args:    ctx:    pointer to a context object initialized for validation
+ *                 (cannot be NULL).
+ * In/Out:  pubkey: pointer to a public key obkect.
+ * In:      tweak:  pointer to a 32-byte tweak.
+ */
+/*
+SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_pubkey_tweak_mul(
+const secp256k1_context* ctx,
+secp256k1_pubkey *pubkey,
+const unsigned char *tweak
+) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3);
+ */
+
+/** Updates the context randomization to protect against side-channel leakage.
+ *  Returns: 1: randomization successfully updated
+ *           0: error
+ *  Args:    ctx:       pointer to a context object (cannot be NULL)
+ *  In:      seed32:    pointer to a 32-byte random seed (NULL resets to initial state)
+ *
+ * While secp256k1 code is written to be constant-time no matter what secret
+ * values are, it's possible that a future compiler may output code which isn't,
+ * and also that the CPU may not emit the same radio frequencies or draw the same
+ * amount power for all values.
+ *
+ * This function provides a seed which is combined into the blinding value: that
+ * blinding value is added before each multiplication (and removed afterwards) so
+ * that it does not affect function results, but shields against attacks which
+ * rely on any input-dependent behaviour.
+ *
+ * You should call this after secp256k1_context_create or
+ * secp256k1_context_clone, and may call this repeatedly afterwards.
+ */
+/*
+SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_context_randomize(
+secp256k1_context* ctx,
+const unsigned char *seed32
+) SECP256K1_ARG_NONNULL(1);
+ */
+
+/** Add a number of public keys together.
+ *  Returns: 1: the sum of the public keys is valid.
+ *           0: the sum of the public keys is not valid.
+ *  Args:   ctx:        pointer to a context object
+ *  Out:    out:        pointer to a public key object for placing the resulting public key
+ *                      (cannot be NULL)
+ *  In:     ins:        pointer to array of pointers to public keys (cannot be NULL)
+ *          n:          the number of public keys to add together (must be at least 1)
+ */
+/*
+SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_pubkey_combine(
+const secp256k1_context* ctx,
+secp256k1_pubkey *out,
+const secp256k1_pubkey * const * ins,
+size_t n
+) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3);
+ */
+
+/*
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* SECP256K1_H */
+ */
+
+
+
+//#include "include/secp256k1.h"
+//#include "util.h"
+//#include "num_impl.h"
+//#include "field_impl.h"
+//#include "scalar_impl.h"
+//#include "group_impl.h"
+//#include "ecmult_impl.h"
+//#include "ecmult_const_impl.h"
+//#include "ecmult_gen_impl.h"
+//#include "ecdsa_impl.h"
+//#include "eckey_impl.h"
+//#include "hash_impl.h"
+
+/*
+#define ARG_CHECK(cond) do { \
+    if (EXPECT(!(cond), 0)) { \
+        secp256k1_callback_call(&ctx->illegal_callback, #cond); \
+        return 0; \
+    } \
+} while(0)
+ */
+
+func default_illegal_callback_fn(_ str: String, _ data: [UInt8]?) {
+    fatalError("[libsecp256k1] illegal argument: \(str)\n")
+}
+
+let default_illegal_callback = secp256k1_callback(
+    fn: default_illegal_callback_fn,
+    data: nil
+)
+
+func default_error_callback_fn(_ str: String, _ data: [UInt8]?) {
+    fatalError("[libsecp256k1] internal consistency check failed: \(str)\n");
+}
+
+fileprivate let default_error_callback = secp256k1_callback(
+    fn: default_error_callback_fn,
+    data: nil
+)
+
+
+struct secp256k1_context {
+    public var ecmult_ctx:      secp256k1_ecmult_context
+    public var ecmult_gen_ctx:  secp256k1_ecmult_gen_context
+    public var illegal_callback:secp256k1_callback
+    public var error_callback:  secp256k1_callback
+    init(){
+        ecmult_ctx = secp256k1_ecmult_context()
+        ecmult_gen_ctx = secp256k1_ecmult_gen_context()
+        illegal_callback = default_illegal_callback
+        error_callback = default_error_callback
+    }
+};
+
+func secp256k1_context_create(flags: UInt) -> secp256k1_context? {
+    var ret: secp256k1_context = secp256k1_context()
+    //ret.illegal_callback = default_illegal_callback;
+    //ret.error_callback = default_error_callback;
+    
+    if (flags & SECP256K1_FLAGS_TYPE_MASK) != SECP256K1_FLAGS_TYPE_CONTEXT {
+        secp256k1_callback_call(ret.illegal_callback, "Invalid flags");
+        return nil
+    }
+    
+    secp256k1_ecmult_context_init(&ret.ecmult_ctx);
+    secp256k1_ecmult_gen_context_init(&ret.ecmult_gen_ctx);
+    
+    if (flags & SECP256K1_FLAGS_BIT_CONTEXT_SIGN) != 0 {
+        secp256k1_ecmult_gen_context_build(&ret.ecmult_gen_ctx, ret.error_callback);
+    }
+    if (flags & SECP256K1_FLAGS_BIT_CONTEXT_VERIFY) != 0 {
+        secp256k1_ecmult_context_build(&ret.ecmult_ctx, ret.error_callback);
+    }
+    
+    return ret;
+}
+
+func secp256k1_context_clone(ctx: secp256k1_context) -> secp256k1_context {
+    var ret: secp256k1_context = secp256k1_context()
+    ret.illegal_callback = ctx.illegal_callback;
+    ret.error_callback = ctx.error_callback;
+    secp256k1_ecmult_context_clone(&ret.ecmult_ctx, ctx.ecmult_ctx, ctx.error_callback);
+    secp256k1_ecmult_gen_context_clone(&ret.ecmult_gen_ctx, ctx.ecmult_gen_ctx, ctx.error_callback);
+    return ret;
+}
+
+func secp256k1_context_destroy(ctx: inout secp256k1_context) {
+    //if (ctx != nil) {
+        secp256k1_ecmult_context_clear(&ctx.ecmult_ctx);
+        secp256k1_ecmult_gen_context_clear(&ctx.ecmult_gen_ctx);
+        
+        //free(ctx);
+    //}
+}
+
+func secp256k1_context_set_illegal_callback(ctx: inout secp256k1_context,
+    a_fun: ((_ message: String, _ data: [UInt8]?) -> Void)?,
+    data: [UInt8]?)
+{
+    if let fun = a_fun {
+        ctx.illegal_callback.fn = fun;
+    } else {
+        ctx.illegal_callback.fn = default_illegal_callback_fn
+    }
+    ctx.illegal_callback.data = data;
+}
+
+func secp256k1_context_set_error_callback(ctx: inout secp256k1_context,
+    a_fun: ((_ message: String, _ data: [UInt8]?) -> Void)?,
+    data: [UInt8]?)
+{
+    if let fun = a_fun {
+        ctx.error_callback.fn = fun
+    } else {
+        ctx.error_callback.fn = default_error_callback_fn
+    }
+    ctx.error_callback.data = data
+}
+
+private func secp256k1_pubkey_load(_ ctx: secp256k1_context, _ ge: inout secp256k1_ge, _ pubkey: secp256k1_pubkey) -> Bool
+{
+    /*
+    if (sizeof(secp256k1_ge_storage) == 64) {
+        /* When the secp256k1_ge_storage type is exactly 64 byte, use its
+         * representation inside secp256k1_pubkey, as conversion is very fast.
+         * Note that secp256k1_pubkey_save must use the same representation. */
+        var s: secp256k1_ge_storage
+        memcpy(&s, &pubkey.data[0], 64);
+        secp256k1_ge_from_storage(ge, &s);
+    } else {
+     */
+        /* Otherwise, fall back to 32-byte big endian for X and Y. */
+        var x = secp256k1_fe()
+        var y = secp256k1_fe()
+        let _ = secp256k1_fe_set_b32(&x, Array(pubkey.data[0..<32]))
+        let _ = secp256k1_fe_set_b32(&y, Array(pubkey.data[32..<64]))
+        secp256k1_ge_set_xy(&ge, x, y);
+    /*
+    }
+     */
+    //ARG_CHECK(!secp256k1_fe_is_zero(&ge->x));
+    return true
+}
+
+private func secp256k1_pubkey_save(_ pubkey: inout secp256k1_pubkey, _ ge: inout secp256k1_ge) {
+    /*
+    if (sizeof(secp256k1_ge_storage) == 64) {
+        var s: secp256k1_ge_storage
+        secp256k1_ge_to_storage(&s, ge);
+        memcpy(&pubkey.data[0], &s, 64);
+    } else {
+         */
+    //VERIFY_CHECK(!secp256k1_ge_is_infinity(ge));
+    secp256k1_fe_normalize_var(&ge.x);
+    secp256k1_fe_normalize_var(&ge.y);
+    var v1 = [UInt8](repeating: 0, count: 32)
+    var v2 = [UInt8](repeating: 0, count: 32)
+    secp256k1_fe_get_b32(&v1, ge.x)
+    secp256k1_fe_get_b32(&v2, ge.y)
+    for i in 0..<32 {
+        pubkey.data[i] = v1[i]
+        pubkey.data[32+i] = v2[i]
+    }
+        /*
+    }
+     */
+}
+
+func secp256k1_ec_pubkey_parse(ctx: secp256k1_context, pubkey: inout secp256k1_pubkey, input: [UInt8], inputlen: UInt) -> Bool
+{
+    var Q = secp256k1_ge()
+    //VERIFY_CHECK(ctx != NULL);
+    //ARG_CHECK(pubkey != NULL);
+    //memset(pubkey, 0, sizeof(*pubkey));
+    pubkey.clear()
+    //ARG_CHECK(input != NULL);
+    if (!secp256k1_eckey_pubkey_parse(&Q, input, inputlen)) {
+        return false
+    }
+    secp256k1_pubkey_save(&pubkey, &Q);
+    secp256k1_ge_clear(&Q);
+    return true
+}
+
+func secp256k1_ec_pubkey_serialize(ctx: secp256k1_context, output: inout [UInt8], outputlen: inout UInt, pubkey: secp256k1_pubkey, flags: UInt) -> Bool
+{
+    var Q = secp256k1_ge()
+    var len: UInt
+    var ret: Bool = false
+    
+    //VERIFY_CHECK(ctx != NULL);
+    //ARG_CHECK(outputlen != NULL);
+    //ARG_CHECK(*outputlen >= ((flags & SECP256K1_FLAGS_BIT_COMPRESSION) ? 33 : 65));
+    len = outputlen;
+    outputlen = 0;
+    //ARG_CHECK(output != NULL);
+    //memset(output, 0, len);
+    output = [UInt8](repeating: 0, count: Int(len))
+    //ARG_CHECK(pubkey != NULL);
+    //ARG_CHECK((flags & SECP256K1_FLAGS_TYPE_MASK) == SECP256K1_FLAGS_TYPE_COMPRESSION);
+    if (secp256k1_pubkey_load(ctx, &Q, pubkey)) {
+        ret = secp256k1_eckey_pubkey_serialize(&Q, &output, &len, (flags & SECP256K1_FLAGS_BIT_COMPRESSION) != 0)
+        if (ret) {
+            outputlen = len;
+        }
+    }
+    return ret;
+}
+
+private func secp256k1_ecdsa_signature_load(_ ctx: secp256k1_context, _ r: inout secp256k1_scalar, _ s: inout secp256k1_scalar, _ sig: secp256k1_ecdsa_signature)
+{
+    //(void)ctx;
+    /*
+    if (sizeof(secp256k1_scalar) == 32) {
+        /* When the secp256k1_scalar type is exactly 32 byte, use its
+         * representation inside secp256k1_ecdsa_signature, as conversion is very fast.
+         * Note that secp256k1_ecdsa_signature_save must use the same representation. */
+        memcpy(r, &sig->data[0], 32);
+        memcpy(s, &sig->data[32], 32);
+    } else {
+     */
+    var dummy: Bool = false
+    secp256k1_scalar_set_b32(&r, sig.data, &dummy)
+    secp256k1_scalar_set_b32(&s, Array(sig.data[32..<64]), &dummy)
+    /*
+    }
+     */
+}
+
+private func secp256k1_ecdsa_signature_save(_ sig: inout secp256k1_ecdsa_signature, _ r: secp256k1_scalar, _ s: secp256k1_scalar)
+{
+    /*
+    if (sizeof(secp256k1_scalar) == 32) {
+        memcpy(&sig->data[0], r, 32);
+        memcpy(&sig->data[32], s, 32);
+    } else {
+     */
+    var v1 = [UInt8](repeating: 0, count: 32)
+    var v2 = [UInt8](repeating: 0, count: 32)
+    secp256k1_scalar_get_b32(&v1, r);
+    secp256k1_scalar_get_b32(&v2, s);
+    for i in 0..<32 {
+        sig.data[i] = v1[i]
+        sig.data[32+i] = v2[i]
+    }
+    /*
+    }
+    */
+}
+
+func secp256k1_ecdsa_signature_parse_der(ctx: secp256k1_context, sig: inout secp256k1_ecdsa_signature, input: [UInt8], inputlen: UInt) -> Bool
+{
+    var r: secp256k1_scalar = secp256k1_scalar()
+    var s: secp256k1_scalar = secp256k1_scalar()
+    
+    //VERIFY_CHECK(ctx != NULL);
+    //ARG_CHECK(sig != NULL);
+    //ARG_CHECK(input != NULL);
+    
+    if (secp256k1_ecdsa_sig_parse(&r, &s, input, Int(inputlen))) {
+        secp256k1_ecdsa_signature_save(&sig, r, s)
+        return true
+    } else {
+        //memset(sig, 0, sizeof(*sig));
+        sig.clear()
+        return false
+    }
+}
+
+func secp256k1_ecdsa_signature_parse_compact(ctx: secp256k1_context, sig: inout secp256k1_ecdsa_signature, input64: [UInt8]) -> Bool
+{
+    var r = secp256k1_scalar()
+    var s = secp256k1_scalar()
+    var ret: Bool = true
+    var overflow: Bool = false
+    
+    //VERIFY_CHECK(ctx != NULL);
+    //ARG_CHECK(sig != NULL);
+    //ARG_CHECK(input64 != NULL);
+    
+    secp256k1_scalar_set_b32(&r, input64, &overflow);
+    ret = ret && !overflow
+    secp256k1_scalar_set_b32(&s, Array(input64[32..<64]), &overflow);
+    ret = ret && !overflow
+    if (ret) {
+        secp256k1_ecdsa_signature_save(&sig, r, s)
+    } else {
+        sig.clear()
+    }
+    return ret;
+}
+
+func secp256k1_ecdsa_signature_serialize_der(ctx: secp256k1_context, output: inout [UInt8], outputlen: inout UInt, sig: secp256k1_ecdsa_signature) -> Bool
+{
+    var r = secp256k1_scalar()
+    var s = secp256k1_scalar()
+    
+    //VERIFY_CHECK(ctx != NULL);
+    //ARG_CHECK(output != NULL);
+    //ARG_CHECK(outputlen != NULL);
+    //ARG_CHECK(sig != NULL);
+    
+    secp256k1_ecdsa_signature_load(ctx, &r, &s, sig);
+    return secp256k1_ecdsa_sig_serialize(&output, &outputlen, r, s);
+}
+
+func secp256k1_ecdsa_signature_serialize_compact(ctx: secp256k1_context, output64: inout [UInt8], sig: secp256k1_ecdsa_signature) -> Bool
+{
+    var r = secp256k1_scalar()
+    var s = secp256k1_scalar()
+    
+    //VERIFY_CHECK(ctx != NULL);
+    //ARG_CHECK(output64 != NULL);
+    //ARG_CHECK(sig != NULL);
+    
+    secp256k1_ecdsa_signature_load(ctx, &r, &s, sig);
+    var v1 = [UInt8](repeating: 0, count: 32)
+    var v2 = [UInt8](repeating: 0, count: 32)
+    secp256k1_scalar_get_b32(&v1, r);
+    secp256k1_scalar_get_b32(&v2, s);
+    for i in 0..<32 {
+        output64[i] = v1[i]
+        output64[32+i] = v2[i]
+    }
+    return true
+}
+
+func secp256k1_ecdsa_signature_normalize(ctx: secp256k1_context, sigout: inout secp256k1_ecdsa_signature , sigin: secp256k1_ecdsa_signature) -> Bool
+{
+    var r = secp256k1_scalar()
+    var s = secp256k1_scalar()
+    var ret: Bool = false
+
+    //VERIFY_CHECK(ctx != NULL);
+    //ARG_CHECK(sigin != NULL);
+    
+    secp256k1_ecdsa_signature_load(ctx, &r, &s, sigin);
+    ret = secp256k1_scalar_is_high(s);
+    //if (sigout != nil) {
+        if (ret) {
+            secp256k1_scalar_negate(&s, s);
+        }
+        secp256k1_ecdsa_signature_save(&sigout, r, s)
+    //}
+    
+    return ret;
+}
+
+func secp256k1_ecdsa_verify(ctx: secp256k1_context, sig: secp256k1_ecdsa_signature, msg32: [UInt8], pubkey: secp256k1_pubkey) -> Bool
+{
+    var q = secp256k1_ge()
+    var r = secp256k1_scalar()
+    var s = secp256k1_scalar()
+    var m = secp256k1_scalar()
+    //VERIFY_CHECK(ctx != NULL);
+    //ARG_CHECK(secp256k1_ecmult_context_is_built(&ctx->ecmult_ctx));
+    //ARG_CHECK(msg32 != NULL);
+    //ARG_CHECK(sig != NULL);
+    //ARG_CHECK(pubkey != NULL);
+    
+    var dummy: Bool = false
+    secp256k1_scalar_set_b32(&m, msg32, &dummy)
+    secp256k1_ecdsa_signature_load(ctx, &r, &s, sig);
+    return (!secp256k1_scalar_is_high(s) &&
+        secp256k1_pubkey_load(ctx, &q, pubkey) &&
+        secp256k1_ecdsa_sig_verify(ctx.ecmult_ctx, r, s, q, m));
+}
+
+fileprivate func nonce_function_rfc6979(
+    _ nonce32: inout [UInt8],
+    _ msg32: [UInt8],
+    _ key32: [UInt8],
+    _ algo16: [UInt8]?,
+    _ data: [UInt8]?,
+    _ counter: UInt) -> Bool
+{
+    //unsigned char keydata[112];
+    var keydata:[UInt8] = [UInt8](repeating: 0, count: 112)
+    var keylen: Int = 64;
+    var rng = secp256k1_rfc6979_hmac_sha256_t()
+    /* We feed a byte array to the PRNG as input, consisting of:
+     * - the private key (32 bytes) and message (32 bytes), see RFC 6979 3.2d.
+     * - optionally 32 extra bytes of data, see RFC 6979 3.6 Additional Data.
+     * - optionally 16 extra bytes with the algorithm name.
+     * Because the arguments have distinct fixed lengths it is not possible for
+     *  different argument mixtures to emulate each other and result in the same
+     *  nonces.
+     */
+    for i in 0..<32 {
+        keydata[i] = key32[i]
+    }
+    for i in 0..<32 {
+        keydata[32+i] = msg32[i]
+    }
+    if let data = data {
+        for i in 0..<32 {
+            keydata[i + 64] = data[i]
+        }
+        keylen = 96;
+    }
+    if let algo16 = algo16 {
+        for i in 0..<16 {
+            keydata[keylen + i] = algo16[i]
+        }
+        keylen += 16;
+    }
+    secp256k1_rfc6979_hmac_sha256_initialize(&rng, keydata, UInt(keylen));
+    for i in 0..<112 {
+        keydata[i] = 0
+    }
+    for _ in 0 ... counter {
+        secp256k1_rfc6979_hmac_sha256_generate(&rng, &nonce32, 32);
+    }
+    secp256k1_rfc6979_hmac_sha256_finalize(&rng);
+    return true
+}
+
+let secp256k1_nonce_function_rfc6979: secp256k1_nonce_function = nonce_function_rfc6979
+let secp256k1_nonce_function_default: secp256k1_nonce_function = nonce_function_rfc6979
+
+/**
+ @brief サイニング
+ @param signature
+ @param msg32 メッセージ
+ @param seckey 秘密鍵
+ @param noncefp
+ @param noncedata
+ */
+func secp256k1_ecdsa_sign(ctx: secp256k1_context,
+                          signature: inout secp256k1_ecdsa_signature,
+                          msg32: [UInt8],
+                          seckey: [UInt8],
+                          a_noncefp: secp256k1_nonce_function?,
+                          noncedata: [UInt8]?) -> Bool {
+    var r = secp256k1_scalar()
+    var s = secp256k1_scalar()
+    var sec = secp256k1_scalar()
+    var non = secp256k1_scalar()
+    var msg = secp256k1_scalar()
+    var ret: Bool = false
+    var overflow: Bool = false
+    
+    //VERIFY_CHECK(ctx != NULL);
+    //ARG_CHECK(secp256k1_ecmult_gen_context_is_built(&ctx->ecmult_gen_ctx));
+    //ARG_CHECK(msg32 != NULL);
+    //ARG_CHECK(signature != NULL);
+    //ARG_CHECK(seckey != NULL);
+    
+    var noncefp: secp256k1_nonce_function
+    if let v = a_noncefp {
+        noncefp = v
+    } else {
+        noncefp = secp256k1_nonce_function_default;
+    }
+
+    secp256k1_scalar_set_b32(&sec, seckey, &overflow);
+    /* Fail if the secret key is invalid. */
+    if (!overflow && !secp256k1_scalar_is_zero(sec)) {
+        //unsigned char nonce32[32];
+        var nonce32: [UInt8] = [UInt8](repeating: 0, count: 32)
+        var count: UInt = 0;
+        var dummy: Bool = false
+        secp256k1_scalar_set_b32(&msg, msg32, &dummy);
+        while (true) {
+            ret = noncefp(&nonce32, msg32, seckey, nil, noncedata, count)
+            if (!ret) {
+                break;
+            }
+            secp256k1_scalar_set_b32(&non, nonce32, &overflow);
+            if (!overflow && !secp256k1_scalar_is_zero(non)) {
+                // サイニング
+                var dummy: Int = 0
+                if (secp256k1_ecdsa_sig_sign(ctx.ecmult_gen_ctx, &r, &s, sec, msg, non, &dummy)) {
+                    break;
+                }
+            }
+            count += 1
+        }
+        nonce32 = [UInt8](repeating: 0, count: 32)
+        secp256k1_scalar_clear(&msg);
+        secp256k1_scalar_clear(&non);
+        secp256k1_scalar_clear(&sec);
+    }
+    if (ret) {
+        // 署名を保存
+        secp256k1_ecdsa_signature_save(&signature, r, s);
+    } else {
+        signature.clear()
+    }
+    return ret;
+}
+
+func secp256k1_ec_seckey_verify(ctx: secp256k1_context, seckey: [UInt8]) -> Bool
+{
+    var sec = secp256k1_scalar()
+    var ret: Bool
+    var overflow: Bool = false
+    //VERIFY_CHECK(ctx != NULL);
+    //ARG_CHECK(seckey != NULL);
+    
+    secp256k1_scalar_set_b32(&sec, seckey, &overflow);
+    ret = !overflow && !secp256k1_scalar_is_zero(sec);
+    secp256k1_scalar_clear(&sec);
+    return ret;
+}
+
+func secp256k1_ec_pubkey_create(ctx: secp256k1_context, pubkey: inout secp256k1_pubkey, seckey: [UInt8]) -> Bool
+{
+    var pj = secp256k1_gej()
+    var p = secp256k1_ge()
+    var sec = secp256k1_scalar()
+    var overflow: Bool = false
+    var ret: Bool = false
+    //VERIFY_CHECK(ctx != NULL);
+    //ARG_CHECK(pubkey != NULL);
+    pubkey.clear()
+    //ARG_CHECK(secp256k1_ecmult_gen_context_is_built(&ctx->ecmult_gen_ctx));
+    //ARG_CHECK(seckey != NULL);
+    
+    secp256k1_scalar_set_b32(&sec, seckey, &overflow);
+    ret = (!overflow) && (!secp256k1_scalar_is_zero(sec));
+    if (ret) {
+        secp256k1_ecmult_gen(ctx.ecmult_gen_ctx, &pj, sec);
+        secp256k1_ge_set_gej(&p, &pj);
+        secp256k1_pubkey_save(&pubkey, &p);
+    }
+    secp256k1_scalar_clear(&sec);
+    return ret;
+}
+
+func secp256k1_ec_privkey_negate(ctx: secp256k1_context, seckey: inout [UInt8]) -> Bool
+{
+    var sec = secp256k1_scalar()
+    //VERIFY_CHECK(ctx != NULL);
+    //ARG_CHECK(seckey != NULL);
+    
+    var dummy: Bool = false
+    secp256k1_scalar_set_b32(&sec, seckey, &dummy);
+    secp256k1_scalar_negate(&sec, sec);
+    secp256k1_scalar_get_b32(&seckey, sec);
+    
+    return true
+}
+
+func secp256k1_ec_pubkey_negate(ctx: secp256k1_context, pubkey: inout secp256k1_pubkey) -> Bool
+{
+    var ret: Bool = false
+    var p = secp256k1_ge()
+    //VERIFY_CHECK(ctx != NULL);
+    //ARG_CHECK(pubkey != NULL);
+    
+    ret = secp256k1_pubkey_load(ctx, &p, pubkey);
+    pubkey.clear()
+    if (ret) {
+        secp256k1_ge_neg(&p, p);
+        secp256k1_pubkey_save(&pubkey, &p);
+    }
+    return ret;
+}
+
+func secp256k1_ec_privkey_tweak_add(ctx: secp256k1_context, seckey: inout [UInt8], tweak: [UInt8]) -> Bool
+{
+    var term = secp256k1_scalar()
+    var sec = secp256k1_scalar()
+    var ret: Bool = false
+    var overflow: Bool = false
+    //VERIFY_CHECK(ctx != NULL);
+    //ARG_CHECK(seckey != NULL);
+    //ARG_CHECK(tweak != NULL);
+    
+    secp256k1_scalar_set_b32(&term, tweak, &overflow);
+    var dummy: Bool = false
+    secp256k1_scalar_set_b32(&sec, seckey, &dummy);
+    
+    ret = !overflow && secp256k1_eckey_privkey_tweak_add(&sec, term);
+    for i in 0..<32 {
+        seckey[i] = 0
+    }
+    if (ret) {
+        secp256k1_scalar_get_b32(&seckey, sec);
+    }
+    
+    secp256k1_scalar_clear(&sec);
+    secp256k1_scalar_clear(&term);
+    return ret;
+}
+
+func secp256k1_ec_pubkey_tweak_add(ctx: secp256k1_context, pubkey: inout secp256k1_pubkey, tweak: [UInt8]) -> Bool
+{
+    var p = secp256k1_ge()
+    var term = secp256k1_scalar()
+    var ret: Bool = false
+    var overflow: Bool = false
+    //VERIFY_CHECK(ctx != NULL);
+    //ARG_CHECK(secp256k1_ecmult_context_is_built(&ctx->ecmult_ctx));
+    //ARG_CHECK(pubkey != NULL);
+    //ARG_CHECK(tweak != NULL);
+    
+    secp256k1_scalar_set_b32(&term, tweak, &overflow);
+    ret = !overflow && secp256k1_pubkey_load(ctx, &p, pubkey);
+    pubkey.clear()
+    if (ret) {
+        if (secp256k1_eckey_pubkey_tweak_add(ctx.ecmult_ctx, &p, term)) {
+            secp256k1_pubkey_save(&pubkey, &p);
+        } else {
+            ret = false
+        }
+    }
+    
+    return ret;
+}
+
+func secp256k1_ec_privkey_tweak_mul(ctx: secp256k1_context, seckey: inout [UInt8], tweak: [UInt8]) -> Bool
+{
+    var factor = secp256k1_scalar()
+    var sec = secp256k1_scalar()
+    var ret: Bool = false
+    var overflow: Bool = false
+    //VERIFY_CHECK(ctx != NULL);
+    //ARG_CHECK(seckey != NULL);
+    //ARG_CHECK(tweak != NULL);
+    
+    secp256k1_scalar_set_b32(&factor, tweak, &overflow);
+    var dummy: Bool = false
+    secp256k1_scalar_set_b32(&sec, seckey, &dummy);
+    ret = !overflow && secp256k1_eckey_privkey_tweak_mul(&sec, factor);
+    seckey = [UInt8](repeating: 0, count: 32)
+    if (ret) {
+        secp256k1_scalar_get_b32(&seckey, sec);
+    }
+    
+    secp256k1_scalar_clear(&sec);
+    secp256k1_scalar_clear(&factor);
+    return ret;
+}
+
+func secp256k1_ec_pubkey_tweak_mul(ctx: secp256k1_context, pubkey: inout secp256k1_pubkey, tweak: [UInt8]) -> Bool
+{
+    var p = secp256k1_ge()
+    var factor = secp256k1_scalar()
+    var ret: Bool = false
+    var overflow: Bool = false
+    //VERIFY_CHECK(ctx != NULL);
+    //ARG_CHECK(secp256k1_ecmult_context_is_built(&ctx.ecmult_ctx));
+    //ARG_CHECK(pubkey != NULL);
+    //ARG_CHECK(tweak != NULL);
+    
+    secp256k1_scalar_set_b32(&factor, tweak, &overflow);
+    ret = !overflow && secp256k1_pubkey_load(ctx, &p, pubkey);
+    pubkey.clear()
+    if (ret) {
+        if (secp256k1_eckey_pubkey_tweak_mul(ctx.ecmult_ctx, &p, factor)) {
+            secp256k1_pubkey_save(&pubkey, &p);
+        } else {
+            ret = false
+        }
+    }
+    
+    return ret
+}
+
+func secp256k1_context_randomize(ctx: inout secp256k1_context, seed32: [UInt8]) -> Bool {
+    //VERIFY_CHECK(ctx != NULL);
+    //ARG_CHECK(secp256k1_ecmult_gen_context_is_built(&ctx.ecmult_gen_ctx));
+    secp256k1_ecmult_gen_blind(&ctx.ecmult_gen_ctx, seed32);
+    return true
+}
+
+func secp256k1_ec_pubkey_combine(ctx: secp256k1_context, pubnonce: inout secp256k1_pubkey, pubnonces:[secp256k1_pubkey], n: size_t) -> Bool
+{
+    var Qj = secp256k1_gej()
+    var Q = secp256k1_ge()
+    
+    //ARG_CHECK(pubnonce != NULL);
+    pubnonce.clear()
+    //ARG_CHECK(n >= 1);
+    assert(n >= 1)
+    //ARG_CHECK(pubnonces != NULL);
+    
+    secp256k1_gej_set_infinity(&Qj);
+    
+    for i in 0 ..< n {
+        let _ = secp256k1_pubkey_load(ctx, &Q, pubnonces[i]);
+        secp256k1_gej_add_ge(&Qj, Qj, Q);
+    }
+    if (secp256k1_gej_is_infinity(Qj)) {
+        return false
+    }
+    secp256k1_ge_set_gej(&Q, &Qj);
+    secp256k1_pubkey_save(&pubnonce, &Q);
+    return true
+}
