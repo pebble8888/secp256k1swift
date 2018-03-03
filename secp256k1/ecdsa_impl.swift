@@ -1,27 +1,17 @@
+//
+//  ecdsa_impl.swift
+//  secp256k1
+//
+//  Created by pebble8888 on 2017/12/17.
+//  Copyright © 2017 pebble8888. All rights reserved.
+//
 /**********************************************************************
  * Copyright (c) 2013-2015 Pieter Wuille                              *
  * Distributed under the MIT software license, see the accompanying   *
  * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
  **********************************************************************/
-//
-//  ecdsa_impl.swift
-//
-//  Created by pebble8888 on 2017/12/17.
-//  Copyright © 2017年 pebble8888. All rights reserved.
-//
 
 import Foundation
-
-//#include "scalar.h"
-//#include "field.h"
-//#include "group.h"
-//#include "ecmult.h"
-//#include "ecmult_gen.h"
-//#include "ecdsa.h"
-
-fileprivate func VERIFY_CHECK(_ a: Bool){
-    assert(a);
-}
 
 /** Group order for secp256k1 defined as 'n' in "Standards for Efficient Cryptography" (SEC2) 2.7.1
  *  sage: for t in xrange(1023, -1, -1):
@@ -36,6 +26,8 @@ fileprivate func VERIFY_CHECK(_ a: Bool){
  *  sage: '%x' % (EllipticCurve ([F (a), F (b)]).order())
  *   'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141'
  */
+// 群の位数(n)
+// secp256k1 ではベースポイントの位数と同じ
 let secp256k1_ecdsa_const_order_as_fe:secp256k1_fe = SECP256K1_FE_CONST(
     0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFE,
     0xBAAEDCE6, 0xAF48A03B, 0xBFD25E8C, 0xD0364141
@@ -50,6 +42,7 @@ let secp256k1_ecdsa_const_order_as_fe:secp256k1_fe = SECP256K1_FE_CONST(
  *  sage: '%x' % (p - EllipticCurve ([F (a), F (b)]).order())
  *   '14551231950b75fc4402da1722fc9baee'
  */
+// 法素数(p) - 群の位数(n)
 let secp256k1_ecdsa_const_p_minus_order:secp256k1_fe = SECP256K1_FE_CONST(
     0, 0, 0, 1, 0x45512319, 0x50B75FC4, 0x402DA172, 0x2FC9BAEE
 );
@@ -206,7 +199,7 @@ func secp256k1_ecdsa_sig_parse(
 
 // シリアライズ??
 func secp256k1_ecdsa_sig_serialize(
-    _ sig: inout [UInt8],
+    _ sig: inout [UInt8], // size 32
     _ size: inout UInt,
     _ a_ar: secp256k1_scalar,
     _ a_as: secp256k1_scalar) -> Bool
@@ -255,9 +248,15 @@ func secp256k1_ecdsa_sig_serialize(
 }
 
 /*
- * @brief サイニングのベリファイ
- * @retval 1 : valid
- * @retval 0 : invalid
+ @brief 署名のベリファイ
+
+ @retval true  : valid
+ @retval false : invalid
+
+ @param [in]    sigr    : scalar 署名r
+ @param [in]    sigs    : scalar 署名s
+ @param [in]    pubkey  : scalar 公開鍵
+ @param [in]    message : scalar メッセージ
  */
 func secp256k1_ecdsa_sig_verify(
     _ ctx: secp256k1_ecmult_context,
@@ -274,20 +273,29 @@ func secp256k1_ecdsa_sig_verify(
     var pubkeyj = secp256k1_gej()
     var pr = secp256k1_gej()
     
+    // sigr, sigs がゼロ
     if (secp256k1_scalar_is_zero(sigr) || secp256k1_scalar_is_zero(sigs)) {
         return false
     }
     
+    // sn = sigs ^ -1
     secp256k1_scalar_inverse_var(&sn, sigs);
+    // u1 = message * (sigs ^ -1)
     secp256k1_scalar_mul(&u1, sn, message);
+    // u2 = sigr * (sigs ^ -1)
     secp256k1_scalar_mul(&u2, sn, sigr);
+    // アフィン座標からヤコビアン座標へ変換する
     secp256k1_gej_set_ge(&pubkeyj, pubkey);
+    // ヤコビアン座標点を計算する(G:ベースポイント, A:公開ポイント)
+    // pr = u1 * G + u2 * A 
     secp256k1_ecmult(ctx, &pr, pubkeyj, u2, u1);
     if (secp256k1_gej_is_infinity(pr)) {
         return false
     }
     
+    // sigr をBigEndian 32バイトへ変換する
     secp256k1_scalar_get_b32(&c, sigr);
+    // BigEndian 32バイトから x座標値に変換する
     let _ = secp256k1_fe_set_b32(&xr, c);
     
     /** We now have the recomputed R point in pr, and its claimed x coordinate (modulo n)
@@ -306,6 +314,7 @@ func secp256k1_ecdsa_sig_verify(
      *  Thus, we can avoid the inversion, but we have to check both cases separately.
      *  secp256k1_gej_eq_x implements the (xr * pr.z^2 mod p == pr.x) test.
      */
+    // アフィン座標のX軸値xr と ヤコビアン座標 pr が一致する
     if (secp256k1_gej_eq_x_var(xr, pr)) {
         /* xr * pr.z^2 mod p == pr.x, so the signature is valid. */
         return true
@@ -323,14 +332,14 @@ func secp256k1_ecdsa_sig_verify(
 }
 
 /*
- @brief サイニング
- @param ctx     : gen_context
- @param sigr    : scalar
- @param sigs    : scalar
- @param seckey  : scalar  秘密鍵
- @param message : scalar  平文
- @param nonce   : scalar
- @param recid   : int
+ @brief 署名
+
+ @param [out]    sigr    : scalar  署名r 
+ @param [out]    sigs    : scalar  署名s
+ @param [in]     seckey  : scalar  秘密鍵
+ @param [in]     message : scalar  メッセージ
+ @param [in]     nonce   : scalar  ランダム値
+ @param [out]    recid   : int     リカバリーID (0, 1, 2, 3)
  
  @retval 1: success
  @retval 0: fail
@@ -350,43 +359,49 @@ func secp256k1_ecdsa_sig_sign(
     var n = secp256k1_scalar()
     var overflow:Bool = false
     
-    secp256k1_ecmult_gen(ctx, &rp, nonce);
-    
+    // rp = nonce * G
+    secp256k1_ecmult_gen(ctx, &rp, nonce)
     // ヤコビアン座標からアフィン座標へ変換する
-    secp256k1_ge_set_gej(&r, &rp);
-    
-    secp256k1_fe_normalize(&r.x);
-    secp256k1_fe_normalize(&r.y);
-    
+    // r = rp
+    secp256k1_ge_set_gej(&r, &rp)
+    // アフィン座標の点をノーマライズ(modを実施)
+    secp256k1_fe_normalize(&r.x)
+    secp256k1_fe_normalize(&r.y)
     // x座標をBigEndian 32バイトへ変換する
-    secp256k1_fe_get_b32(&b, r.x);
-    
+    secp256k1_fe_get_b32(&b, r.x)
     // BigEndian 32バイトからスカラー値に変換する
-    secp256k1_scalar_set_b32(&sigr, b, &overflow);
+    // sigr = r.x
+    secp256k1_scalar_set_b32(&sigr, b, &overflow)
     /* These two conditions should be checked before calling */
-    VERIFY_CHECK(!secp256k1_scalar_is_zero(sigr));
-    //VERIFY_CHECK(overflow == 0);
+    assert(!secp256k1_scalar_is_zero(sigr))
+    assert(!overflow)
     
-    //if (recid != nil) {
-        /* The overflow condition is cryptographically unreachable as hitting it requires finding the discrete log
-         * of some P where P.x >= order, and only 1 in about 2^127 points meet this criteria.
-         */
-        recid = (overflow ? 2 : 0) | (secp256k1_fe_is_odd(r.y) ? 1 : 0);
-    //}
-    secp256k1_scalar_mul(&n, sigr, seckey);
-    let _ = secp256k1_scalar_add(&n, n, message);
-    secp256k1_scalar_inverse(&sigs, nonce);
-    secp256k1_scalar_mul(&sigs, sigs, n);
-    secp256k1_scalar_clear(&n);
-    secp256k1_gej_clear(&rp);
-    secp256k1_ge_clear(&r);
+    /* The overflow condition is cryptographically unreachable as hitting it requires finding the discrete log
+     * of some P where P.x >= order, and only 1 in about 2^127 points meet this criteria.
+     */
+    recid = (overflow ? 2 : 0) | (secp256k1_fe_is_odd(r.y) ? 1 : 0)
+
+    // n = sigr * seckey 
+    secp256k1_scalar_mul(&n, sigr, seckey)
+    // n = message + sigr * seckey
+    let _ = secp256k1_scalar_add(&n, n, message)
+    // sigs = nonce ^ -1
+    secp256k1_scalar_inverse(&sigs, nonce)
+    // sigs = (nonce ^ -1) * (message + sigr * seckey)
+    secp256k1_scalar_mul(&sigs, sigs, n)
+    // clear 
+    secp256k1_scalar_clear(&n)
+    secp256k1_gej_clear(&rp)
+    secp256k1_ge_clear(&r)
+
     if (secp256k1_scalar_is_zero(sigs)) {
         return false
     }
     if (secp256k1_scalar_is_high(sigs)) {
-        secp256k1_scalar_negate(&sigs, sigs);
-        if (recid != 0) {
-            recid ^= 1;
+        // 負数になってもよいので mod n で0に近い方を取る
+        secp256k1_scalar_negate(&sigs, sigs)
+        if recid != 0 {
+            recid ^= 1
         }
     }
     return true

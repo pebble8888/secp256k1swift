@@ -3,7 +3,7 @@
 //  secp256k1
 //
 //  Created by pebble8888 on 2017/10/16.
-//  Copyright © 2017年 pebble8888. All rights reserved.
+//  Copyright © 2017 pebble8888. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>

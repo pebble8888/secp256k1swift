@@ -3,36 +3,16 @@
 //  secp256k1
 //
 //  Created by pebble8888 on 2018/03/02.
-//  Copyright © 2018年 pebble8888. All rights reserved.
+//  Copyright © 2018 pebble8888. All rights reserved.
 //
-
-import Foundation
-
 /**********************************************************************
  * Copyright (c) 2013, 2014 Pieter Wuille                             *
  * Distributed under the MIT software license, see the accompanying   *
  * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
  **********************************************************************/
 
-//#ifndef SECP256K1_FIELD_IMPL_H
-//#define SECP256K1_FIELD_IMPL_H
+import Foundation
 
-//#if defined HAVE_CONFIG_H
-//    #include "libsecp256k1-config.h"
-//#endif
-
-//#include "util.h"
-
-/*
-#if defined(USE_FIELD_10X26)
-#include "field_10x26_impl.h"
-#elif defined(USE_FIELD_5X52)
-#include "field_5x52_impl.h"
-#else
-#error "Please select field implementation"
-#endif
- */
-    
 // return mod qで a != b
 func secp256k1_fe_equal(_ a: secp256k1_fe, _ b:secp256k1_fe) -> Bool {
     var na = secp256k1_fe()
@@ -280,41 +260,7 @@ func secp256k1_fe_inv(_ r: inout secp256k1_fe, _ a:secp256k1_fe) {
     
 // 1/a
 func secp256k1_fe_inv_var(_ r: inout secp256k1_fe, _ a:secp256k1_fe) {
-#if USE_FIELD_INV_BUILTIN
-    secp256k1_fe_inv(r, a);
-#elseif USE_FIELD_INV_NUM
-    var n:secp256k1_num
-    var m:secp256k1_num
-    let negone:secp256k1_fe = SECP256K1_FE_CONST(
-        0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-        0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFE, 0xFFFFFC2E
-    );
-    /* secp256k1 field prime, value p defined in "Standards for Efficient Cryptography" (SEC2) 2.7.1. */
-    let prime:[UInt8] /*[32] */ = [
-        0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-        0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-        0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-        0xFF,0xFF,0xFF,0xFE,0xFF,0xFF,0xFC,0x2F
-    ]
-    var b:[UInt8] // [32];
-    var res:Int
-    var c: secp256k1_fe = *a;
-    secp256k1_fe_normalize_var(&c);
-    secp256k1_fe_get_b32(b, &c);
-    secp256k1_num_set_bin(&n, b, 32);
-    secp256k1_num_set_bin(&m, prime, 32);
-    secp256k1_num_mod_inverse(&n, &n, &m);
-    secp256k1_num_get_bin(b, 32, &n);
-    res = secp256k1_fe_set_b32(r, b);
-    //(void)res;
-    //VERIFY_CHECK(res);
-    /* Verify the result is the (unique) valid inverse using non-GMP code. */
-    secp256k1_fe_mul(&c, &c, r);
-    secp256k1_fe_add(&c, &negone);
-    //CHECK(secp256k1_fe_normalizes_to_zero_var(&c));
-#else
-    // "Please select field inverse implementation"
-#endif
+    secp256k1_fe_inv(&r, a);
 }
 
 // a[0], a[1], ..., a[n]に対して、
@@ -354,32 +300,6 @@ func secp256k1_fe_inv_all_var(_ r: inout [secp256k1_fe], _ a:[secp256k1_fe], _ l
 // 平方剰余
 // x^2 = a mod q を満たす x が存在するかどうか
 func secp256k1_fe_is_quad_var(_ a:secp256k1_fe) -> Bool {
-    /*
-#ifndef USE_NUM_NONE
-    unsigned char b[32];
-    secp256k1_num n;
-    secp256k1_num m;
-    /* secp256k1 field prime, value p defined in "Standards for Efficient Cryptography" (SEC2) 2.7.1. */
-    static const unsigned char prime[32] = {
-        0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-        0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-        0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-        0xFF,0xFF,0xFF,0xFE,0xFF,0xFF,0xFC,0x2F
-    };
-
-    secp256k1_fe c = *a;
-    secp256k1_fe_normalize_var(&c);
-    secp256k1_fe_get_b32(b, &c);
-    secp256k1_num_set_bin(&n, b, 32);
-    secp256k1_num_set_bin(&m, prime, 32);
-    return secp256k1_num_jacobi(&n, &m) >= 0;
-#else
- */
     var r = secp256k1_fe()
     return secp256k1_fe_sqrt(&r, a);
-/*
-#endif
- */
 }
-
-//#endif /* SECP256K1_FIELD_IMPL_H */

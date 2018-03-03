@@ -1,22 +1,18 @@
-/**********************************************************************
- * Copyright (c) 2013, 2014, 2015 Pieter Wuille, Gregory Maxwell      *
- * Distributed under the MIT software license, see the accompanying   *
- * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
- **********************************************************************/
 //
 //  ecmult_gen_impl.swift
 //  secp256k1
 //
 //  Created by pebble8888 on 2018/02/18.
-//  Copyright © 2018年 pebble8888. All rights reserved.
+//  Copyright © 2018 pebble8888. All rights reserved.
 //
+/**********************************************************************
+ * Copyright (c) 2013, 2014, 2015 Pieter Wuille, Gregory Maxwell      *
+ * Distributed under the MIT software license, see the accompanying   *
+ * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
+ **********************************************************************/
 
 import Foundation
 
-//#include "scalar.h"
-//#include "group.h"
-//#include "ecmult_gen.h"
-//#include "hash_impl.h"
 //#ifdef USE_ECMULT_STATIC_PRECOMPUTATION
 //#include "ecmult_static_context.h"
 //#endif
@@ -136,6 +132,7 @@ func secp256k1_ecmult_gen_context_clear(_ ctx: inout secp256k1_ecmult_gen_contex
 }
 
 /**
+ @brief gn * G の点を返す, ここで G は secp256k1 のベースポイント 
  @param r : gej
  @param gn : scalar
  */

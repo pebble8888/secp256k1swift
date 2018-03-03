@@ -206,6 +206,7 @@
 				A2833E92203918120064702C /* ecmult_static_context.swift */,
 				A2833E80203820FA0064702C /* ecmult.swift */,
 				A27F7DAD1FE66DA70092FE18 /* field_10x26.swift */,
+				A289B4212049673D0073004C /* field_impl.swift */,
 				A2833E8A203842750064702C /* gen_context.swift */,
 				A2C38D17203926CE003C02F2 /* group_impl.swift */,
 				A2833E86203822940064702C /* group.swift */,
@@ -214,11 +215,10 @@
 				A2B45CA21F94E61400249454 /* Info.plist */,
 				A2833E8E2038511C0064702C /* scalar_8x32_impl.swift */,
 				A2833E84203822230064702C /* scalar_8x32.swift */,
+				A289B423204971AB0073004C /* scalar_impl.swift */,
 				A2B45CA11F94E61400249454 /* secp256k1.h */,
 				A2BB0BFA1FE92C450081242C /* secp256k1.swift */,
 				A2833E88203824DA0064702C /* util.swift */,
-				A289B4212049673D0073004C /* field_impl.swift */,
-				A289B423204971AB0073004C /* scalar_impl.swift */,
 			);
 			path = secp256k1;
 			sourceTree = "<group>";

@@ -3,21 +3,22 @@
 //  secp256k1
 //
 //  Created by pebble8888 on 2018/02/18.
-//  Copyright © 2018年 pebble8888. All rights reserved.
+//  Copyright © 2018 pebble8888. All rights reserved.
 //
 
 import Foundation
 
 let SC = SECP256K1_GE_STORAGE_CONST
 let secp256k1_ecmult_static_context: [[secp256k1_ge_storage]] = [
-v0,  v1,  v2 , v3 , v4 , v5, v6,  v7,
-v8,  v9,  v10, v11, v12, v13, v14, v15,
-v16, v17, v18, v19, v20, v21, v22, v23,
-v24, v25, v26, v27, v28, v29, v30, v31,
-v32, v33, v34, v35, v36, v37, v38, v39,
-v40, v41, v42, v43, v44, v45, v46, v47,
-v48, v49, v50, v51, v52, v53, v54, v55,
-v56, v57, v58, v59, v60, v61, v62, v63]
+    v0,  v1,  v2 , v3 , v4 , v5, v6,  v7,
+    v8,  v9,  v10, v11, v12, v13, v14, v15,
+    v16, v17, v18, v19, v20, v21, v22, v23,
+    v24, v25, v26, v27, v28, v29, v30, v31,
+    v32, v33, v34, v35, v36, v37, v38, v39,
+    v40, v41, v42, v43, v44, v45, v46, v47,
+    v48, v49, v50, v51, v52, v53, v54, v55,
+    v56, v57, v58, v59, v60, v61, v62, v63
+]
 let v0 =
 [
     SC(983487347, 1861041900, 2599115456, 565528146, 1451326239, 148794576, 4224640328, 3120843701, 2076989736, 3184115747, 3754320824, 2656004457, 2876577688, 2388659905, 3527541004, 1170708298),

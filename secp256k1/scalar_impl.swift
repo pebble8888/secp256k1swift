@@ -3,16 +3,15 @@
 //  secp256k1
 //
 //  Created by pebble8888 on 2018/03/02.
-//  Copyright © 2018年 pebble8888. All rights reserved.
+//  Copyright © 2018 pebble8888. All rights reserved.
 //
-
-import Foundation
-
 /**********************************************************************
  * Copyright (c) 2014 Pieter Wuille                                   *
  * Distributed under the MIT software license, see the accompanying   *
  * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
  **********************************************************************/
+
+import Foundation
 
 //#ifndef SECP256K1_SCALAR_IMPL_H
 //#define SECP256K1_SCALAR_IMPL_H
@@ -243,5 +242,3 @@ func secp256k1_scalar_inverse_var(_ r: inout secp256k1_scalar, _ x: secp256k1_sc
     //#error "Please select scalar inverse implementation"
 #endif
 }
-
-//#endif /* SECP256K1_SCALAR_IMPL_H */

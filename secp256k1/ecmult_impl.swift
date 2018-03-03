@@ -1,15 +1,15 @@
-/**********************************************************************
- * Copyright (c) 2013, 2014 Pieter Wuille                             *
- * Distributed under the MIT software license, see the accompanying   *
- * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
- **********************************************************************/
 //
 //  ecmult_impl.swift
 //  secp256k1
 //
 //  Created by pebble8888 on 2018/02/17.
-//  Copyright © 2018年 pebble8888. All rights reserved.
+//  Copyright © 2018 pebble8888. All rights reserved.
 //
+/**********************************************************************
+ * Copyright (c) 2013, 2014 Pieter Wuille                             *
+ * Distributed under the MIT software license, see the accompanying   *
+ * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
+ **********************************************************************/
 
 import Foundation
 
@@ -247,11 +247,11 @@ func secp256k1_ecmult_wnaf(_ wnaf: inout [Int], _ len: Int, _ a: secp256k1_scala
 }
 
 /**
- @brief
- r : gej
- a : gej
- na : scalar
- ng : scalar
+ @brief (x1, y1) = ng * G + na * A を計算し、x1を返す
+ @param r : gej
+ @param a : gej      公開ポイントAのヤコビアン座標 (pubkey)
+ @param na : scalar  A(公開ポイント)の係数 u2
+ @param ng : scalar  Gの係数 u1
  */
 func secp256k1_ecmult(_ ctx: secp256k1_ecmult_context,
     _ r: inout secp256k1_gej,

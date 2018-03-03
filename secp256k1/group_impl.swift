@@ -1,15 +1,15 @@
-/**********************************************************************
- * Copyright (c) 2013, 2014 Pieter Wuille                             *
- * Distributed under the MIT software license, see the accompanying   *
- * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
- **********************************************************************/
 //
 //  group_impl.swift
 //  secp256k1
 //
 //  Created by pebble8888 on 2018/02/18.
-//  Copyright © 2018年 pebble8888. All rights reserved.
+//  Copyright © 2018 pebble8888. All rights reserved.
 //
+/**********************************************************************
+ * Copyright (c) 2013, 2014 Pieter Wuille                             *
+ * Distributed under the MIT software license, see the accompanying   *
+ * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
+ **********************************************************************/
 
 import Foundation
 
@@ -227,7 +227,7 @@ func secp256k1_ge_set_xo_var(_ r: inout secp256k1_ge, _ x: secp256k1_fe, _ odd: 
     return true
 }
 
-//
+// アフィン座標点をz=1のヤコビアン座標点に変換する
 func secp256k1_gej_set_ge(_ r: inout secp256k1_gej, _ a: secp256k1_ge) {
     r.infinity = a.infinity;
     r.x = a.x;
@@ -235,6 +235,7 @@ func secp256k1_gej_set_ge(_ r: inout secp256k1_gej, _ a: secp256k1_ge) {
     secp256k1_fe_set_int(&r.z, 1)
 }
 
+// ヤコビアン座標点a のアフィン座標x軸値がxと同じかどうか調べる
 func secp256k1_gej_eq_x_var(_ x: secp256k1_fe, _ a: secp256k1_gej) -> Bool {
     var r = secp256k1_fe()
     var r2 = secp256k1_fe()
@@ -486,7 +487,7 @@ func secp256k1_gej_add_ge_var(_ r: inout secp256k1_gej, _ a: secp256k1_gej, _ b:
             //}
             r.infinity = true
         }
-        return;
+        return
     }
     secp256k1_fe_sqr(&i2, i);
     secp256k1_fe_sqr(&h2, h);

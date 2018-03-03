@@ -29,6 +29,7 @@ class secp256k1refTests: XCTestCase {
         XCTAssert(secp256k1s.isoncurve(secp256k1s.B), "B is not on curve")
         
         let T = secp256k1s.scalarmult(secp256k1s.B, secp256k1s.L)
+        XCTAssert(T.infinity, "T is not infinity")
         print("T = \(T)")
         
     }

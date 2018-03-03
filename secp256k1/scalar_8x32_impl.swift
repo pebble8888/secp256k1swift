@@ -1,15 +1,15 @@
-/**********************************************************************
- * Copyright (c) 2014 Pieter Wuille                                   *
- * Distributed under the MIT software license, see the accompanying   *
- * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
- **********************************************************************/
 //
 //  scalar_8x32_impl.swift
 //  secp256k1
 //
 //  Created by pebble8888 on 2018/02/17.
-//  Copyright © 2018年 pebble8888. All rights reserved.
+//  Copyright © 2018 pebble8888. All rights reserved.
 //
+/**********************************************************************
+ * Copyright (c) 2014 Pieter Wuille                                   *
+ * Distributed under the MIT software license, see the accompanying   *
+ * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
+ **********************************************************************/
 
 import Foundation
 
@@ -272,6 +272,7 @@ func secp256k1_scalar_is_one(_ a: secp256k1_scalar) -> Bool {
     return ((a.d[0] ^ 1) | a.d[1] | a.d[2] | a.d[3] | a.d[4] | a.d[5] | a.d[6] | a.d[7]) == 0;
 }
 
+//
 func secp256k1_scalar_is_high(_ a: secp256k1_scalar) -> Bool {
     var yes: Bool = false
     var no: Bool = false

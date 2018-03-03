@@ -1,15 +1,15 @@
-/**********************************************************************
- * Copyright (c) 2013, 2014 Pieter Wuille                             *
- * Distributed under the MIT software license, see the accompanying   *
- * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
- **********************************************************************/
 //
 //  ecmult.swift
 //  secp256k1
 //
 //  Created by pebble8888 on 2018/02/17.
-//  Copyright © 2018年 pebble8888. All rights reserved.
+//  Copyright © 2018 pebble8888. All rights reserved.
 //
+/**********************************************************************
+ * Copyright (c) 2013, 2014 Pieter Wuille                             *
+ * Distributed under the MIT software license, see the accompanying   *
+ * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
+ **********************************************************************/
 
 import Foundation
 
@@ -18,7 +18,7 @@ import Foundation
 
 //typealias Pre_G = () -> secp256k1_ge_storage
 
-struct secp256k1_ecmult_context {
+public struct secp256k1_ecmult_context {
     /* For accelerating the computation of a*P + b*G: */
     var pre_g: [/*Pre_G*/ secp256k1_ge_storage]    /* odd multiples of the generator */
     init() {
