@@ -27,7 +27,6 @@ import Foundation
  *   'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141'
  */
 // 群の位数(n)
-// secp256k1 ではベースポイントの位数と同じ
 let secp256k1_ecdsa_const_order_as_fe:secp256k1_fe = SECP256K1_FE_CONST(
     0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFE,
     0xBAAEDCE6, 0xAF48A03B, 0xBFD25E8C, 0xD0364141
@@ -106,7 +105,7 @@ fileprivate func secp256k1_der_read_len(/*const unsigned char ** */ _ sigp: [UIn
 }
 
 // der int パース
-func secp256k1_der_parse_integer(_ r:inout secp256k1_scalar, /*const unsigned char ** */ _ sig: [UInt8], _ sigend: UInt8) -> Bool
+func secp256k1_der_parse_integer(_ r:inout secp256k1_scalar, _ sig: [UInt8], _ sigend: UInt8) -> Bool
 {
     var overflow:Bool = false
     var ra:[UInt8] = [UInt8](repeating:0, count:32)
@@ -197,7 +196,7 @@ func secp256k1_ecdsa_sig_parse(
     return true
 }
 
-// シリアライズ??
+// シリアライズ
 func secp256k1_ecdsa_sig_serialize(
     _ sig: inout [UInt8], // size 32
     _ size: inout UInt,
@@ -206,8 +205,6 @@ func secp256k1_ecdsa_sig_serialize(
 {
     var r:[UInt8] = [UInt8](repeating:0, count:32)
     var s:[UInt8] = [UInt8](repeating:0, count:32)
-    //unsigned char *rp = r;
-    //unsigned char *sp = s;
     var rp: Int = 0
     var sp: Int = 0
     var lenR:Int = 33
@@ -249,10 +246,8 @@ func secp256k1_ecdsa_sig_serialize(
 
 /*
  @brief 署名のベリファイ
-
  @retval true  : valid
  @retval false : invalid
-
  @param [in]    sigr    : scalar 署名r
  @param [in]    sigs    : scalar 署名s
  @param [in]    pubkey  : scalar 公開鍵
@@ -333,14 +328,12 @@ func secp256k1_ecdsa_sig_verify(
 
 /*
  @brief 署名
-
- @param [out]    sigr    : scalar  署名r 
+ @param [out]    sigr    : scalar  署名r
  @param [out]    sigs    : scalar  署名s
  @param [in]     seckey  : scalar  秘密鍵
  @param [in]     message : scalar  メッセージ
  @param [in]     nonce   : scalar  ランダム値
  @param [out]    recid   : int     リカバリーID (0, 1, 2, 3)
- 
  @retval 1: success
  @retval 0: fail
  */
@@ -406,3 +399,4 @@ func secp256k1_ecdsa_sig_sign(
     }
     return true
 }
+

@@ -13,26 +13,6 @@
 
 import Foundation
 
-//#ifndef SECP256K1_SCALAR_IMPL_H
-//#define SECP256K1_SCALAR_IMPL_H
-
-//#include "group.h"
-//#include "scalar.h"
-
-/*
-#if defined HAVE_CONFIG_H
-    #include "libsecp256k1-config.h"
-#endif
-
-#if defined(USE_SCALAR_4X64)
-#include "scalar_4x64_impl.h"
-#elif defined(USE_SCALAR_8X32)
-#include "scalar_8x32_impl.h"
-#else
-#error "Please select scalar implementation"
-#endif
- */
-    
 #if USE_NUM_NONE
 func secp256k1_scalar_get_num(_ r: inout secp256k1_num, _ a: secp256k1_scalar) {
     var c:[UInt8] //[32]
@@ -53,7 +33,6 @@ func secp256k1_scalar_order_get_num(_ r: inout secp256k1_num) {
 #endif
 
 func secp256k1_scalar_inverse(_ r: inout secp256k1_scalar, _ x: secp256k1_scalar) {
-    //var i: Int
     /* First compute xN as x ^ (2^N - 1) for some values of N,
      * and uM as x ^ M for some values of M. */
     var x2 = secp256k1_scalar()
@@ -222,8 +201,9 @@ func secp256k1_scalar_is_even(_ a: secp256k1_scalar) -> Bool {
 }
 
 func secp256k1_scalar_inverse_var(_ r: inout secp256k1_scalar, _ x: secp256k1_scalar) {
-#if USE_SCALAR_INV_BUILTIN
-    secp256k1_scalar_inverse(r, x);
+//#if USE_SCALAR_INV_BUILTIN
+#if true
+    secp256k1_scalar_inverse(&r, x);
 #elseif USE_SCALAR_INV_NUM
     var b:[UInt8] //[32];
     var n: secp256k1_num
@@ -239,6 +219,6 @@ func secp256k1_scalar_inverse_var(_ r: inout secp256k1_scalar, _ x: secp256k1_sc
     secp256k1_scalar_mul(&t, &t, r);
     //CHECK(secp256k1_scalar_is_one(&t));
 #else
-    //#error "Please select scalar inverse implementation"
+    assert(false, "Please select scalar inverse implementation")
 #endif
 }

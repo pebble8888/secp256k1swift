@@ -21,7 +21,7 @@ func secp256k1_ecmult_gen_context_init(_ ctx: inout secp256k1_ecmult_gen_context
     ctx.prec.removeAll()
 }
 
-func secp256k1_ecmult_gen_context_build(_ ctx: inout secp256k1_ecmult_gen_context, _ cb: secp256k1_callback) {
+func secp256k1_ecmult_gen_context_build(_ ctx: inout secp256k1_ecmult_gen_context, _ cb: secp256k1_callback?) {
     #if USE_ECMULT_STATIC_PRECOMPUTATION
     #else
         var prec: [secp256k1_ge] = [secp256k1_ge](repeating: secp256k1_ge(), count: 1024)
@@ -33,7 +33,6 @@ func secp256k1_ecmult_gen_context_build(_ ctx: inout secp256k1_ecmult_gen_contex
         return;
     }
     #if USE_ECMULT_STATIC_PRECOMPUTATION
-        //(void)cb;
         ctx.prec = secp256k1_ecmult_static_context
     #else
         ctx.prec = [[secp256k1_ge_storage]](repeating: [secp256k1_ge_storage](repeating: secp256k1_ge_storage(), count: 16), count: 64)

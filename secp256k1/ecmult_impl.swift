@@ -98,7 +98,7 @@ func secp256k1_ecmult_odd_multiples_table_globalz_windowa(_ pre: inout [secp256k
     secp256k1_ge_globalz_set_table_gej(UInt(ECMULT_TABLE_SIZE(WINDOW_A)), &pre, &globalz, prej, zr);
 }
 
-func secp256k1_ecmult_odd_multiples_table_storage_var(_ n: Int, _ pre: inout [secp256k1_ge_storage], _ a: secp256k1_gej, _ cb: secp256k1_callback) {
+func secp256k1_ecmult_odd_multiples_table_storage_var(_ n: Int, _ pre: inout [secp256k1_ge_storage], _ a: secp256k1_gej, _ cb: secp256k1_callback?) {
     var prej: [secp256k1_gej] = [secp256k1_gej](repeating: secp256k1_gej(), count: n)
     var prea: [secp256k1_ge] = [secp256k1_ge](repeating: secp256k1_ge(), count: n)
     var zr: [secp256k1_fe] = [secp256k1_fe](repeating: secp256k1_fe(), count: n)
@@ -146,7 +146,7 @@ func secp256k1_ecmult_context_init(_ ctx: inout secp256k1_ecmult_context) {
     ctx.pre_g.removeAll() //= nil
 }
 
-func secp256k1_ecmult_context_build(_ ctx: inout secp256k1_ecmult_context, _ cb: secp256k1_callback) {
+func secp256k1_ecmult_context_build(_ ctx: inout secp256k1_ecmult_context, _ cb: secp256k1_callback?) {
     var gj = secp256k1_gej()
     
     if (ctx.pre_g.count > 0 /* != nil */ ) {

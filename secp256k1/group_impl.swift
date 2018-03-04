@@ -109,7 +109,7 @@ func secp256k1_ge_set_gej_var(_ r: inout secp256k1_ge, _ a: inout secp256k1_gej)
     r.y = a.y;
 }
 
-func secp256k1_ge_set_all_gej_var(_ r: inout [secp256k1_ge], _ a: [secp256k1_gej], _ len: UInt, _ cb: secp256k1_callback) {
+func secp256k1_ge_set_all_gej_var(_ r: inout [secp256k1_ge], _ a: [secp256k1_gej], _ len: UInt, _ cb: secp256k1_callback?) {
     var az: [secp256k1_fe]
     var azi: [secp256k1_fe]
     var count: Int = 0

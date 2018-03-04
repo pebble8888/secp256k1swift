@@ -32,10 +32,10 @@ func Round(_ a: UInt32,
            _ w: UInt32)
 {
     repeat {
-        let t1: UInt32 = (h) + Sigma1(e) + Ch((e), (f), (g)) + (k) + (w);
-        let t2: UInt32 = Sigma0(a) + Maj((a), (b), (c));
-        d += t1;
-        h = t1 + t2;
+        let t1: UInt32 = h &+ Sigma1(e) &+ Ch(e, f, g) &+ k &+ w
+        let t2: UInt32 = Sigma0(a) &+ Maj(a, b, c)
+        d = d &+ t1
+        h = t1 &+ t2
     } while false
 }
 
@@ -55,6 +55,8 @@ func secp256k1_sha256_initialize(_ hash: inout secp256k1_sha256_t) {
 
 /** Perform one SHA-256 transformation, processing 16 big endian 32-bit words. */
 func secp256k1_sha256_transform(_ s: inout [UInt32], _ chunk: [UInt32]) {
+    assert(s.count == 8)
+    assert(chunk.count == 16)
     var a = s[0]
     var b = s[1]
     var c = s[2]
@@ -113,113 +115,113 @@ func secp256k1_sha256_transform(_ s: inout [UInt32], _ chunk: [UInt32]) {
     w15 = BE32(chunk[15])
     Round(b, c, d, &e, f, g, h, &a, 0xc19bf174, w15)
     
-    w0 += sigma1(w14) + w9 + sigma0(w1)
+    w0 = w0 &+ sigma1(w14) &+ w9 &+ sigma0(w1)
     Round(a, b, c, &d, e, f, g, &h, 0xe49b69c1, w0)
-    w1 += sigma1(w15) + w10 + sigma0(w2)
+    w1 = w1 &+ sigma1(w15) &+ w10 &+ sigma0(w2)
     Round(h, a, b, &c, d, e, f, &g, 0xefbe4786, w1)
-    w2 += sigma1(w0) + w11 + sigma0(w3)
+    w2 = w2 &+ sigma1(w0) &+ w11 &+ sigma0(w3)
     Round(g, h, a, &b, c, d, e, &f, 0x0fc19dc6, w2)
-    w3 += sigma1(w1) + w12 + sigma0(w4)
+    w3 = w3 &+ sigma1(w1) &+ w12 &+ sigma0(w4)
     Round(f, g, h, &a, b, c, d, &e, 0x240ca1cc, w3)
-    w4 += sigma1(w2) + w13 + sigma0(w5)
+    w4 = w4 &+ sigma1(w2) &+ w13 &+ sigma0(w5)
     Round(e, f, g, &h, a, b, c, &d, 0x2de92c6f, w4)
-    w5 += sigma1(w3) + w14 + sigma0(w6)
+    w5 = w5 &+ sigma1(w3) &+ w14 &+ sigma0(w6)
     Round(d, e, f, &g, h, a, b, &c, 0x4a7484aa, w5)
-    w6 += sigma1(w4) + w15 + sigma0(w7)
+    w6 = w6 &+ sigma1(w4) &+ w15 &+ sigma0(w7)
     Round(c, d, e, &f, g, h, a, &b, 0x5cb0a9dc, w6) 
-    w7 += sigma1(w5) + w0 + sigma0(w8)
+    w7 = w7 &+ sigma1(w5) &+ w0 &+ sigma0(w8)
     Round(b, c, d, &e, f, g, h, &a, 0x76f988da, w7)
-    w8 += sigma1(w6) + w1 + sigma0(w9)
+    w8 = w8 &+ sigma1(w6) &+ w1 &+ sigma0(w9)
     Round(a, b, c, &d, e, f, g, &h, 0x983e5152, w8)
-    w9 += sigma1(w7) + w2 + sigma0(w10)
+    w9 = w9 &+ sigma1(w7) &+ w2 &+ sigma0(w10)
     Round(h, a, b, &c, d, e, f, &g, 0xa831c66d, w9)
-    w10 += sigma1(w8) + w3 + sigma0(w11)
+    w10 = w10 &+ sigma1(w8) &+ w3 &+ sigma0(w11)
     Round(g, h, a, &b, c, d, e, &f, 0xb00327c8, w10)
-    w11 += sigma1(w9) + w4 + sigma0(w12)
+    w11 = w11 &+ sigma1(w9) &+ w4 &+ sigma0(w12)
     Round(f, g, h, &a, b, c, d, &e, 0xbf597fc7, w11)
-    w12 += sigma1(w10) + w5 + sigma0(w13)
+    w12 = w12 &+ sigma1(w10) &+ w5 &+ sigma0(w13)
     Round(e, f, g, &h, a, b, c, &d, 0xc6e00bf3, w12)
-    w13 += sigma1(w11) + w6 + sigma0(w14)
+    w13 = w13 &+ sigma1(w11) &+ w6 &+ sigma0(w14)
     Round(d, e, f, &g, h, a, b, &c, 0xd5a79147, w13)
-    w14 += sigma1(w12) + w7 + sigma0(w15)
+    w14 = w14 &+ sigma1(w12) &+ w7 &+ sigma0(w15)
     Round(c, d, e, &f, g, h, a, &b, 0x06ca6351, w14)
-    w15 += sigma1(w13) + w8 + sigma0(w0)
+    w15 = w15 &+ sigma1(w13) &+ w8 &+ sigma0(w0)
     Round(b, c, d, &e, f, g, h, &a, 0x14292967, w15)
     
-    w0 += sigma1(w14) + w9 + sigma0(w1)
+    w0 = w0 &+ sigma1(w14) &+ w9 &+ sigma0(w1)
     Round(a, b, c, &d, e, f, g, &h, 0x27b70a85, w0)
-    w1 += sigma1(w15) + w10 + sigma0(w2)
+    w1 = w1 &+ sigma1(w15) &+ w10 &+ sigma0(w2)
     Round(h, a, b, &c, d, e, f, &g, 0x2e1b2138, w1) 
-    w2 += sigma1(w0) + w11 + sigma0(w3)
+    w2 = w2 &+ sigma1(w0) &+ w11 &+ sigma0(w3)
     Round(g, h, a, &b, c, d, e, &f, 0x4d2c6dfc, w2)
-    w3 += sigma1(w1) + w12 + sigma0(w4)
+    w3 = w3 &+ sigma1(w1) &+ w12 &+ sigma0(w4)
     Round(f, g, h, &a, b, c, d, &e, 0x53380d13, w3)
-    w4 += sigma1(w2) + w13 + sigma0(w5)
+    w4 = w4 &+ sigma1(w2) &+ w13 &+ sigma0(w5)
     Round(e, f, g, &h, a, b, c, &d, 0x650a7354, w4)
-    w5 += sigma1(w3) + w14 + sigma0(w6)
+    w5 = w5 &+ sigma1(w3) &+ w14 &+ sigma0(w6)
     Round(d, e, f, &g, h, a, b, &c, 0x766a0abb, w5)
-    w6 += sigma1(w4) + w15 + sigma0(w7)
+    w6 = w6 &+ sigma1(w4) &+ w15 &+ sigma0(w7)
     Round(c, d, e, &f, g, h, a, &b, 0x81c2c92e, w6)
-    w7 += sigma1(w5) + w0 + sigma0(w8)
+    w7 = w7 &+ sigma1(w5) &+ w0 &+ sigma0(w8)
     Round(b, c, d, &e, f, g, h, &a, 0x92722c85, w7)
-    w8 += sigma1(w6) + w1 + sigma0(w9)
+    w8 = w8 &+ sigma1(w6) &+ w1 &+ sigma0(w9)
     Round(a, b, c, &d, e, f, g, &h, 0xa2bfe8a1, w8)
-    w9 += sigma1(w7) + w2 + sigma0(w10)
+    w9 = w9 &+ sigma1(w7) &+ w2 &+ sigma0(w10)
     Round(h, a, b, &c, d, e, f, &g, 0xa81a664b, w9)
-    w10 += sigma1(w8) + w3 + sigma0(w11)
+    w10 = w10 &+ sigma1(w8) &+ w3 &+ sigma0(w11)
     Round(g, h, a, &b, c, d, e, &f, 0xc24b8b70, w10)
-    w11 += sigma1(w9) + w4 + sigma0(w12)
+    w11 = w11 &+ sigma1(w9) &+ w4 &+ sigma0(w12)
     Round(f, g, h, &a, b, c, d, &e, 0xc76c51a3, w11)
-    w12 += sigma1(w10) + w5 + sigma0(w13)
+    w12 = w12 &+ sigma1(w10) &+ w5 &+ sigma0(w13)
     Round(e, f, g, &h, a, b, c, &d, 0xd192e819, w12)
-    w13 += sigma1(w11) + w6 + sigma0(w14)
+    w13 = w13 &+ sigma1(w11) &+ w6 &+ sigma0(w14)
     Round(d, e, f, &g, h, a, b, &c, 0xd6990624, w13)
-    w14 += sigma1(w12) + w7 + sigma0(w15)
+    w14 = w14 &+ sigma1(w12) &+ w7 &+ sigma0(w15)
     Round(c, d, e, &f, g, h, a, &b, 0xf40e3585, w14)
-    w15 += sigma1(w13) + w8 + sigma0(w0)
+    w15 = w15 &+ sigma1(w13) &+ w8 &+ sigma0(w0)
     Round(b, c, d, &e, f, g, h, &a, 0x106aa070, w15) 
     
-    w0 += sigma1(w14) + w9 + sigma0(w1)
+    w0 = w0 &+ sigma1(w14) &+ w9 &+ sigma0(w1)
     Round(a, b, c, &d, e, f, g, &h, 0x19a4c116, w0)
-    w1 += sigma1(w15) + w10 + sigma0(w2)
+    w1 = w1 &+ sigma1(w15) &+ w10 &+ sigma0(w2)
     Round(h, a, b, &c, d, e, f, &g, 0x1e376c08, w1)
-    w2 += sigma1(w0) + w11 + sigma0(w3)
+    w2 = w2 &+ sigma1(w0) &+ w11 &+ sigma0(w3)
     Round(g, h, a, &b, c, d, e, &f, 0x2748774c, w2)
-    w3 += sigma1(w1) + w12 + sigma0(w4)
+    w3 = w3 &+ sigma1(w1) &+ w12 &+ sigma0(w4)
     Round(f, g, h, &a, b, c, d, &e, 0x34b0bcb5, w3)
-    w4 += sigma1(w2) + w13 + sigma0(w5)
+    w4 = w4 &+ sigma1(w2) &+ w13 &+ sigma0(w5)
     Round(e, f, g, &h, a, b, c, &d, 0x391c0cb3, w4)
-    w5 += sigma1(w3) + w14 + sigma0(w6)
+    w5 = w5 &+ sigma1(w3) &+ w14 &+ sigma0(w6)
     Round(d, e, f, &g, h, a, b, &c, 0x4ed8aa4a, w5)
-    w6 += sigma1(w4) + w15 + sigma0(w7)
+    w6 = w6 &+ sigma1(w4) &+ w15 &+ sigma0(w7)
     Round(c, d, e, &f, g, h, a, &b, 0x5b9cca4f, w6)
-    w7 += sigma1(w5) + w0 + sigma0(w8)
+    w7 = w7 &+ sigma1(w5) &+ w0 &+ sigma0(w8)
     Round(b, c, d, &e, f, g, h, &a, 0x682e6ff3, w7)
-    w8 += sigma1(w6) + w1 + sigma0(w9)
+    w8 = w8 &+ sigma1(w6) &+ w1 &+ sigma0(w9)
     Round(a, b, c, &d, e, f, g, &h, 0x748f82ee, w8)
-    w9 += sigma1(w7) + w2 + sigma0(w10)
+    w9 = w9 &+ sigma1(w7) &+ w2 &+ sigma0(w10)
     Round(h, a, b, &c, d, e, f, &g, 0x78a5636f, w9)
-    w10 += sigma1(w8) + w3 + sigma0(w11)
+    w10 = w10 &+ sigma1(w8) &+ w3 &+ sigma0(w11)
     Round(g, h, a, &b, c, d, e, &f, 0x84c87814, w10)
-    w11 += sigma1(w9) + w4 + sigma0(w12)
+    w11 = w11 &+ sigma1(w9) &+ w4 &+ sigma0(w12)
     Round(f, g, h, &a, b, c, d, &e, 0x8cc70208, w11)
-    w12 += sigma1(w10) + w5 + sigma0(w13)
+    w12 = w12 &+ sigma1(w10) &+ w5 &+ sigma0(w13)
     Round(e, f, g, &h, a, b, c, &d, 0x90befffa, w12)
-    w13 += sigma1(w11) + w6 + sigma0(w14)
+    w13 = w13 &+ sigma1(w11) &+ w6 &+ sigma0(w14)
     Round(d, e, f, &g, h, a, b, &c, 0xa4506ceb, w13)
-    w14 += sigma1(w12) + w7 + sigma0(w15)
+    w14 = w14 &+ sigma1(w12) &+ w7 &+ sigma0(w15)
     Round(c, d, e, &f, g, h, a, &b, 0xbef9a3f7, w14)
-    w15 += sigma1(w13) + w8 + sigma0(w0)
+    w15 = w15 &+ sigma1(w13) &+ w8 &+ sigma0(w0)
     Round(b, c, d, &e, f, g, h, &a, 0xc67178f2, w15)
     
-    s[0] += a
-    s[1] += b
-    s[2] += c
-    s[3] += d
-    s[4] += e
-    s[5] += f
-    s[6] += g
-    s[7] += h
+    s[0] = s[0] &+ a
+    s[1] = s[1] &+ b
+    s[2] = s[2] &+ c
+    s[3] = s[3] &+ d
+    s[4] = s[4] &+ e
+    s[5] = s[5] &+ f
+    s[6] = s[6] &+ g
+    s[7] = s[7] &+ h
 }
 
 func secp256k1_sha256_write(_ hash: inout secp256k1_sha256_t, _ data: [UInt8], _ len: UInt) {
@@ -316,7 +318,7 @@ func secp256k1_hmac_sha256_finalize(_ hash: inout secp256k1_hmac_sha256_t, _ out
     secp256k1_sha256_finalize(&hash.outer, &out32);
 }
 
-func secp256k1_rfc6979_hmac_sha256_initialize(_ rng: inout secp256k1_rfc6979_hmac_sha256_t, _ key: [UInt8], _ keylen: UInt) {
+public func secp256k1_rfc6979_hmac_sha256_initialize(_ rng: inout secp256k1_rfc6979_hmac_sha256_t, _ key: [UInt8], _ keylen: UInt) {
     var hmac = secp256k1_hmac_sha256_t()
     let zero: [UInt8] = [0x00]
     let one: [UInt8] = [0x01]
@@ -346,7 +348,7 @@ func secp256k1_rfc6979_hmac_sha256_initialize(_ rng: inout secp256k1_rfc6979_hma
     rng.retry = false
 }
 
-func secp256k1_rfc6979_hmac_sha256_generate(_ rng: inout secp256k1_rfc6979_hmac_sha256_t, _ out: inout [UInt8], _ outlen: UInt) {
+public func secp256k1_rfc6979_hmac_sha256_generate(_ rng: inout secp256k1_rfc6979_hmac_sha256_t, _ out: inout [UInt8], _ outlen: UInt) {
     /* RFC6979 3.2.h. */
     let zero: [UInt8] = [0x00]
     if (rng.retry) {

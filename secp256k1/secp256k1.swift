@@ -61,6 +61,10 @@ public struct secp256k1_pubkey {
     public mutating func clear(){
         data = [UInt8](repeating: 0, count: 64)
     }
+    public init()
+    {
+        data = [UInt8](repeating: 0, count: 64)
+    }
 }
 
 /** Opaque data structured that holds a parsed ECDSA signature.
@@ -74,7 +78,11 @@ public struct secp256k1_pubkey {
  */
 public struct secp256k1_ecdsa_signature {
     public var data:[UInt8] // size:64
-    mutating func clear() {
+    public mutating func clear() {
+        data = [UInt8](repeating: 0, count: 64)
+    }
+    public init()
+    {
         data = [UInt8](repeating: 0, count: 64)
     }
 }
@@ -118,12 +126,12 @@ public struct SECP256K1_FLAGS: OptionSet {
     static let SECP256K1_FLAGS_BIT_CONTEXT_SIGN = SECP256K1_FLAGS(rawValue: 1 << 9)
     static let SECP256K1_FLAGS_BIT_COMPRESSION = SECP256K1_FLAGS(rawValue: 1 << 8)
     /** Flags to pass to secp256k1_context_create. */
-    public static let SECP256K1_CONTEXT_VERIFY = [SECP256K1_FLAGS_TYPE_CONTEXT, SECP256K1_FLAGS_BIT_CONTEXT_VERIFY]
-    public static let SECP256K1_CONTEXT_SIGN = [SECP256K1_FLAGS_TYPE_CONTEXT, SECP256K1_FLAGS_BIT_CONTEXT_SIGN]
-    public static let SECP256K1_CONTEXT_NONE = [SECP256K1_FLAGS_TYPE_CONTEXT]
+    public static let SECP256K1_CONTEXT_VERIFY: SECP256K1_FLAGS = [SECP256K1_FLAGS_TYPE_CONTEXT, SECP256K1_FLAGS_BIT_CONTEXT_VERIFY]
+    public static let SECP256K1_CONTEXT_SIGN: SECP256K1_FLAGS = [SECP256K1_FLAGS_TYPE_CONTEXT, SECP256K1_FLAGS_BIT_CONTEXT_SIGN]
+    public static let SECP256K1_CONTEXT_NONE: SECP256K1_FLAGS = [SECP256K1_FLAGS_TYPE_CONTEXT]
     /** Flag to pass to secp256k1_ec_pubkey_serialize and secp256k1_ec_privkey_export. */
-    public static let SECP256K1_EC_COMPRESSED = [SECP256K1_FLAGS_TYPE_COMPRESSION, SECP256K1_FLAGS_BIT_COMPRESSION]
-    public static let SECP256K1_EC_UNCOMPRESSED = [SECP256K1_FLAGS_TYPE_COMPRESSION]
+    public static let SECP256K1_EC_COMPRESSED: SECP256K1_FLAGS = [SECP256K1_FLAGS_TYPE_COMPRESSION, SECP256K1_FLAGS_BIT_COMPRESSION]
+    public static let SECP256K1_EC_UNCOMPRESSED: SECP256K1_FLAGS = [SECP256K1_FLAGS_TYPE_COMPRESSION]
 }
 
 /** Prefix byte used to tag various encoded curvepoints for specific purposes */
@@ -145,7 +153,7 @@ extension secp256k1_context {
 }
 
 
-func default_illegal_callback_fn(_ str: String, _ data: [UInt8]?) {
+func default_illegal_callback_fn(_ str: String, _ data: UnsafeMutableRawPointer?) {
     fatalError("[libsecp256k1] illegal argument: \(str)\n")
 }
 
@@ -154,7 +162,7 @@ let default_illegal_callback = secp256k1_callback(
     data: nil
 )
 
-func default_error_callback_fn(_ str: String, _ data: [UInt8]?) {
+func default_error_callback_fn(_ str: String, _ data: UnsafeMutableRawPointer?) {
     fatalError("[libsecp256k1] internal consistency check failed: \(str)\n");
 }
 
@@ -184,7 +192,7 @@ public struct secp256k1_context {
  *
  *  See also secp256k1_context_randomize.
  */
-public func secp256k1_context_create(flags: SECP256K1_FLAGS) -> secp256k1_context? {
+public func secp256k1_context_create(_ flags: SECP256K1_FLAGS) -> secp256k1_context? {
     var ret: secp256k1_context = secp256k1_context()
     
     if !flags.contains(.SECP256K1_FLAGS_TYPE_CONTEXT) {
@@ -210,7 +218,7 @@ public func secp256k1_context_create(flags: SECP256K1_FLAGS) -> secp256k1_contex
  *  Returns: a newly created context object.
  *  Args:    ctx: an existing context to copy (cannot be NULL)
  */
-public func secp256k1_context_clone(ctx: secp256k1_context) -> secp256k1_context {
+public func secp256k1_context_clone(_ ctx: secp256k1_context) -> secp256k1_context {
     var ret: secp256k1_context = secp256k1_context()
     ret.illegal_callback = ctx.illegal_callback
     ret.error_callback = ctx.error_callback
@@ -224,7 +232,7 @@ public func secp256k1_context_clone(ctx: secp256k1_context) -> secp256k1_context
  *  The context pointer may not be used afterwards.
  *  Args:   ctx: an existing context to destroy (cannot be NULL)
  */
-public func secp256k1_context_destroy(ctx: inout secp256k1_context) {
+public func secp256k1_context_destroy(_ ctx: inout secp256k1_context) {
     secp256k1_ecmult_context_clear(&ctx.ecmult_ctx);
     secp256k1_ecmult_gen_context_clear(&ctx.ecmult_gen_ctx);
 }
@@ -249,9 +257,9 @@ public func secp256k1_context_destroy(ctx: inout secp256k1_context) {
  *              (NULL restores a default handler that calls abort).
  *        data: the opaque pointer to pass to fun above.
  */
-public func secp256k1_context_set_illegal_callback(ctx: inout secp256k1_context,
-    fn: ((_ message: String, _ data: [UInt8]?) -> Void)?,
-    data: [UInt8]?)
+public func secp256k1_context_set_illegal_callback(_ ctx: inout secp256k1_context,
+    _ fn: ((_ message: String, _ data: UnsafeMutableRawPointer?) -> Void)?,
+    _ data: UnsafeMutableRawPointer?)
 {
     if let fn = fn {
         ctx.illegal_callback.fn = fn
@@ -277,9 +285,9 @@ public func secp256k1_context_set_illegal_callback(ctx: inout secp256k1_context,
  *              handler that calls abort).
  *        data: the opaque pointer to pass to fun above.
  */
-public func secp256k1_context_set_error_callback(ctx: inout secp256k1_context,
-    fn: ((_ message: String, _ data: [UInt8]?) -> Void)?,
-    data: [UInt8]?)
+public func secp256k1_context_set_error_callback(_ ctx: inout secp256k1_context,
+    _ fn: ((_ message: String, _ data: UnsafeMutableRawPointer?) -> Void)?,
+    _ data: UnsafeMutableRawPointer?)
 {
     if let fn = fn {
         ctx.error_callback.fn = fn
@@ -594,7 +602,7 @@ public func secp256k1_ecdsa_signature_serialize_compact(ctx: secp256k1_context, 
  *  signatures come from a system that cannot enforce this property,
  *  secp256k1_ecdsa_signature_normalize must be called before verification.
  */
-public func secp256k1_ecdsa_signature_normalize(ctx: secp256k1_context, sigout: inout secp256k1_ecdsa_signature , sigin: secp256k1_ecdsa_signature) -> Bool
+public func secp256k1_ecdsa_signature_normalize(_ ctx: secp256k1_context, _ sigout: inout secp256k1_ecdsa_signature , _ sigin: secp256k1_ecdsa_signature) -> Bool
 {
     var r = secp256k1_scalar()
     var s = secp256k1_scalar()
@@ -630,7 +638,7 @@ public func secp256k1_ecdsa_signature_normalize(ctx: secp256k1_context, sigout: 
  *
  * For details, see the comments for that function.
  */
-public func secp256k1_ecdsa_verify(ctx: secp256k1_context, sig: secp256k1_ecdsa_signature, msg32: [UInt8], pubkey: secp256k1_pubkey) -> Bool
+public func secp256k1_ecdsa_verify(_ ctx: secp256k1_context, _ sig: secp256k1_ecdsa_signature, _ msg32: [UInt8], _ pubkey: secp256k1_pubkey) -> Bool
 {
     var q = secp256k1_ge()
     var r = secp256k1_scalar()
@@ -641,9 +649,14 @@ public func secp256k1_ecdsa_verify(ctx: secp256k1_context, sig: secp256k1_ecdsa_
     var dummy: Bool = false
     secp256k1_scalar_set_b32(&m, msg32, &dummy)
     secp256k1_ecdsa_signature_load(ctx, &r, &s, sig)
+    /*
     return (!secp256k1_scalar_is_high(s) &&
         secp256k1_pubkey_load(ctx, &q, pubkey) &&
         secp256k1_ecdsa_sig_verify(ctx.ecmult_ctx, r, s, q, m))
+ */
+    if secp256k1_scalar_is_high(s) { return false }
+    if !secp256k1_pubkey_load(ctx, &q, pubkey) { return false }
+    return secp256k1_ecdsa_sig_verify(ctx.ecmult_ctx, r, s, q, m)
 }
 
 fileprivate func nonce_function_rfc6979(
@@ -718,12 +731,12 @@ fileprivate let secp256k1_nonce_function_default: secp256k1_nonce_function = non
  * The created signature is always in lower-S form. See
  * secp256k1_ecdsa_signature_normalize for more details.
  */
-public func secp256k1_ecdsa_sign(ctx: secp256k1_context,
-                          signature: inout secp256k1_ecdsa_signature,
-                          msg32: [UInt8],
-                          seckey: [UInt8],
-                          a_noncefp: secp256k1_nonce_function?,
-                          noncedata: [UInt8]?) -> Bool {
+public func secp256k1_ecdsa_sign(_ ctx: secp256k1_context,
+                          _ signature: inout secp256k1_ecdsa_signature,
+                          _ msg32: [UInt8],
+                          _ seckey: [UInt8],
+                          _ a_noncefp: secp256k1_nonce_function?,
+                          _ noncedata: [UInt8]?) -> Bool {
     var r = secp256k1_scalar()
     var s = secp256k1_scalar()
     var sec = secp256k1_scalar()
@@ -785,7 +798,7 @@ public func secp256k1_ecdsa_sign(ctx: secp256k1_context,
  *  Args:    ctx: pointer to a context object (cannot be NULL)
  *  In:      seckey: pointer to a 32-byte secret key (cannot be NULL)
  */
-public func secp256k1_ec_seckey_verify(ctx: secp256k1_context, seckey: [UInt8]) -> Bool
+public func secp256k1_ec_seckey_verify(_ ctx: secp256k1_context, _ seckey: [UInt8]) -> Bool
 {
     var sec = secp256k1_scalar()
     var ret: Bool
@@ -805,7 +818,7 @@ public func secp256k1_ec_seckey_verify(ctx: secp256k1_context, seckey: [UInt8]) 
  *  Out:    pubkey:     pointer to the created public key (cannot be NULL)
  *  In:     seckey:     pointer to a 32-byte private key (cannot be NULL)
  */
-public func secp256k1_ec_pubkey_create(ctx: secp256k1_context, pubkey: inout secp256k1_pubkey, seckey: [UInt8]) -> Bool
+public func secp256k1_ec_pubkey_create(_ ctx: secp256k1_context, _ pubkey: inout secp256k1_pubkey, _ seckey: [UInt8]) -> Bool
 {
     var pj = secp256k1_gej()
     var p = secp256k1_ge()
@@ -817,7 +830,7 @@ public func secp256k1_ec_pubkey_create(ctx: secp256k1_context, pubkey: inout sec
     if !ctx.ARG_CHECK(secp256k1_ecmult_gen_context_is_built(ctx.ecmult_gen_ctx), "invalid ctx") { return false }
     
     secp256k1_scalar_set_b32(&sec, seckey, &overflow);
-    ret = (!overflow) && (!secp256k1_scalar_is_zero(sec));
+    ret = !overflow && !secp256k1_scalar_is_zero(sec)
     if (ret) {
         secp256k1_ecmult_gen(ctx.ecmult_gen_ctx, &pj, sec);
         secp256k1_ge_set_gej(&p, &pj);
@@ -833,7 +846,7 @@ public func secp256k1_ec_pubkey_create(ctx: secp256k1_context, pubkey: inout sec
  *  Args:   ctx:        pointer to a context object
  *  In/Out: pubkey:     pointer to the public key to be negated (cannot be NULL)
  */
-public func secp256k1_ec_privkey_negate(ctx: secp256k1_context, seckey: inout [UInt8]) -> Bool
+public func secp256k1_ec_privkey_negate(_ ctx: secp256k1_context, _ seckey: inout [UInt8]) -> Bool
 {
     var sec = secp256k1_scalar()
     
@@ -851,7 +864,7 @@ public func secp256k1_ec_privkey_negate(ctx: secp256k1_context, seckey: inout [U
  *  Args:   ctx:        pointer to a context object
  *  In/Out: pubkey:     pointer to the public key to be negated (cannot be NULL)
  */
-public func secp256k1_ec_pubkey_negate(ctx: secp256k1_context, pubkey: inout secp256k1_pubkey) -> Bool
+public func secp256k1_ec_pubkey_negate(_ ctx: secp256k1_context, _ pubkey: inout secp256k1_pubkey) -> Bool
 {
     var ret: Bool = false
     var p = secp256k1_ge()
@@ -874,7 +887,7 @@ public func secp256k1_ec_pubkey_negate(ctx: secp256k1_context, pubkey: inout sec
  * In/Out:  seckey: pointer to a 32-byte private key.
  * In:      tweak:  pointer to a 32-byte tweak.
  */
-public func secp256k1_ec_privkey_tweak_add(ctx: secp256k1_context, seckey: inout [UInt8], tweak: [UInt8]) -> Bool
+public func secp256k1_ec_privkey_tweak_add(_ ctx: secp256k1_context, _ seckey: inout [UInt8], _ tweak: [UInt8]) -> Bool
 {
     var term = secp256k1_scalar()
     var sec = secp256k1_scalar()
@@ -908,7 +921,7 @@ public func secp256k1_ec_privkey_tweak_add(ctx: secp256k1_context, seckey: inout
  * In/Out:  pubkey: pointer to a public key object.
  * In:      tweak:  pointer to a 32-byte tweak.
  */
-public func secp256k1_ec_pubkey_tweak_add(ctx: secp256k1_context, pubkey: inout secp256k1_pubkey, tweak: [UInt8]) -> Bool
+public func secp256k1_ec_pubkey_tweak_add(_ ctx: secp256k1_context, _ pubkey: inout secp256k1_pubkey, _ tweak: [UInt8]) -> Bool
 {
     var p = secp256k1_ge()
     var term = secp256k1_scalar()
@@ -937,7 +950,7 @@ public func secp256k1_ec_pubkey_tweak_add(ctx: secp256k1_context, pubkey: inout 
  * In/Out: seckey: pointer to a 32-byte private key.
  * In:     tweak:  pointer to a 32-byte tweak.
  */
-public func secp256k1_ec_privkey_tweak_mul(ctx: secp256k1_context, seckey: inout [UInt8], tweak: [UInt8]) -> Bool
+public func secp256k1_ec_privkey_tweak_mul(_ ctx: secp256k1_context, _ seckey: inout [UInt8], _ tweak: [UInt8]) -> Bool
 {
     var factor = secp256k1_scalar()
     var sec = secp256k1_scalar()
@@ -966,7 +979,7 @@ public func secp256k1_ec_privkey_tweak_mul(ctx: secp256k1_context, seckey: inout
  * In/Out:  pubkey: pointer to a public key obkect.
  * In:      tweak:  pointer to a 32-byte tweak.
  */
-public func secp256k1_ec_pubkey_tweak_mul(ctx: secp256k1_context, pubkey: inout secp256k1_pubkey, tweak: [UInt8]) -> Bool
+public func secp256k1_ec_pubkey_tweak_mul(_ ctx: secp256k1_context, _ pubkey: inout secp256k1_pubkey, _ tweak: [UInt8]) -> Bool
 {
     var p = secp256k1_ge()
     var factor = secp256k1_scalar()
@@ -1007,7 +1020,7 @@ public func secp256k1_ec_pubkey_tweak_mul(ctx: secp256k1_context, pubkey: inout 
  * You should call this after secp256k1_context_create or
  * secp256k1_context_clone, and may call this repeatedly afterwards.
  */
-public func secp256k1_context_randomize(ctx: inout secp256k1_context, seed32: [UInt8]) -> Bool {
+public func secp256k1_context_randomize(_ ctx: inout secp256k1_context, _ seed32: [UInt8]) -> Bool {
     if !ctx.ARG_CHECK(secp256k1_ecmult_gen_context_is_built(ctx.ecmult_gen_ctx), "invalid ctx") { return false }
     secp256k1_ecmult_gen_blind(&ctx.ecmult_gen_ctx, seed32);
     return true
@@ -1022,7 +1035,7 @@ public func secp256k1_context_randomize(ctx: inout secp256k1_context, seed32: [U
  *  In:     ins:        pointer to array of pointers to public keys (cannot be NULL)
  *          n:          the number of public keys to add together (must be at least 1)
  */
-public func secp256k1_ec_pubkey_combine(ctx: secp256k1_context, pubnonce: inout secp256k1_pubkey, pubnonces:[secp256k1_pubkey], n: size_t) -> Bool
+public func secp256k1_ec_pubkey_combine(_ ctx: secp256k1_context, _ pubnonce: inout secp256k1_pubkey, _ pubnonces:[secp256k1_pubkey], _ n: size_t) -> Bool
 {
     var Qj = secp256k1_gej()
     var Q = secp256k1_ge()

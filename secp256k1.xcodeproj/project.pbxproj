@@ -27,6 +27,7 @@
 		A289B4222049673D0073004C /* field_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A289B4212049673D0073004C /* field_impl.swift */; };
 		A289B424204971AB0073004C /* scalar_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A289B423204971AB0073004C /* scalar_impl.swift */; };
 		A29CB93D20399FE0007FF743 /* hash_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29CB93C20399FE0007FF743 /* hash_impl.swift */; };
+		A29D57D0204BBC6600E36F04 /* testrand_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29D57CF204BBC6600E36F04 /* testrand_impl.swift */; };
 		A2B45CA81F94E61400249454 /* secp256k1.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A2B45C9E1F94E61400249454 /* secp256k1.framework */; };
 		A2B45CAD1F94E61400249454 /* secp256k1Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B45CAC1F94E61400249454 /* secp256k1Tests.swift */; };
 		A2B45CAF1F94E61400249454 /* secp256k1.h in Headers */ = {isa = PBXBuildFile; fileRef = A2B45CA11F94E61400249454 /* secp256k1.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -85,6 +86,7 @@
 		A289B4212049673D0073004C /* field_impl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = field_impl.swift; sourceTree = "<group>"; };
 		A289B423204971AB0073004C /* scalar_impl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = scalar_impl.swift; sourceTree = "<group>"; };
 		A29CB93C20399FE0007FF743 /* hash_impl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = hash_impl.swift; sourceTree = "<group>"; };
+		A29D57CF204BBC6600E36F04 /* testrand_impl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = testrand_impl.swift; sourceTree = "<group>"; };
 		A2B45C9E1F94E61400249454 /* secp256k1.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = secp256k1.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2B45CA11F94E61400249454 /* secp256k1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = secp256k1.h; sourceTree = "<group>"; };
 		A2B45CA21F94E61400249454 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -228,6 +230,7 @@
 			children = (
 				A2B45CAC1F94E61400249454 /* secp256k1Tests.swift */,
 				A2B45CAE1F94E61400249454 /* Info.plist */,
+				A29D57CF204BBC6600E36F04 /* testrand_impl.swift */,
 			);
 			path = secp256k1Tests;
 			sourceTree = "<group>";
@@ -644,6 +647,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A29D57D0204BBC6600E36F04 /* testrand_impl.swift in Sources */,
 				A2B45CAD1F94E61400249454 /* secp256k1Tests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

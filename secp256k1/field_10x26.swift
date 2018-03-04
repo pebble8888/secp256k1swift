@@ -55,6 +55,15 @@ struct secp256k1_fe {
         n[8] = n8
         n[9] = n9
     }
+    
+    func equal(_ a: secp256k1_fe) -> Bool {
+        for i in 0 ..< 10 {
+            if self.n[i] != a.n[i] {
+                return false
+            }
+        }
+        return true
+    }
 }
 
 /* Unpacks a constant into a overlapping multi-limbed FE element. */
@@ -134,6 +143,14 @@ struct secp256k1_fe_storage {
             n[i] = 0
         }
     }
+    func equal(_ a: secp256k1_fe_storage) -> Bool {
+        for i in 0..<8 {
+            if self.n[i] != a.n[i] {
+                return false
+            }
+        }
+        return true
+    }
 }
 
 
@@ -168,9 +185,14 @@ func secp256k1_fe_verify(_ a: secp256k1_fe) {
             }
         }
     }
-    //VERIFY_CHECK(r == 1)
+    VERIFY_CHECK(r == 1)
 }
 #endif
+
+fileprivate func VERIFY_CHECK(_ cond: Bool)
+{
+    assert(cond)
+}
 
 // normalize
 func secp256k1_fe_normalize(_ r: inout secp256k1_fe) {
@@ -202,7 +224,7 @@ func secp256k1_fe_normalize(_ r: inout secp256k1_fe) {
     t9 += (t8 >> 26); t8 &= 0x3FFFFFF; m &= t8;
 
     /* ... except for a possible carry at bit 22 of t9 (i.e. bit 256 of the field element) */
-    //VERIFY_CHECK(t9 >> 23 == 0);
+    VERIFY_CHECK(t9 >> 23 == 0);
 
     //
     // strong
@@ -224,7 +246,7 @@ func secp256k1_fe_normalize(_ r: inout secp256k1_fe) {
     t9 += (t8 >> 26); t8 &= 0x3FFFFFF;
 
     /* If t9 didn't carry to bit 22 already, then it should have after any final reduction */
-    //VERIFY_CHECK(t9 >> 22 == x);
+    VERIFY_CHECK(t9 >> 22 == x);
 
     //
     // strong
@@ -270,7 +292,7 @@ func secp256k1_fe_normalize_weak(_ r:inout secp256k1_fe) {
     t9 += (t8 >> 26); t8 &= 0x3FFFFFF;
 
     /* ... except for a possible carry at bit 22 of t9 (i.e. bit 256 of the field element) */
-    //VERIFY_CHECK(t9 >> 23 == 0);
+    VERIFY_CHECK(t9 >> 23 == 0);
 
     r.n[0] = t0; r.n[1] = t1; r.n[2] = t2; r.n[3] = t3; r.n[4] = t4;
     r.n[5] = t5; r.n[6] = t6; r.n[7] = t7; r.n[8] = t8; r.n[9] = t9;
@@ -310,7 +332,7 @@ func secp256k1_fe_normalize_var(_ r:inout secp256k1_fe) {
     t9 += (t8 >> 26); t8 &= 0x3FFFFFF; m &= t8;
 
     /* ... except for a possible carry at bit 22 of t9 (i.e. bit 256 of the field element) */
-    //VERIFY_CHECK(t9 >> 23 == 0);
+    VERIFY_CHECK(t9 >> 23 == 0);
 
     /* At most a single final reduction is needed; check if the value is >= the field characteristic */
     x = (t9 >> 22) | ((t9 == 0x03FFFFF ? 1 : 0) & (m == 0x3FFFFFF ? 1 : 0)
@@ -329,7 +351,7 @@ func secp256k1_fe_normalize_var(_ r:inout secp256k1_fe) {
         t9 += (t8 >> 26); t8 &= 0x3FFFFFF;
 
         /* If t9 didn't carry to bit 22 already, then it should have after any final reduction */
-        //VERIFY_CHECK(t9 >> 22 == x);
+        VERIFY_CHECK(t9 >> 22 == x);
 
         /* Mask off the possible multiple of 2^256 from the final reduction */
         t9 &= 0x03FFFFF;
@@ -378,7 +400,7 @@ func secp256k1_fe_normalizes_to_zero(_ r: inout secp256k1_fe) -> Bool {
     z0 |= t9; z1 &= t9 ^ 0x3C00000;
 
     /* ... except for a possible carry at bit 22 of t9 (i.e. bit 256 of the field element) */
-    //VERIFY_CHECK(t9 >> 23 == 0);
+    VERIFY_CHECK(t9 >> 23 == 0);
 
     return (z0 == 0) || (z1 == 0x3FFFFFF);
 }
@@ -431,7 +453,7 @@ func secp256k1_fe_normalizes_to_zero_var(_ r: inout secp256k1_fe) -> Bool {
     z0 |= t9; z1 &= t9 ^ 0x3C00000;
 
     /* ... except for a possible carry at bit 22 of t9 (i.e. bit 256 of the field element) */
-    //VERIFY_CHECK(t9 >> 23 == 0);
+    VERIFY_CHECK(t9 >> 23 == 0);
 
     return (z0 == 0) || (z1 == 0x3FFFFFF);
 }
@@ -626,7 +648,7 @@ func secp256k1_fe_add(_ r: inout secp256k1_fe, _ a:secp256k1_fe) {
 
 func VERIFY_BITS<T:UnsignedInteger>(_ x:T, _ n:UInt){
 #if VERIFY
-    //VERIFY_CHECK((x >> n) == 0)
+    VERIFY_CHECK((x >> n) == 0)
 #endif
 }
 
@@ -668,16 +690,16 @@ func secp256k1_fe_mul_inner(_ r:inout [UInt32], _ a:[UInt32], _ b:[UInt32] /* si
      *  Note that [x 0 0 0 0 0 0 0 0 0 0] = [x*R1 x*R0].
      */
 
-    d = UInt64(a[0] * b[9])
-    d += UInt64(a[1] * b[8])
-    d += UInt64(a[2] * b[7])
-    d += UInt64(a[3] * b[6])
-    d += UInt64(a[4] * b[5])
-    d += UInt64(a[5] * b[4])
-    d += UInt64(a[6] * b[3])
-    d += UInt64(a[7] * b[2])
-    d += UInt64(a[8] * b[1])
-    d += UInt64(a[9] * b[0])
+    d = UInt64(a[0]) * UInt64(b[9])
+    d += UInt64(a[1]) * UInt64(b[8])
+    d += UInt64(a[2]) * UInt64(b[7])
+    d += UInt64(a[3]) * UInt64(b[6])
+    d += UInt64(a[4]) * UInt64(b[5])
+    d += UInt64(a[5]) * UInt64(b[4])
+    d += UInt64(a[6]) * UInt64(b[3])
+    d += UInt64(a[7]) * UInt64(b[2])
+    d += UInt64(a[8]) * UInt64(b[1])
+    d += UInt64(a[9]) * UInt64(b[0])
     /* VERIFY_BITS(d, 64); */
     /* [d 0 0 0 0 0 0 0 0 0] = [p9 0 0 0 0 0 0 0 0 0] */
     t9 = d & M; d >>= 26;
@@ -685,18 +707,18 @@ func secp256k1_fe_mul_inner(_ r:inout [UInt32], _ a:[UInt32], _ b:[UInt32] /* si
     VERIFY_BITS(d, 38);
     /* [d t9 0 0 0 0 0 0 0 0 0] = [p9 0 0 0 0 0 0 0 0 0] */
 
-    c  = UInt64(a[0] * b[0])
+    c  = UInt64(a[0]) * UInt64(b[0])
     VERIFY_BITS(c, 60);
     /* [d t9 0 0 0 0 0 0 0 0 c] = [p9 0 0 0 0 0 0 0 0 p0] */
-    d += UInt64(a[1] * b[9])
-    d += UInt64(a[2] * b[8])
-    d += UInt64(a[3] * b[7])
-    d += UInt64(a[4] * b[6])
-    d += UInt64(a[5] * b[5])
-    d += UInt64(a[6] * b[4])
-    d += UInt64(a[7] * b[3])
-    d += UInt64(a[8] * b[2])
-    d += UInt64(a[9] * b[1])
+    d += UInt64(a[1]) * UInt64(b[9])
+    d += UInt64(a[2]) * UInt64(b[8])
+    d += UInt64(a[3]) * UInt64(b[7])
+    d += UInt64(a[4]) * UInt64(b[6])
+    d += UInt64(a[5]) * UInt64(b[5])
+    d += UInt64(a[6]) * UInt64(b[4])
+    d += UInt64(a[7]) * UInt64(b[3])
+    d += UInt64(a[8]) * UInt64(b[2])
+    d += UInt64(a[9]) * UInt64(b[1])
     VERIFY_BITS(d, 63);
     /* [d t9 0 0 0 0 0 0 0 0 c] = [p10 p9 0 0 0 0 0 0 0 0 p0] */
     u0 = d & M; d >>= 26; c += u0 * R0;
@@ -710,18 +732,18 @@ func secp256k1_fe_mul_inner(_ r:inout [UInt32], _ a:[UInt32], _ b:[UInt32] /* si
     /* [d u0 t9 0 0 0 0 0 0 0 c-u0*R1 t0-u0*R0] = [p10 p9 0 0 0 0 0 0 0 0 p0] */
     /* [d 0 t9 0 0 0 0 0 0 0 c t0] = [p10 p9 0 0 0 0 0 0 0 0 p0] */
 
-    c += UInt64(a[0] * b[1])
-        + UInt64(a[1] * b[0])
+    c += UInt64(a[0]) * UInt64(b[1])
+        + UInt64(a[1]) * UInt64(b[0])
     VERIFY_BITS(c, 62);
     /* [d 0 t9 0 0 0 0 0 0 0 c t0] = [p10 p9 0 0 0 0 0 0 0 p1 p0] */
-    d += UInt64(a[2] * b[9])
-    d += UInt64(a[3] * b[8])
-    d += UInt64(a[4] * b[7])
-    d += UInt64(a[5] * b[6])
-    d += UInt64(a[6] * b[5])
-    d += UInt64(a[7] * b[4])
-    d += UInt64(a[8] * b[3])
-    d += UInt64(a[9] * b[2])
+    d += UInt64(a[2]) * UInt64(b[9])
+    d += UInt64(a[3]) * UInt64(b[8])
+    d += UInt64(a[4]) * UInt64(b[7])
+    d += UInt64(a[5]) * UInt64(b[6])
+    d += UInt64(a[6]) * UInt64(b[5])
+    d += UInt64(a[7]) * UInt64(b[4])
+    d += UInt64(a[8]) * UInt64(b[3])
+    d += UInt64(a[9]) * UInt64(b[2])
     VERIFY_BITS(d, 63);
     /* [d 0 t9 0 0 0 0 0 0 0 c t0] = [p11 p10 p9 0 0 0 0 0 0 0 p1 p0] */
     u1 = d & M; d >>= 26; c += u1 * R0;
@@ -735,18 +757,18 @@ func secp256k1_fe_mul_inner(_ r:inout [UInt32], _ a:[UInt32], _ b:[UInt32] /* si
     /* [d u1 0 t9 0 0 0 0 0 0 c-u1*R1 t1-u1*R0 t0] = [p11 p10 p9 0 0 0 0 0 0 0 p1 p0] */
     /* [d 0 0 t9 0 0 0 0 0 0 c t1 t0] = [p11 p10 p9 0 0 0 0 0 0 0 p1 p0] */
 
-    c += UInt64(a[0] * b[2])
-        + UInt64(a[1] * b[1])
-        + UInt64(a[2] * b[0]);
+    c += UInt64(a[0]) * UInt64(b[2])
+        + UInt64(a[1]) * UInt64(b[1])
+        + UInt64(a[2]) * UInt64(b[0]);
     VERIFY_BITS(c, 62);
     /* [d 0 0 t9 0 0 0 0 0 0 c t1 t0] = [p11 p10 p9 0 0 0 0 0 0 p2 p1 p0] */
-    d += UInt64(a[3] * b[9])
-    d += UInt64(a[4] * b[8])
-    d += UInt64(a[5] * b[7])
-    d += UInt64(a[6] * b[6])
-    d += UInt64(a[7] * b[5])
-    d += UInt64(a[8] * b[4])
-    d += UInt64(a[9] * b[3]);
+    d += UInt64(a[3]) * UInt64(b[9])
+    d += UInt64(a[4]) * UInt64(b[8])
+    d += UInt64(a[5]) * UInt64(b[7])
+    d += UInt64(a[6]) * UInt64(b[6])
+    d += UInt64(a[7]) * UInt64(b[5])
+    d += UInt64(a[8]) * UInt64(b[4])
+    d += UInt64(a[9]) * UInt64(b[3]);
     VERIFY_BITS(d, 63);
     /* [d 0 0 t9 0 0 0 0 0 0 c t1 t0] = [p12 p11 p10 p9 0 0 0 0 0 0 p2 p1 p0] */
     u2 = d & M; d >>= 26; c += u2 * R0;
@@ -760,18 +782,18 @@ func secp256k1_fe_mul_inner(_ r:inout [UInt32], _ a:[UInt32], _ b:[UInt32] /* si
     /* [d u2 0 0 t9 0 0 0 0 0 c-u2*R1 t2-u2*R0 t1 t0] = [p12 p11 p10 p9 0 0 0 0 0 0 p2 p1 p0] */
     /* [d 0 0 0 t9 0 0 0 0 0 c t2 t1 t0] = [p12 p11 p10 p9 0 0 0 0 0 0 p2 p1 p0] */
 
-    c += UInt64(a[0] * b[3])
-        + UInt64(a[1] * b[2])
-        + UInt64(a[2] * b[1])
-        + UInt64(a[3] * b[0]);
+    c += UInt64(a[0]) * UInt64(b[3])
+        + UInt64(a[1]) * UInt64(b[2])
+        + UInt64(a[2]) * UInt64(b[1])
+        + UInt64(a[3]) * UInt64(b[0]);
     VERIFY_BITS(c, 63);
     /* [d 0 0 0 t9 0 0 0 0 0 c t2 t1 t0] = [p12 p11 p10 p9 0 0 0 0 0 p3 p2 p1 p0] */
-    d += UInt64(a[4] * b[9])
-    d += UInt64(a[5] * b[8])
-    d += UInt64(a[6] * b[7])
-    d += UInt64(a[7] * b[6])
-    d += UInt64(a[8] * b[5])
-    d += UInt64(a[9] * b[4]);
+    d += UInt64(a[4]) * UInt64(b[9])
+    d += UInt64(a[5]) * UInt64(b[8])
+    d += UInt64(a[6]) * UInt64(b[7])
+    d += UInt64(a[7]) * UInt64(b[6])
+    d += UInt64(a[8]) * UInt64(b[5])
+    d += UInt64(a[9]) * UInt64(b[4]);
     VERIFY_BITS(d, 63);
     /* [d 0 0 0 t9 0 0 0 0 0 c t2 t1 t0] = [p13 p12 p11 p10 p9 0 0 0 0 0 p3 p2 p1 p0] */
     u3 = d & M; d >>= 26; c += u3 * R0;
@@ -785,18 +807,18 @@ func secp256k1_fe_mul_inner(_ r:inout [UInt32], _ a:[UInt32], _ b:[UInt32] /* si
     /* [d u3 0 0 0 t9 0 0 0 0 c-u3*R1 t3-u3*R0 t2 t1 t0] = [p13 p12 p11 p10 p9 0 0 0 0 0 p3 p2 p1 p0] */
     /* [d 0 0 0 0 t9 0 0 0 0 c t3 t2 t1 t0] = [p13 p12 p11 p10 p9 0 0 0 0 0 p3 p2 p1 p0] */
 
-    c += UInt64(a[0] * b[4])
-    c += UInt64(a[1] * b[3])
-    c += UInt64(a[2] * b[2])
-    c += UInt64(a[3] * b[1])
-    c += UInt64(a[4] * b[0]);
+    c += UInt64(a[0]) * UInt64(b[4])
+    c += UInt64(a[1]) * UInt64(b[3])
+    c += UInt64(a[2]) * UInt64(b[2])
+    c += UInt64(a[3]) * UInt64(b[1])
+    c += UInt64(a[4]) * UInt64(b[0]);
     VERIFY_BITS(c, 63);
     /* [d 0 0 0 0 t9 0 0 0 0 c t3 t2 t1 t0] = [p13 p12 p11 p10 p9 0 0 0 0 p4 p3 p2 p1 p0] */
-    d += UInt64(a[5] * b[9])
-        + UInt64(a[6] * b[8])
-        + UInt64(a[7] * b[7])
-        + UInt64(a[8] * b[6])
-        + UInt64(a[9] * b[5])
+    d += UInt64(a[5]) * UInt64(b[9])
+        + UInt64(a[6]) * UInt64(b[8])
+        + UInt64(a[7]) * UInt64(b[7])
+        + UInt64(a[8]) * UInt64(b[6])
+        + UInt64(a[9]) * UInt64(b[5])
     VERIFY_BITS(d, 62);
     /* [d 0 0 0 0 t9 0 0 0 0 c t3 t2 t1 t0] = [p14 p13 p12 p11 p10 p9 0 0 0 0 p4 p3 p2 p1 p0] */
     u4 = d & M; d >>= 26; c += u4 * R0;
@@ -810,18 +832,18 @@ func secp256k1_fe_mul_inner(_ r:inout [UInt32], _ a:[UInt32], _ b:[UInt32] /* si
     /* [d u4 0 0 0 0 t9 0 0 0 c-u4*R1 t4-u4*R0 t3 t2 t1 t0] = [p14 p13 p12 p11 p10 p9 0 0 0 0 p4 p3 p2 p1 p0] */
     /* [d 0 0 0 0 0 t9 0 0 0 c t4 t3 t2 t1 t0] = [p14 p13 p12 p11 p10 p9 0 0 0 0 p4 p3 p2 p1 p0] */
 
-    c += UInt64(a[0] * b[5])
-    c += UInt64(a[1] * b[4])
-    c += UInt64(a[2] * b[3])
-    c += UInt64(a[3] * b[2])
-    c += UInt64(a[4] * b[1])
-    c += UInt64(a[5] * b[0]);
+    c += UInt64(a[0]) * UInt64(b[5])
+    c += UInt64(a[1]) * UInt64(b[4])
+    c += UInt64(a[2]) * UInt64(b[3])
+    c += UInt64(a[3]) * UInt64(b[2])
+    c += UInt64(a[4]) * UInt64(b[1])
+    c += UInt64(a[5]) * UInt64(b[0]);
     VERIFY_BITS(c, 63);
     /* [d 0 0 0 0 0 t9 0 0 0 c t4 t3 t2 t1 t0] = [p14 p13 p12 p11 p10 p9 0 0 0 p5 p4 p3 p2 p1 p0] */
-    d += UInt64(a[6] * b[9])
-    d += UInt64(a[7] * b[8])
-    d += UInt64(a[8] * b[7])
-    d += UInt64(a[9] * b[6]);
+    d += UInt64(a[6]) * UInt64(b[9])
+    d += UInt64(a[7]) * UInt64(b[8])
+    d += UInt64(a[8]) * UInt64(b[7])
+    d += UInt64(a[9]) * UInt64(b[6]);
     VERIFY_BITS(d, 62);
     /* [d 0 0 0 0 0 t9 0 0 0 c t4 t3 t2 t1 t0] = [p15 p14 p13 p12 p11 p10 p9 0 0 0 p5 p4 p3 p2 p1 p0] */
     u5 = d & M; d >>= 26; c += u5 * R0;
@@ -835,18 +857,18 @@ func secp256k1_fe_mul_inner(_ r:inout [UInt32], _ a:[UInt32], _ b:[UInt32] /* si
     /* [d u5 0 0 0 0 0 t9 0 0 c-u5*R1 t5-u5*R0 t4 t3 t2 t1 t0] = [p15 p14 p13 p12 p11 p10 p9 0 0 0 p5 p4 p3 p2 p1 p0] */
     /* [d 0 0 0 0 0 0 t9 0 0 c t5 t4 t3 t2 t1 t0] = [p15 p14 p13 p12 p11 p10 p9 0 0 0 p5 p4 p3 p2 p1 p0] */
 
-    c += UInt64(a[0] * b[6])
-    c += UInt64(a[1] * b[5])
-    c += UInt64(a[2] * b[4])
-    c += UInt64(a[3] * b[3])
-    c += UInt64(a[4] * b[2])
-    c += UInt64(a[5] * b[1])
-    c += UInt64(a[6] * b[0]);
+    c += UInt64(a[0]) * UInt64(b[6])
+    c += UInt64(a[1]) * UInt64(b[5])
+    c += UInt64(a[2]) * UInt64(b[4])
+    c += UInt64(a[3]) * UInt64(b[3])
+    c += UInt64(a[4]) * UInt64(b[2])
+    c += UInt64(a[5]) * UInt64(b[1])
+    c += UInt64(a[6]) * UInt64(b[0]);
     VERIFY_BITS(c, 63);
     /* [d 0 0 0 0 0 0 t9 0 0 c t5 t4 t3 t2 t1 t0] = [p15 p14 p13 p12 p11 p10 p9 0 0 p6 p5 p4 p3 p2 p1 p0] */
-    d += UInt64(a[7] * b[9])
-        + UInt64(a[8] * b[8])
-        + UInt64(a[9] * b[7]);
+    d += UInt64(a[7]) * UInt64(b[9])
+        + UInt64(a[8]) * UInt64(b[8])
+        + UInt64(a[9]) * UInt64(b[7]);
     VERIFY_BITS(d, 61);
     /* [d 0 0 0 0 0 0 t9 0 0 c t5 t4 t3 t2 t1 t0] = [p16 p15 p14 p13 p12 p11 p10 p9 0 0 p6 p5 p4 p3 p2 p1 p0] */
     u6 = d & M; d >>= 26; c += u6 * R0;
@@ -860,26 +882,26 @@ func secp256k1_fe_mul_inner(_ r:inout [UInt32], _ a:[UInt32], _ b:[UInt32] /* si
     /* [d u6 0 0 0 0 0 0 t9 0 c-u6*R1 t6-u6*R0 t5 t4 t3 t2 t1 t0] = [p16 p15 p14 p13 p12 p11 p10 p9 0 0 p6 p5 p4 p3 p2 p1 p0] */
     /* [d 0 0 0 0 0 0 0 t9 0 c t6 t5 t4 t3 t2 t1 t0] = [p16 p15 p14 p13 p12 p11 p10 p9 0 0 p6 p5 p4 p3 p2 p1 p0] */
 
-    c += UInt64(a[0] * b[7])
-    c += UInt64(a[1] * b[6])
-    c += UInt64(a[2] * b[5])
-    c += UInt64(a[3] * b[4])
-    c += UInt64(a[4] * b[3])
-    c += UInt64(a[5] * b[2])
-    c += UInt64(a[6] * b[1])
-    c += UInt64(a[7] * b[0]);
-    /* VERIFY_BITS(c, 64); */
-    //VERIFY_CHECK(c <= 0x8000007C00000007);
+    c += UInt64(a[0]) * UInt64(b[7])
+    c += UInt64(a[1]) * UInt64(b[6])
+    c += UInt64(a[2]) * UInt64(b[5])
+    c += UInt64(a[3]) * UInt64(b[4])
+    c += UInt64(a[4]) * UInt64(b[3])
+    c += UInt64(a[5]) * UInt64(b[2])
+    c += UInt64(a[6]) * UInt64(b[1])
+    c += UInt64(a[7]) * UInt64(b[0]);
+    VERIFY_BITS(c, 64);
+    VERIFY_CHECK(c <= 0x8000_007C_0000_0007 as UInt64);
     /* [d 0 0 0 0 0 0 0 t9 0 c t6 t5 t4 t3 t2 t1 t0] = [p16 p15 p14 p13 p12 p11 p10 p9 0 p7 p6 p5 p4 p3 p2 p1 p0] */
-    d += UInt64(a[8] * b[9])
-        + UInt64(a[9] * b[8]);
+    d += UInt64(a[8]) * UInt64(b[9])
+        + UInt64(a[9]) * UInt64(b[8]);
     VERIFY_BITS(d, 58);
     /* [d 0 0 0 0 0 0 0 t9 0 c t6 t5 t4 t3 t2 t1 t0] = [p17 p16 p15 p14 p13 p12 p11 p10 p9 0 p7 p6 p5 p4 p3 p2 p1 p0] */
     u7 = d & M; d >>= 26; c += u7 * R0;
     VERIFY_BITS(u7, 26);
     VERIFY_BITS(d, 32);
-    /* VERIFY_BITS(c, 64); */
-    //VERIFY_CHECK(c <= 0x800001703FFFC2F7);
+    VERIFY_BITS(c, 64);
+    VERIFY_CHECK(c <= 0x8000_0170_3FFF_C2F7 as UInt64)
     /* [d u7 0 0 0 0 0 0 0 t9 0 c-u7*R0 t6 t5 t4 t3 t2 t1 t0] = [p17 p16 p15 p14 p13 p12 p11 p10 p9 0 p7 p6 p5 p4 p3 p2 p1 p0] */
     t7 = c & M; c >>= 26; c += u7 * R1;
     VERIFY_BITS(t7, 26);
@@ -887,26 +909,26 @@ func secp256k1_fe_mul_inner(_ r:inout [UInt32], _ a:[UInt32], _ b:[UInt32] /* si
     /* [d u7 0 0 0 0 0 0 0 t9 c-u7*R1 t7-u7*R0 t6 t5 t4 t3 t2 t1 t0] = [p17 p16 p15 p14 p13 p12 p11 p10 p9 0 p7 p6 p5 p4 p3 p2 p1 p0] */
     /* [d 0 0 0 0 0 0 0 0 t9 c t7 t6 t5 t4 t3 t2 t1 t0] = [p17 p16 p15 p14 p13 p12 p11 p10 p9 0 p7 p6 p5 p4 p3 p2 p1 p0] */
 
-    c += UInt64(a[0] * b[8])
-    c += UInt64(a[1] * b[7])
-    c += UInt64(a[2] * b[6])
-    c += UInt64(a[3] * b[5])
-    c += UInt64(a[4] * b[4])
-    c += UInt64(a[5] * b[3])
-    c += UInt64(a[6] * b[2])
-    c += UInt64(a[7] * b[1])
-    c += UInt64(a[8] * b[0]);
-    /* VERIFY_BITS(c, 64); */
-    //VERIFY_CHECK(c <= 0x9000007B80000008);
+    c += UInt64(a[0]) * UInt64(b[8])
+    c += UInt64(a[1]) * UInt64(b[7])
+    c += UInt64(a[2]) * UInt64(b[6])
+    c += UInt64(a[3]) * UInt64(b[5])
+    c += UInt64(a[4]) * UInt64(b[4])
+    c += UInt64(a[5]) * UInt64(b[3])
+    c += UInt64(a[6]) * UInt64(b[2])
+    c += UInt64(a[7]) * UInt64(b[1])
+    c += UInt64(a[8]) * UInt64(b[0]);
+    VERIFY_BITS(c, 64);
+    VERIFY_CHECK(c <= 0x9000_007B_8000_0008 as UInt64)
     /* [d 0 0 0 0 0 0 0 0 t9 c t7 t6 t5 t4 t3 t2 t1 t0] = [p17 p16 p15 p14 p13 p12 p11 p10 p9 p8 p7 p6 p5 p4 p3 p2 p1 p0] */
-    d += UInt64(a[9] * b[9]);
+    d += UInt64(a[9]) * UInt64(b[9]);
     VERIFY_BITS(d, 57);
     /* [d 0 0 0 0 0 0 0 0 t9 c t7 t6 t5 t4 t3 t2 t1 t0] = [p18 p17 p16 p15 p14 p13 p12 p11 p10 p9 p8 p7 p6 p5 p4 p3 p2 p1 p0] */
     u8 = d & M; d >>= 26; c += u8 * R0;
     VERIFY_BITS(u8, 26);
     VERIFY_BITS(d, 31);
-    /* VERIFY_BITS(c, 64); */
-    //VERIFY_CHECK(c <= 0x9000016FBFFFC2F8);
+    VERIFY_BITS(c, 64);
+    VERIFY_CHECK(c <= 0x9000_016F_BFFF_C2F8 as UInt64)
     /* [d u8 0 0 0 0 0 0 0 0 t9 c-u8*R0 t7 t6 t5 t4 t3 t2 t1 t0] = [p18 p17 p16 p15 p14 p13 p12 p11 p10 p9 p8 p7 p6 p5 p4 p3 p2 p1 p0] */
 
     r[3] = UInt32(t3);
@@ -949,13 +971,13 @@ func secp256k1_fe_mul_inner(_ r:inout [UInt32], _ a:[UInt32], _ b:[UInt32] /* si
     /* [r9+(c<<22) r8 r7 r6 r5 r4 r3 t2 t1+d r0-c*R0>>4] = [p18 p17 p16 p15 p14 p13 p12 p11 p10 p9 p8 p7 p6 p5 p4 p3 p2 p1 p0] */
     d   += c * (R1 >> 4) + t1;
     VERIFY_BITS(d, 53);
-    //VERIFY_CHECK(d <= 0x10000003FFFFBF);
+    VERIFY_CHECK(d <= 0x10000003FFFFBF)
     /* [r9+(c<<22) r8 r7 r6 r5 r4 r3 t2 d-c*R1>>4 r0-c*R0>>4] = [p18 p17 p16 p15 p14 p13 p12 p11 p10 p9 p8 p7 p6 p5 p4 p3 p2 p1 p0] */
     /* [r9 r8 r7 r6 r5 r4 r3 t2 d r0] = [p18 p17 p16 p15 p14 p13 p12 p11 p10 p9 p8 p7 p6 p5 p4 p3 p2 p1 p0] */
     r[1] = UInt32(d & M); d >>= 26;
     VERIFY_BITS(r[1], 26);
     VERIFY_BITS(d, 27);
-    //VERIFY_CHECK(d <= 0x4000000);
+    VERIFY_CHECK(d <= 0x4000000)
     /* [r9 r8 r7 r6 r5 r4 r3 t2+d r1 r0] = [p18 p17 p16 p15 p14 p13 p12 p11 p10 p9 p8 p7 p6 p5 p4 p3 p2 p1 p0] */
     d   += t2;
     VERIFY_BITS(d, 27);
@@ -970,9 +992,9 @@ func secp256k1_fe_mul_inner(_ r:inout [UInt32], _ a:[UInt32], _ b:[UInt32] /* si
 // r:uint32_t[10]
 // a:uint32_t[10]
 func secp256k1_fe_sqr_inner(_ r:inout [UInt32], _ a:[UInt32]) {
-    var c, d:UInt64;
-    var u0, u1, u2, u3, u4, u5, u6, u7, u8:UInt64;
-    var t9, t0, t1, t2, t3, t4, t5, t6, t7:UInt32;
+    var c, d:UInt64
+    var u0, u1, u2, u3, u4, u5, u6, u7, u8:UInt64
+    var t9, t0, t1, t2, t3, t4, t5, t6, t7:UInt32
     let M:UInt64 = 0x3FFFFFF
     let R0:UInt64 = 0x3D10
     let R1:UInt64 = 0x400;
@@ -993,11 +1015,11 @@ func secp256k1_fe_sqr_inner(_ r:inout [UInt32], _ a:[UInt32]) {
      *  Note that [x 0 0 0 0 0 0 0 0 0 0] = [x*R1 x*R0].
      */
 
-    d  = UInt64(a[0]*2 * a[9])
-    d += UInt64(a[1]*2 * a[8])
-    d += UInt64(a[2]*2 * a[7])
-    d += UInt64(a[3]*2 * a[6])
-    d += UInt64(a[4]*2 * a[5]);
+    d  = UInt64(a[0]) * 2 * UInt64(a[9])
+    d += UInt64(a[1]) * 2 * UInt64(a[8])
+    d += UInt64(a[2]) * 2 * UInt64(a[7])
+    d += UInt64(a[3]) * 2 * UInt64(a[6])
+    d += UInt64(a[4]) * 2 * UInt64(a[5])
     /* VERIFY_BITS(d, 64); */
     /* [d 0 0 0 0 0 0 0 0 0] = [p9 0 0 0 0 0 0 0 0 0] */
     t9 = UInt32(d & M); d >>= 26;
@@ -1005,15 +1027,15 @@ func secp256k1_fe_sqr_inner(_ r:inout [UInt32], _ a:[UInt32]) {
     VERIFY_BITS(d, 38);
     /* [d t9 0 0 0 0 0 0 0 0 0] = [p9 0 0 0 0 0 0 0 0 0] */
 
-    c  = UInt64(a[0] * a[0]);
+    c  = UInt64(a[0]) * UInt64(a[0])
     VERIFY_BITS(c, 60);
     /* [d t9 0 0 0 0 0 0 0 0 c] = [p9 0 0 0 0 0 0 0 0 p0] */
-    d += UInt64(a[1]*2 * a[9])
-    d += UInt64(a[2]*2 * a[8])
-    d += UInt64(a[3]*2 * a[7])
-    d += UInt64(a[4]*2 * a[6])
-    d += UInt64(a[5] * a[5]);
-    VERIFY_BITS(d, 63);
+    d += UInt64(a[1]) * 2 * UInt64(a[9])
+    d += UInt64(a[2]) * 2 * UInt64(a[8])
+    d += UInt64(a[3]) * 2 * UInt64(a[7])
+    d += UInt64(a[4]) * 2 * UInt64(a[6])
+    d += UInt64(a[5]) * UInt64(a[5])
+    VERIFY_BITS(d, 63)
     /* [d t9 0 0 0 0 0 0 0 0 c] = [p10 p9 0 0 0 0 0 0 0 0 p0] */
     u0 = d & M; d >>= 26; c += u0 * R0;
     VERIFY_BITS(u0, 26);
@@ -1026,13 +1048,13 @@ func secp256k1_fe_sqr_inner(_ r:inout [UInt32], _ a:[UInt32]) {
     /* [d u0 t9 0 0 0 0 0 0 0 c-u0*R1 t0-u0*R0] = [p10 p9 0 0 0 0 0 0 0 0 p0] */
     /* [d 0 t9 0 0 0 0 0 0 0 c t0] = [p10 p9 0 0 0 0 0 0 0 0 p0] */
 
-    c += UInt64(a[0]*2 * a[1]);
+    c += UInt64(a[0]*2) * UInt64(a[1]);
     VERIFY_BITS(c, 62);
     /* [d 0 t9 0 0 0 0 0 0 0 c t0] = [p10 p9 0 0 0 0 0 0 0 p1 p0] */
-    d += UInt64(a[2]*2 * a[9])
-    d += UInt64(a[3]*2 * a[8])
-    d += UInt64(a[4]*2 * a[7])
-    d += UInt64(a[5]*2 * a[6]);
+    d += UInt64(a[2]) * 2 * UInt64(a[9])
+    d += UInt64(a[3]) * 2 * UInt64(a[8])
+    d += UInt64(a[4]) * 2 * UInt64(a[7])
+    d += UInt64(a[5]) * 2 * UInt64(a[6])
     VERIFY_BITS(d, 63);
     /* [d 0 t9 0 0 0 0 0 0 0 c t0] = [p11 p10 p9 0 0 0 0 0 0 0 p1 p0] */
     u1 = d & M; d >>= 26; c += u1 * R0;
@@ -1046,14 +1068,14 @@ func secp256k1_fe_sqr_inner(_ r:inout [UInt32], _ a:[UInt32]) {
     /* [d u1 0 t9 0 0 0 0 0 0 c-u1*R1 t1-u1*R0 t0] = [p11 p10 p9 0 0 0 0 0 0 0 p1 p0] */
     /* [d 0 0 t9 0 0 0 0 0 0 c t1 t0] = [p11 p10 p9 0 0 0 0 0 0 0 p1 p0] */
 
-    c += UInt64(a[0]*2 * a[2])
-    + UInt64(a[1] * a[1]);
+    c += UInt64(a[0]) * 2 * UInt64(a[2])
+    + UInt64(a[1]) * UInt64(a[1]);
     VERIFY_BITS(c, 62);
     /* [d 0 0 t9 0 0 0 0 0 0 c t1 t0] = [p11 p10 p9 0 0 0 0 0 0 p2 p1 p0] */
-    d += UInt64(a[3]*2 * a[9])
-    d += UInt64(a[4]*2 * a[8])
-    d += UInt64(a[5]*2 * a[7])
-    d += UInt64(a[6] * a[6]);
+    d += UInt64(a[3]) * 2 * UInt64(a[9])
+    d += UInt64(a[4]) * 2 * UInt64(a[8])
+    d += UInt64(a[5]) * 2 * UInt64(a[7])
+    d += UInt64(a[6]) * UInt64(a[6]);
     VERIFY_BITS(d, 63);
     /* [d 0 0 t9 0 0 0 0 0 0 c t1 t0] = [p12 p11 p10 p9 0 0 0 0 0 0 p2 p1 p0] */
     u2 = d & M; d >>= 26; c += u2 * R0;
@@ -1067,13 +1089,13 @@ func secp256k1_fe_sqr_inner(_ r:inout [UInt32], _ a:[UInt32]) {
     /* [d u2 0 0 t9 0 0 0 0 0 c-u2*R1 t2-u2*R0 t1 t0] = [p12 p11 p10 p9 0 0 0 0 0 0 p2 p1 p0] */
     /* [d 0 0 0 t9 0 0 0 0 0 c t2 t1 t0] = [p12 p11 p10 p9 0 0 0 0 0 0 p2 p1 p0] */
 
-    c += UInt64(a[0]*2 * a[3])
-    c += UInt64(a[1]*2 * a[2]);
+    c += UInt64(a[0]) * 2 * UInt64(a[3])
+    c += UInt64(a[1]) * 2 * UInt64(a[2]);
     VERIFY_BITS(c, 63);
     /* [d 0 0 0 t9 0 0 0 0 0 c t2 t1 t0] = [p12 p11 p10 p9 0 0 0 0 0 p3 p2 p1 p0] */
-    d += UInt64(a[4]*2 * a[9])
-    d += UInt64(a[5]*2 * a[8])
-    d += UInt64(a[6]*2 * a[7]);
+    d += UInt64(a[4]) * 2 * UInt64(a[9])
+    d += UInt64(a[5]) * 2 * UInt64(a[8])
+    d += UInt64(a[6]) * 2 * UInt64(a[7])
     VERIFY_BITS(d, 63);
     /* [d 0 0 0 t9 0 0 0 0 0 c t2 t1 t0] = [p13 p12 p11 p10 p9 0 0 0 0 0 p3 p2 p1 p0] */
     u3 = d & M; d >>= 26; c += u3 * R0;
@@ -1087,14 +1109,14 @@ func secp256k1_fe_sqr_inner(_ r:inout [UInt32], _ a:[UInt32]) {
     /* [d u3 0 0 0 t9 0 0 0 0 c-u3*R1 t3-u3*R0 t2 t1 t0] = [p13 p12 p11 p10 p9 0 0 0 0 0 p3 p2 p1 p0] */
     /* [d 0 0 0 0 t9 0 0 0 0 c t3 t2 t1 t0] = [p13 p12 p11 p10 p9 0 0 0 0 0 p3 p2 p1 p0] */
 
-    c += UInt64(a[0]*2 * a[4])
-    c += UInt64(a[1]*2 * a[3])
-    c += UInt64(a[2] * a[2]);
+    c += UInt64(a[0]) * 2 * UInt64(a[4])
+    c += UInt64(a[1]) * 2 * UInt64(a[3])
+    c += UInt64(a[2]) * UInt64(a[2]);
     VERIFY_BITS(c, 63);
     /* [d 0 0 0 0 t9 0 0 0 0 c t3 t2 t1 t0] = [p13 p12 p11 p10 p9 0 0 0 0 p4 p3 p2 p1 p0] */
-    d += UInt64(a[5]*2 * a[9])
-    d += UInt64(a[6]*2 * a[8])
-    d += UInt64(a[7] * a[7]);
+    d += UInt64(a[5]) * 2 * UInt64(a[9])
+    d += UInt64(a[6]) * 2 * UInt64(a[8])
+    d += UInt64(a[7]) * UInt64(a[7]);
     VERIFY_BITS(d, 62);
     /* [d 0 0 0 0 t9 0 0 0 0 c t3 t2 t1 t0] = [p14 p13 p12 p11 p10 p9 0 0 0 0 p4 p3 p2 p1 p0] */
     u4 = d & M; d >>= 26; c += u4 * R0;
@@ -1108,13 +1130,13 @@ func secp256k1_fe_sqr_inner(_ r:inout [UInt32], _ a:[UInt32]) {
     /* [d u4 0 0 0 0 t9 0 0 0 c-u4*R1 t4-u4*R0 t3 t2 t1 t0] = [p14 p13 p12 p11 p10 p9 0 0 0 0 p4 p3 p2 p1 p0] */
     /* [d 0 0 0 0 0 t9 0 0 0 c t4 t3 t2 t1 t0] = [p14 p13 p12 p11 p10 p9 0 0 0 0 p4 p3 p2 p1 p0] */
 
-    c += UInt64(a[0]*2 * a[5])
-    c += UInt64(a[1]*2 * a[4])
-    c += UInt64(a[2]*2 * a[3]);
+    c += UInt64(a[0]) * 2 * UInt64(a[5])
+    c += UInt64(a[1]) * 2 * UInt64(a[4])
+    c += UInt64(a[2]) * 2 * UInt64(a[3]);
     VERIFY_BITS(c, 63);
     /* [d 0 0 0 0 0 t9 0 0 0 c t4 t3 t2 t1 t0] = [p14 p13 p12 p11 p10 p9 0 0 0 p5 p4 p3 p2 p1 p0] */
-    d += UInt64(a[6]*2 * a[9])
-        + UInt64(a[7]*2 * a[8]);
+    d += UInt64(a[6]*2) * UInt64(a[9])
+        + UInt64(a[7]*2) * UInt64(a[8]);
     VERIFY_BITS(d, 62);
     /* [d 0 0 0 0 0 t9 0 0 0 c t4 t3 t2 t1 t0] = [p15 p14 p13 p12 p11 p10 p9 0 0 0 p5 p4 p3 p2 p1 p0] */
     u5 = d & M; d >>= 26; c += u5 * R0;
@@ -1128,14 +1150,14 @@ func secp256k1_fe_sqr_inner(_ r:inout [UInt32], _ a:[UInt32]) {
     /* [d u5 0 0 0 0 0 t9 0 0 c-u5*R1 t5-u5*R0 t4 t3 t2 t1 t0] = [p15 p14 p13 p12 p11 p10 p9 0 0 0 p5 p4 p3 p2 p1 p0] */
     /* [d 0 0 0 0 0 0 t9 0 0 c t5 t4 t3 t2 t1 t0] = [p15 p14 p13 p12 p11 p10 p9 0 0 0 p5 p4 p3 p2 p1 p0] */
 
-    c += UInt64(a[0]*2 * a[6])
-        + UInt64(a[1]*2 * a[5])
-        + UInt64(a[2]*2 * a[4])
-        + UInt64(a[3] * a[3]);
+    c += UInt64(a[0]) * 2 * UInt64(a[6])
+        + UInt64(a[1]) * 2 * UInt64(a[5])
+        + UInt64(a[2]) * 2 * UInt64(a[4])
+        + UInt64(a[3]) * UInt64(a[3]);
     VERIFY_BITS(c, 63);
     /* [d 0 0 0 0 0 0 t9 0 0 c t5 t4 t3 t2 t1 t0] = [p15 p14 p13 p12 p11 p10 p9 0 0 p6 p5 p4 p3 p2 p1 p0] */
-    d += UInt64(a[7]*2 * a[9])
-        + UInt64(a[8] * a[8]);
+    d += UInt64(a[7]) * 2 * UInt64(a[9])
+        + UInt64(a[8]) * UInt64(a[8]);
     VERIFY_BITS(d, 61);
     /* [d 0 0 0 0 0 0 t9 0 0 c t5 t4 t3 t2 t1 t0] = [p16 p15 p14 p13 p12 p11 p10 p9 0 0 p6 p5 p4 p3 p2 p1 p0] */
     u6 = d & M; d >>= 26; c += u6 * R0;
@@ -1149,21 +1171,21 @@ func secp256k1_fe_sqr_inner(_ r:inout [UInt32], _ a:[UInt32]) {
     /* [d u6 0 0 0 0 0 0 t9 0 c-u6*R1 t6-u6*R0 t5 t4 t3 t2 t1 t0] = [p16 p15 p14 p13 p12 p11 p10 p9 0 0 p6 p5 p4 p3 p2 p1 p0] */
     /* [d 0 0 0 0 0 0 0 t9 0 c t6 t5 t4 t3 t2 t1 t0] = [p16 p15 p14 p13 p12 p11 p10 p9 0 0 p6 p5 p4 p3 p2 p1 p0] */
 
-    c += UInt64(a[0]*2 * a[7])
-    c += UInt64(a[1]*2 * a[6])
-    c += UInt64(a[2]*2 * a[5])
-    c += UInt64(a[3]*2 * a[4]);
-    /* VERIFY_BITS(c, 64); */
-    //VERIFY_CHECK(c <= 0x8000007C00000007);
+    c += UInt64(a[0]) * 2 * UInt64(a[7])
+    c += UInt64(a[1]) * 2 * UInt64(a[6])
+    c += UInt64(a[2]) * 2 * UInt64(a[5])
+    c += UInt64(a[3]) * 2 * UInt64(a[4]);
+    VERIFY_BITS(c, 64)
+    VERIFY_CHECK(c <= 0x8000_007C_0000_0007 as UInt64)
     /* [d 0 0 0 0 0 0 0 t9 0 c t6 t5 t4 t3 t2 t1 t0] = [p16 p15 p14 p13 p12 p11 p10 p9 0 p7 p6 p5 p4 p3 p2 p1 p0] */
-    d += UInt64(a[8]*2 * a[9]);
+    d += UInt64(a[8]*2) * UInt64(a[9]);
     VERIFY_BITS(d, 58);
     /* [d 0 0 0 0 0 0 0 t9 0 c t6 t5 t4 t3 t2 t1 t0] = [p17 p16 p15 p14 p13 p12 p11 p10 p9 0 p7 p6 p5 p4 p3 p2 p1 p0] */
     u7 = d & M; d >>= 26; c += u7 * R0;
     VERIFY_BITS(u7, 26);
     VERIFY_BITS(d, 32);
-    /* VERIFY_BITS(c, 64); */
-    //VERIFY_CHECK(c <= 0x800001703FFFC2F7);
+    VERIFY_BITS(c, 64);
+    VERIFY_CHECK(c <= 0x8000_0170_3FFF_C2F7 as UInt64)
     /* [d u7 0 0 0 0 0 0 0 t9 0 c-u7*R0 t6 t5 t4 t3 t2 t1 t0] = [p17 p16 p15 p14 p13 p12 p11 p10 p9 0 p7 p6 p5 p4 p3 p2 p1 p0] */
     t7 = UInt32(c & M); c >>= 26; c += u7 * R1;
     VERIFY_BITS(t7, 26);
@@ -1171,22 +1193,22 @@ func secp256k1_fe_sqr_inner(_ r:inout [UInt32], _ a:[UInt32]) {
     /* [d u7 0 0 0 0 0 0 0 t9 c-u7*R1 t7-u7*R0 t6 t5 t4 t3 t2 t1 t0] = [p17 p16 p15 p14 p13 p12 p11 p10 p9 0 p7 p6 p5 p4 p3 p2 p1 p0] */
     /* [d 0 0 0 0 0 0 0 0 t9 c t7 t6 t5 t4 t3 t2 t1 t0] = [p17 p16 p15 p14 p13 p12 p11 p10 p9 0 p7 p6 p5 p4 p3 p2 p1 p0] */
 
-    c += UInt64(a[0]*2 * a[8])
-    c += UInt64(a[1]*2 * a[7])
-    c += UInt64(a[2]*2 * a[6])
-    c += UInt64(a[3]*2 * a[5])
-    c += UInt64(a[4] * a[4]);
-    /* VERIFY_BITS(c, 64); */
-    //VERIFY_CHECK(c <= 0x9000007B80000008);
+    c += UInt64(a[0]) * 2 * UInt64(a[8])
+    c += UInt64(a[1]) * 2 * UInt64(a[7])
+    c += UInt64(a[2]) * 2 * UInt64(a[6])
+    c += UInt64(a[3]) * 2 * UInt64(a[5])
+    c += UInt64(a[4]) * UInt64(a[4]);
+    VERIFY_BITS(c, 64);
+    VERIFY_CHECK(c <= 0x9000_007B_8000_0008 as UInt64)
     /* [d 0 0 0 0 0 0 0 0 t9 c t7 t6 t5 t4 t3 t2 t1 t0] = [p17 p16 p15 p14 p13 p12 p11 p10 p9 p8 p7 p6 p5 p4 p3 p2 p1 p0] */
-    d += UInt64(a[9] * a[9]);
+    d += UInt64(a[9]) * UInt64(a[9]);
     VERIFY_BITS(d, 57);
     /* [d 0 0 0 0 0 0 0 0 t9 c t7 t6 t5 t4 t3 t2 t1 t0] = [p18 p17 p16 p15 p14 p13 p12 p11 p10 p9 p8 p7 p6 p5 p4 p3 p2 p1 p0] */
     u8 = d & M; d >>= 26; c += u8 * R0;
     VERIFY_BITS(u8, 26);
     VERIFY_BITS(d, 31);
-    /* VERIFY_BITS(c, 64); */
-    //VERIFY_CHECK(c <= 0x9000016FBFFFC2F8);
+    VERIFY_BITS(c, 64);
+    VERIFY_CHECK(c <= 0x9000_016F_BFFF_C2F8 as UInt64)
     /* [d u8 0 0 0 0 0 0 0 0 t9 c-u8*R0 t7 t6 t5 t4 t3 t2 t1 t0] = [p18 p17 p16 p15 p14 p13 p12 p11 p10 p9 p8 p7 p6 p5 p4 p3 p2 p1 p0] */
 
     r[3] = t3;
@@ -1229,13 +1251,13 @@ func secp256k1_fe_sqr_inner(_ r:inout [UInt32], _ a:[UInt32]) {
     /* [r9+(c<<22) r8 r7 r6 r5 r4 r3 t2 t1+d r0-c*R0>>4] = [p18 p17 p16 p15 p14 p13 p12 p11 p10 p9 p8 p7 p6 p5 p4 p3 p2 p1 p0] */
     d   += c * (R1 >> 4) + UInt64(t1);
     VERIFY_BITS(d, 53);
-    //VERIFY_CHECK(d <= 0x10000003FFFFBF);
+    VERIFY_CHECK(d <= 0x10000003FFFFBF)
     /* [r9+(c<<22) r8 r7 r6 r5 r4 r3 t2 d-c*R1>>4 r0-c*R0>>4] = [p18 p17 p16 p15 p14 p13 p12 p11 p10 p9 p8 p7 p6 p5 p4 p3 p2 p1 p0] */
     /* [r9 r8 r7 r6 r5 r4 r3 t2 d r0] = [p18 p17 p16 p15 p14 p13 p12 p11 p10 p9 p8 p7 p6 p5 p4 p3 p2 p1 p0] */
     r[1] = UInt32(d & M); d >>= 26;
     VERIFY_BITS(r[1], 26);
     VERIFY_BITS(d, 27);
-    //VERIFY_CHECK(d <= 0x4000000);
+    VERIFY_CHECK(d <= 0x4000000)
     /* [r9 r8 r7 r6 r5 r4 r3 t2+d r1 r0] = [p18 p17 p16 p15 p14 p13 p12 p11 p10 p9 p8 p7 p6 p5 p4 p3 p2 p1 p0] */
     d   += UInt64(t2);
     VERIFY_BITS(d, 27);
@@ -1255,7 +1277,7 @@ func secp256k1_fe_mul(_ r:inout secp256k1_fe, _ a:secp256k1_fe, _ b:secp256k1_fe
     //VERIFY_CHECK(b->magnitude <= 8);
     secp256k1_fe_verify(a);
     secp256k1_fe_verify(b);
-    //VERIFY_CHECK(r != b);
+    VERIFY_CHECK(r != b)
 #endif
     secp256k1_fe_mul_inner(&r.n, a.n, b.n);
 #if VERIFY
@@ -1284,17 +1306,17 @@ func secp256k1_fe_sqr(_ r:inout secp256k1_fe, _ a:secp256k1_fe) {
 // if flag is true, r = a
 // if not, r leave it
 func secp256k1_fe_cmov(_ r:inout secp256k1_fe, _ a:secp256k1_fe, _ flag:Bool) {
-    var mask0, mask1:UInt32;
-    mask0 = flag ? 1 : 0 + ~(UInt32(0));
-    mask1 = ~mask0;
+    var mask0, mask1:UInt32
+    mask0 = flag ? 1 : 0 + UInt32.max
+    mask1 = ~mask0
     for i in 0..<10 {
-        r.n[i] = (r.n[i] & mask0) | (a.n[i] & mask1);
+        r.n[i] = (r.n[i] & mask0) | (a.n[i] & mask1)
     }
 #if VERIFY
     if (a->magnitude > r->magnitude) {
-        r->magnitude = a->magnitude;
+        r->magnitude = a->magnitude
     }
-    r->normalized &= a->normalized;
+    r->normalized &= a->normalized
 #endif
 }
 
@@ -1317,7 +1339,7 @@ func secp256k1_fe_storage_cmov(_ r:inout secp256k1_fe_storage, _ a:secp256k1_fe_
 // @param a:secp256k1_fe
 func secp256k1_fe_to_storage(_ r:inout secp256k1_fe_storage, _ a:secp256k1_fe) {
 #if VERIFY
-    //VERIFY_CHECK(a->normalized);
+    VERIFY_CHECK(a->normalized)
 #endif
     r.n[0] = a.n[0] | a.n[1] << 26;
     r.n[1] = a.n[1] >> 6 | a.n[2] << 20;

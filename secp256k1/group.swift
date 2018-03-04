@@ -13,9 +13,6 @@
 
 import Foundation
 
-//#include "num.h"
-//#include "field.h"
-
 /** A group element of the secp256k1 curve, in affine coordinates. */
 // アフィン座標での点 x, y, infinity
 struct secp256k1_ge {

@@ -25,9 +25,9 @@ import Foundation
 
 struct secp256k1_callback {
     //void (*fn)(const char *text, void* data);
-    var fn: (_ text: String, _ data: [UInt8]?) -> Void
+    var fn: (_ text: String, _ data: UnsafeMutableRawPointer? /*[UInt8] */) -> Void
     // const void* data;
-    var data: [UInt8]?
+    var data: UnsafeMutableRawPointer? // [UInt8]?
 }
 
 func secp256k1_callback_call(_ cb: secp256k1_callback, _ text: String) {
@@ -129,20 +129,37 @@ func UInt8ToUInt32LE(_ dst: inout [UInt32],
                     _ src_begin: Int,
                     _ size: UInt)
 {
-    assert((size % 4) == 0)
-    let count = size / 4
-    for i in 0..<Int(count) {
-        dst[i + dst_begin] = UInt32(src[i + src_begin])
-        dst[i + dst_begin] += UInt32(src[i + src_begin + 1]) << 8
-        dst[i + dst_begin] += UInt32(src[i + src_begin + 2]) << 16
-        dst[i + dst_begin] += UInt32(src[i + src_begin + 3]) << 24
+    //assert((size % 4) == 0)
+    //let count = size / 4
+    //var i = 0
+    //for i in 0..<Int(count) {
+    var dst_idx = dst_begin
+    var src_idx = src_begin
+    while dst_idx < dst.count {
+        if src_idx >= size { break }
+        dst[dst_idx] = UInt32(src[src_idx])
+        src_idx += 1
+        
+        if src_idx >= size { break }
+        dst[dst_idx] += UInt32(src[src_idx]) << 8
+        src_idx += 1
+        
+        if src_idx >= size { break }
+        dst[dst_idx] += UInt32(src[src_idx]) << 16
+        src_idx += 1
+        
+        if src_idx >= size { break }
+        dst[dst_idx] += UInt32(src[src_idx]) << 24
+        src_idx += 1
+        
+        dst_idx += 1
     }
 }
 
 func UInt32LEToUInt8(_ dst: inout [UInt8], _ src: [UInt32] /* size: 2 */)
 {
-    assert(dst.count == 8)
-    assert(src.count == 2)
+    assert(dst.count == src.count * 4)
+    //assert(src.count == 2)
     for i in 0..<src.count {
         dst[i*4]     = UInt8(0xff & src[i])
         dst[i*4 + 1] = UInt8(0xff & (src[i] >> 8))
@@ -151,12 +168,64 @@ func UInt32LEToUInt8(_ dst: inout [UInt8], _ src: [UInt32] /* size: 2 */)
     }
 }
 
-extension UInt64
+func UInt32BEToUInt8(_ dst: inout [UInt8], _ dst_idx: Int, _ src: UInt32)
+{
+    assert(dst_idx >= 0)
+    assert(dst_idx + 3 < dst.count)
+    dst[dst_idx]     = UInt8(0xff & (src >> 24))
+    dst[dst_idx + 1] = UInt8(0xff & (src >> 16))
+    dst[dst_idx + 2] = UInt8(0xff & (src >> 8))
+    dst[dst_idx + 3] = UInt8(0xff & src)
+}
+
+public extension UInt64
 {
     var lo: UInt32 {
-        return UInt32(self & UInt64(0xffffffff))
+        return UInt32(self & UInt64(UInt32.max))
     }
     var hi: UInt32 {
-        return UInt32((self >> 32) & UInt64(0xffffffff))
+        return UInt32((self >> 32) & UInt64(UInt32.max))
+    }
+}
+
+public extension UInt32
+{
+    var lo: UInt16 {
+        return UInt16(self & UInt32(UInt16.max))
+    }
+    var hi: UInt16 {
+        return UInt16((self >> 16) & UInt32(UInt16.max))
+    }
+}
+
+extension Collection where Iterator.Element == UInt8 {
+    public func toLEUInt32() -> [UInt32]? {
+        if self.count % 4 != 0 {
+            return nil
+        }
+        let c = Int(self.count / 4)
+        var v = [UInt32](repeating: 0, count: c)
+        var it = self.makeIterator()
+        for i in 0 ..< c {
+            guard let a = it.next() else { break }
+            v[i] += UInt32(a)
+            guard let b = it.next() else { break }
+            v[i] += (UInt32(b) << 8)
+            guard let c = it.next() else { break }
+            v[i] += (UInt32(c) << 16)
+            guard let d = it.next() else { break }
+            v[i] += (UInt32(d) << 24)
+        }
+        return v
+    }
+}
+
+extension String {
+    public func unhexlify() -> [UInt8] {
+        var pos = startIndex
+        return (0..<self.count/2).flatMap { _ in
+            defer { pos = index(pos, offsetBy: 2) }
+            return UInt8(self[pos...index(after: pos)], radix: 16)
+        }
     }
 }

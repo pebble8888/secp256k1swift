@@ -34,11 +34,11 @@ struct secp256k1_hmac_sha256_t {
     }
 }
 
-struct secp256k1_rfc6979_hmac_sha256_t {
+public struct secp256k1_rfc6979_hmac_sha256_t {
     var v: [UInt8] // size: 32
     var k: [UInt8] // size: 32
     var retry: Bool
-    init() {
+    public init() {
         v = [UInt8](repeating: 0, count: 32)
         k = [UInt8](repeating: 0, count: 32)
         retry = false

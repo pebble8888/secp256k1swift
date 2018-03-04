@@ -13,6 +13,10 @@
 
 import Foundation
 
+fileprivate func VERIFY_CHECK(_ cond: Bool) {
+    assert(cond)
+}
+
 /* Limbs of the secp256k1 order. */
 let SECP256K1_N_0: UInt32 = 0xD0364141
 let SECP256K1_N_1: UInt32 = 0xBFD25E8C
@@ -63,19 +67,19 @@ func secp256k1_scalar_set_int(_ r: inout secp256k1_scalar, _ v: UInt) {
 }
 
 func secp256k1_scalar_get_bits(_ a: secp256k1_scalar, _ offset: UInt, _ count: UInt) -> UInt {
-    //VERIFY_CHECK((offset + count - 1) >> 5 == offset >> 5);
+    VERIFY_CHECK((offset + count - 1) >> 5 == offset >> 5);
     let b:UInt32 = a.d[Int(offset >> 5)] >> (offset & 0x1F)
     let c:UInt32 = (1 << count) - 1
     return UInt(b & c)
 }
 
 func secp256k1_scalar_get_bits_var(_ a: secp256k1_scalar, _ offset: UInt, _ count: UInt) -> UInt {
-    //VERIFY_CHECK(count < 32);
-    //VERIFY_CHECK(offset + count <= 256);
+    VERIFY_CHECK(count < 32);
+    VERIFY_CHECK(offset + count <= 256);
     if ((offset + count - 1) >> 5 == offset >> 5) {
         return secp256k1_scalar_get_bits(a, offset, count);
     } else {
-        //VERIFY_CHECK((offset >> 5) + 1 < 8);
+        VERIFY_CHECK((offset >> 5) + 1 < 8);
         let v0 = a.d[Int(offset >> 5)] >> (offset & 0x1F)
         let v1 = a.d[Int((offset >> 5) + 1)] << (32 - (offset & 0x1F))
         let r1 = (v0 | v1)
@@ -104,8 +108,8 @@ func secp256k1_scalar_check_overflow(_ a: secp256k1_scalar) -> Bool {
 
 func secp256k1_scalar_reduce(_ r: inout secp256k1_scalar, _ a_overflow: Bool) -> Bool {
     var t: UInt64
-    //VERIFY_CHECK(overflow <= 1);
     let overflow: UInt64 = a_overflow ? 1 : 0
+    VERIFY_CHECK(overflow <= 1);
     t = UInt64(r.d[0]) + overflow * UInt64(SECP256K1_N_C_0)
     r.d[0] = t.lo; t >>= 32;
     t += UInt64(r.d[1]) + overflow * UInt64(SECP256K1_N_C_1)
@@ -151,7 +155,7 @@ func secp256k1_scalar_add(_ r: inout secp256k1_scalar, _ a: secp256k1_scalar, _ 
     let v0:UInt64 = t
     let v1:UInt64 = secp256k1_scalar_check_overflow(r) ? 1 : 0
     let overflow = v0 + v1
-    //VERIFY_CHECK(overflow == 0 || overflow == 1);
+    VERIFY_CHECK(overflow == 0 || overflow == 1);
     assert(overflow == 0 || overflow == 1)
     let _ = secp256k1_scalar_reduce(&r, overflow != 0)
     return overflow != 0
@@ -159,7 +163,7 @@ func secp256k1_scalar_add(_ r: inout secp256k1_scalar, _ a: secp256k1_scalar, _ 
 
 func secp256k1_scalar_cadd_bit(_ r: inout secp256k1_scalar, _ a_bit: UInt, _ flag: Int) {
     var t: UInt64
-    //VERIFY_CHECK(bit < 256);
+    VERIFY_CHECK(a_bit < 256);
     let bit: UInt32 = UInt32(a_bit) + UInt32((flag - 1) & 0x100)  /* forcing (bit >> 5) > 7 makes this a noop */
     
     let v0: UInt32 = ((bit >> 5) == 0 ? 1 : 0)
@@ -234,14 +238,22 @@ func secp256k1_scalar_set_b32(_ r: inout secp256k1_scalar, _ b32: [UInt8], _ ove
 
 func secp256k1_scalar_get_b32(_ bin: inout [UInt8], _ a: secp256k1_scalar) {
     assert(bin.count == 32)
-    bin[0] = UInt8(a.d[7] >> 24); bin[1] = UInt8(a.d[7] >> 16); bin[2] = UInt8(a.d[7] >> 8); bin[3] = UInt8(a.d[7])
-    bin[4] = UInt8(a.d[6] >> 24); bin[5] = UInt8(a.d[6] >> 16); bin[6] = UInt8(a.d[6] >> 8); bin[7] = UInt8(a.d[6])
-    bin[8] = UInt8(a.d[5] >> 24); bin[9] = UInt8(a.d[5] >> 16); bin[10] = UInt8(a.d[5] >> 8); bin[11] = UInt8(a.d[5])
-    bin[12] = UInt8(a.d[4] >> 24); bin[13] = UInt8(a.d[4] >> 16); bin[14] = UInt8(a.d[4] >> 8); bin[15] = UInt8(a.d[4])
-    bin[16] = UInt8(a.d[3] >> 24); bin[17] = UInt8(a.d[3] >> 16); bin[18] = UInt8(a.d[3] >> 8); bin[19] = UInt8(a.d[3])
-    bin[20] = UInt8(a.d[2] >> 24); bin[21] = UInt8(a.d[2] >> 16); bin[22] = UInt8(a.d[2] >> 8); bin[23] = UInt8(a.d[2])
-    bin[24] = UInt8(a.d[1] >> 24); bin[25] = UInt8(a.d[1] >> 16); bin[26] = UInt8(a.d[1] >> 8); bin[27] = UInt8(a.d[1])
-    bin[28] = UInt8(a.d[0] >> 24); bin[29] = UInt8(a.d[0] >> 16); bin[30] = UInt8(a.d[0] >> 8); bin[31] = UInt8(a.d[0])
+    //bin[0] = UInt8(a.d[7] >> 24); bin[1] = UInt8(a.d[7] >> 16); bin[2] = UInt8(a.d[7] >> 8); bin[3] = UInt8(a.d[7])
+    UInt32BEToUInt8(&bin, 0, a.d[7])
+    //bin[4] = UInt8(a.d[6] >> 24); bin[5] = UInt8(a.d[6] >> 16); bin[6] = UInt8(a.d[6] >> 8); bin[7] = UInt8(a.d[6])
+    UInt32BEToUInt8(&bin, 4, a.d[6])
+    //bin[8] = UInt8(a.d[5] >> 24); bin[9] = UInt8(a.d[5] >> 16); bin[10] = UInt8(a.d[5] >> 8); bin[11] = UInt8(a.d[5])
+    UInt32BEToUInt8(&bin, 8, a.d[5])
+    //bin[12] = UInt8(a.d[4] >> 24); bin[13] = UInt8(a.d[4] >> 16); bin[14] = UInt8(a.d[4] >> 8); bin[15] = UInt8(a.d[4])
+    UInt32BEToUInt8(&bin, 12, a.d[4])
+    //bin[16] = UInt8(a.d[3] >> 24); bin[17] = UInt8(a.d[3] >> 16); bin[18] = UInt8(a.d[3] >> 8); bin[19] = UInt8(a.d[3])
+    UInt32BEToUInt8(&bin, 16, a.d[3])
+    //bin[20] = UInt8(a.d[2] >> 24); bin[21] = UInt8(a.d[2] >> 16); bin[22] = UInt8(a.d[2] >> 8); bin[23] = UInt8(a.d[2])
+    UInt32BEToUInt8(&bin, 20, a.d[2])
+    //bin[24] = UInt8(a.d[1] >> 24); bin[25] = UInt8(a.d[1] >> 16); bin[26] = UInt8(a.d[1] >> 8); bin[27] = UInt8(a.d[1])
+    UInt32BEToUInt8(&bin, 24, a.d[1])
+    //bin[28] = UInt8(a.d[0] >> 24); bin[29] = UInt8(a.d[0] >> 16); bin[30] = UInt8(a.d[0] >> 8); bin[31] = UInt8(a.d[0])
+    UInt32BEToUInt8(&bin, 28, a.d[0])
 }
 
 func secp256k1_scalar_is_zero(_ a: secp256k1_scalar) -> Bool {
@@ -329,6 +341,10 @@ fileprivate struct CA {
         c1 = 0
         c2 = 0
     }
+    
+    func VERIFY_CHECK(_ cond:Bool){
+        assert(cond)
+    }
 
     /** Add a*b to the number defined by (c0,c1,c2). c2 must never overflow. */
     mutating func muladd(_ a: UInt32, _ b: UInt32) {
@@ -337,11 +353,11 @@ fileprivate struct CA {
         let t: UInt64 = UInt64(a) * UInt64(b)
         th = t.hi /* >> 32 */         /* at most 0xFFFFFFFE */
         tl = t.lo
-        c0 += tl;                 /* overflow is handled on the next line */
+        c0 = c0 &+ tl                 /* overflow is handled on the next line */
         th += (c0 < tl) ? 1 : 0;  /* at most 0xFFFFFFFF */
-        c1 += th;                 /* overflow is handled on the next line */
+        c1 = c1 &+ th;                 /* overflow is handled on the next line */
         c2 += (c1 < th) ? 1 : 0;  /* never overflows by contract (verified in the next line) */
-        //VERIFY_CHECK((c1 >= th) || (c2 != 0));
+        VERIFY_CHECK((c1 >= th) || (c2 != 0));
     }
 
     /** Add a*b to the number defined by (c0,c1). c1 must never overflow. */
@@ -351,10 +367,10 @@ fileprivate struct CA {
         let t: UInt64 = UInt64(a) * UInt64(b)
         th = t.hi /* t >> 32 */         /* at most 0xFFFFFFFE */
         tl = t.lo
-        c0 += tl;                 /* overflow is handled on the next line */
-        th += (c0 < tl) ? 1 : 0;  /* at most 0xFFFFFFFF */
-        c1 += th;                 /* never overflows by contract (verified in the next line) */
-        //VERIFY_CHECK(c1 >= th);
+        c0 = c0 &+ tl                  /* overflow is handled on the next line */
+        th += (c0 < tl) ? 1 : 0   /* at most 0xFFFFFFFF */
+        c1 += th                  /* never overflows by contract (verified in the next line) */
+        VERIFY_CHECK(c1 >= th)
     }
 
     /** Add 2*a*b to the number defined by (c0,c1,c2). c2 must never overflow. */
@@ -366,35 +382,35 @@ fileprivate struct CA {
         let t: UInt64 = UInt64(a) * UInt64(b)
         th = t.hi /* UInt32(t >> 32) */               /* at most 0xFFFFFFFE */
         tl = t.lo;
-        th2 = th + th;                  /* at most 0xFFFFFFFE (in case th was 0x7FFFFFFF) */
+        th2 = th &+ th;                  /* at most 0xFFFFFFFE (in case th was 0x7FFFFFFF) overflow is handled on the next line */
         c2 += (th2 < th) ? 1 : 0;       /* never overflows by contract (verified the next line) */
-        //VERIFY_CHECK((th2 >= th) || (c2 != 0));
-        tl2 = tl + tl;                  /* at most 0xFFFFFFFE (in case the lowest 63 bits of tl were 0x7FFFFFFF) */
+        VERIFY_CHECK((th2 >= th) || (c2 != 0));
+        tl2 = tl &+ tl;                  /* at most 0xFFFFFFFE (in case the lowest 63 bits of tl were 0x7FFFFFFF)  overflow is handled on next line */
         th2 += (tl2 < tl) ? 1 : 0;      /* at most 0xFFFFFFFF */
-        c0 += tl2;                      /* overflow is handled on the next line */
-        th2 += (c0 < tl2) ? 1 : 0;      /* second overflow is handled on the next line */
+        c0 = c0 &+ tl2;                      /* overflow is handled on the next line */
+        th2 = th2 &+ ((c0 < tl2) ? 1 : 0)      /* second overflow is handled on the next line */
         c2 = c2 + UInt32(((c0 < tl2) ? 1 : 0) & (th2 == 0 ? 1 : 0)) /* never overflows by contract (verified the next line) */
-        //VERIFY_CHECK((c0 >= tl2) || (th2 != 0) || (c2 != 0));
-        c1 += th2;                      /* overflow is handled on the next line */
+        VERIFY_CHECK((c0 >= tl2) || (th2 != 0) || (c2 != 0));
+        c1 = c1 &+ th2;                      /* overflow is handled on the next line */
         c2 += (c1 < th2) ? 1 : 0;       /* never overflows by contract (verified the next line) */
-        //VERIFY_CHECK((c1 >= th2) || (c2 != 0));
+        VERIFY_CHECK((c1 >= th2) || (c2 != 0));
     }
 
     /** Add a to the number defined by (c0,c1,c2). c2 must never overflow. */
     mutating func sumadd(_ a: UInt32) {
         var over: UInt32
-        c0 += (a);                  /* overflow is handled on the next line */
+        c0 = c0 &+ a                /* overflow is handled on the next line */
         over = (c0 < (a)) ? 1 : 0;
-        c1 += over;                 /* overflow is handled on the next line */
+        c1 = c1 &+ over;                 /* overflow is handled on the next line */
         c2 += (c1 < over) ? 1 : 0;  /* never overflows by contract */
     }
 
     /** Add a to the number defined by (c0,c1). c1 must never overflow, c2 must be zero. */
     mutating func sumadd_fast(_ a: UInt32) {
-        c0 += (a);                 /* overflow is handled on the next line */
-        c1 += (c0 < (a)) ? 1 : 0;  /* never overflows by contract (verified the next line) */
-        //VERIFY_CHECK((c1 != 0) | (c0 >= (a)));
-        //VERIFY_CHECK(c2 == 0);
+        c0 = c0 &+ a               /* overflow is handled on the next line */
+        c1 += (c0 < (a)) ? 1 : 0   /* never overflows by contract (verified the next line) */
+        VERIFY_CHECK((c1 != 0) || (c0 >= (a)))
+        VERIFY_CHECK(c2 == 0)
     }
 
     /** Extract the lowest 32 bits of (c0,c1,c2) into n, and left shift the number 32 bits. */
@@ -410,7 +426,7 @@ fileprivate struct CA {
         n = c0;
         c0 = c1;
         c1 = 0;
-        //VERIFY_CHECK(c2 == 0);
+        VERIFY_CHECK(c2 == 0);
     }
 }
 
@@ -515,7 +531,7 @@ func secp256k1_scalar_reduce_512(_ r: inout secp256k1_scalar, _ l: [UInt32]) {
     ca.extract(&m10);
     ca.sumadd_fast(n7);
     ca.extract_fast(&m11);
-    //VERIFY_CHECK(c0 <= 1);
+    VERIFY_CHECK(ca.c0 <= 1);
     m12 = ca.c0;
     
     /* Reduce 385 bits into 258. */
@@ -561,7 +577,7 @@ func secp256k1_scalar_reduce_512(_ r: inout secp256k1_scalar, _ l: [UInt32]) {
     ca.sumadd_fast(m11);
     ca.extract_fast(&p7);
     p8 = ca.c0 + m12;
-    //VERIFY_CHECK(p8 <= 2);
+    VERIFY_CHECK(p8 <= 2);
     
     /* Reduce 258 bits into 256. */
     /* r[0..7] = p[0..7] + p[8] * SECP256K1_N_C. */
@@ -675,7 +691,7 @@ fileprivate func secp256k1_scalar_mul_512(_ l: inout [UInt32], _ a: secp256k1_sc
     ca.extract(&l[13]);
     ca.muladd_fast(a.d[7], b.d[7]);
     ca.extract_fast(&l[14]);
-    //VERIFY_CHECK(c1 == 0);
+    VERIFY_CHECK(ca.c1 == 0);
     l[15] = ca.c0
 }
 
@@ -738,7 +754,7 @@ fileprivate func secp256k1_scalar_sqr_512(_ l: inout [UInt32], _ a: secp256k1_sc
     ca.extract(&l[13]);
     ca.muladd_fast(a.d[7], a.d[7]);
     ca.extract_fast(&l[14]);
-    //VERIFY_CHECK(c1 == 0);
+    VERIFY_CHECK(ca.c1 == 0);
     l[15] = ca.c0
 }
 
@@ -759,8 +775,8 @@ func secp256k1_scalar_mul(_ r: inout secp256k1_scalar, _ a: secp256k1_scalar, _ 
 
 func secp256k1_scalar_shr_int(_ r: inout secp256k1_scalar, _ n: Int) -> UInt32 {
     var ret:UInt32
-    //VERIFY_CHECK(n > 0);
-    //VERIFY_CHECK(n < 16);
+    VERIFY_CHECK(n > 0);
+    VERIFY_CHECK(n < 16);
     ret = r.d[0] & ((1 << n) - 1)
     r.d[0] = (r.d[0] >> n) + (r.d[1] << (32 - n));
     r.d[1] = (r.d[1] >> n) + (r.d[2] << (32 - n));
@@ -817,7 +833,7 @@ func secp256k1_scalar_mul_shift_var(_ r: inout secp256k1_scalar, _ a: secp256k1_
     var shiftlimbs: Int
     var shiftlow: UInt
     var shifthigh: UInt
-    //VERIFY_CHECK(shift >= 256);
+    VERIFY_CHECK(shift >= 256);
     secp256k1_scalar_mul_512(&l, a, b);
     shiftlimbs = Int(shift >> 5)
     shiftlow = shift & 0x1F;
