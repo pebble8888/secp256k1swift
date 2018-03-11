@@ -52,40 +52,38 @@ abort(); \
 #else
 #define EXPECT(x,c) (x)
 #endif
+ */
 
-#ifdef DETERMINISTIC
-#define CHECK(cond) do { \
-    if (EXPECT(!(cond), 0)) { \
-        TEST_FAILURE("test condition failed"); \
-    } \
-} while(0)
-#else
-#define CHECK(cond) do { \
-if (EXPECT(!(cond), 0)) { \
-TEST_FAILURE("test condition failed: " #cond); \
-} \
-} while(0)
-#endif
+//#ifdef DETERMINISTIC
+func CHECK(_ cond: Bool) {
+    assert(cond, "test condition failed")
+}
+//#endif
 
 /* Like assert(), but when VERIFY is defined, and side-effect safe. */
-#if defined(COVERAGE)
-    #define VERIFY_CHECK(check)
-    #define VERIFY_SETUP(stmt)
-    #elif defined(VERIFY)
-    #define VERIFY_CHECK CHECK
-    #define VERIFY_SETUP(stmt) do { stmt; } while(0)
-    #else
-    #define VERIFY_CHECK(cond) do { (void)(cond); } while(0)
-    #define VERIFY_SETUP(stmt)
-    #endif
-    
+//#if defined(COVERAGE)
+    //#define VERIFY_CHECK(check)
+    //#elif defined(VERIFY)
+    func VERIFY_CHECK(_ cond: Bool) {
+        CHECK(cond)
+    }
+    //#define VERIFY_SETUP(stmt) do { stmt; } while(0)
+    //#else
+    //#define VERIFY_CHECK(cond) do { (void)(cond); } while(0)
+    //#define VERIFY_SETUP(stmt)
+    //#endif
+
+    /*
     static SECP256K1_INLINE void *checked_malloc(const secp256k1_callback* cb, size_t size) {
         void *ret = malloc(size);
         if (ret == NULL) {
             secp256k1_callback_call(cb, "Out of memory");
         }
         return ret;
-}
+    }
+     */
+    
+    /*
     
     /* Macro for restrict, when available and not in a VERIFY build. */
 #if defined(SECP256K1_BUILD) && defined(VERIFY)
@@ -124,48 +122,67 @@ TEST_FAILURE("test condition failed: " #cond); \
 */
 
 func UInt8ToUInt32LE(_ dst: inout [UInt32],
-                    _ dst_begin: Int,
+                    _ dst_begin: UInt, // by UInt8 size
                     _ src: [UInt8],
                     _ src_begin: Int,
                     _ size: UInt)
 {
-    //assert((size % 4) == 0)
-    //let count = size / 4
-    //var i = 0
-    //for i in 0..<Int(count) {
-    var dst_idx = dst_begin
-    var src_idx = src_begin
-    while dst_idx < dst.count {
-        if src_idx >= size { break }
-        dst[dst_idx] = UInt32(src[src_idx])
+    var src_idx: Int = src_begin
+    while src_idx < src_begin + Int(size) {
+        let v = Int(dst_begin) + src_idx - src_begin
+        let v4 = v/4
+        let w = v % 4
+        switch w {
+        case 0:
+            dst[v4] = (dst[v4] & 0xffffff00) + UInt32(src[src_idx]) << 0
+        case 1:
+            dst[v4] = (dst[v4] & 0xffff00ff) + UInt32(src[src_idx]) << 8
+        case 2:
+            dst[v4] = (dst[v4] & 0xff00ffff) + UInt32(src[src_idx]) << 16
+        case 3:
+            dst[v4] = (dst[v4] & 0x00ffffff) + UInt32(src[src_idx]) << 24
+        default:
+            fatalError()
+        }
         src_idx += 1
-        
-        if src_idx >= size { break }
-        dst[dst_idx] += UInt32(src[src_idx]) << 8
-        src_idx += 1
-        
-        if src_idx >= size { break }
-        dst[dst_idx] += UInt32(src[src_idx]) << 16
-        src_idx += 1
-        
-        if src_idx >= size { break }
-        dst[dst_idx] += UInt32(src[src_idx]) << 24
-        src_idx += 1
-        
-        dst_idx += 1
     }
 }
 
-func UInt32LEToUInt8(_ dst: inout [UInt8], _ src: [UInt32] /* size: 2 */)
+func UInt8ToUInt32BE(_ dst: inout [UInt32],
+                     _ dst_begin: UInt, // by UInt8 size
+    _ src: [UInt8],
+    _ src_begin: Int,
+    _ size: UInt)
 {
-    assert(dst.count == src.count * 4)
-    //assert(src.count == 2)
-    for i in 0..<src.count {
-        dst[i*4]     = UInt8(0xff & src[i])
-        dst[i*4 + 1] = UInt8(0xff & (src[i] >> 8))
-        dst[i*4 + 2] = UInt8(0xff & (src[i] >> 16))
-        dst[i*4 + 3] = UInt8(0xff & (src[i] >> 24))
+    var src_idx = src_begin
+    while src_idx < size {
+        let v = Int(dst_begin) + src_idx
+        let v4 = v/4
+        let w = v % 4
+        switch w {
+        case 3:
+            dst[v4] = (dst[v4] & 0xffffff00) + UInt32(src[src_idx])
+        case 2:
+            dst[v4] = (dst[v4] & 0xffff00ff) + UInt32(src[src_idx]) << 8
+        case 1:
+            dst[v4] = (dst[v4] & 0xff00ffff) + UInt32(src[src_idx]) << 16
+        case 0:
+            dst[v4] = (dst[v4] & 0x00ffffff) + UInt32(src[src_idx]) << 24
+        default:
+            fatalError()
+        }
+        src_idx += 1
     }
+}
+
+func UInt32LEToUInt8(_ dst: inout [UInt8], _ dst_idx: Int, _ src: UInt32)
+{
+    assert(dst_idx >= 0)
+    assert(dst_idx + 3 < dst.count)
+    dst[dst_idx]     = UInt8(0xff & src)
+    dst[dst_idx + 1] = UInt8(0xff & (src >> 8))
+    dst[dst_idx + 2] = UInt8(0xff & (src >> 16))
+    dst[dst_idx + 3] = UInt8(0xff & (src >> 24))
 }
 
 func UInt32BEToUInt8(_ dst: inout [UInt8], _ dst_idx: Int, _ src: UInt32)
@@ -196,6 +213,28 @@ public extension UInt32
     var hi: UInt16 {
         return UInt16((self >> 16) & UInt32(UInt16.max))
     }
+    var ll: UInt8 {
+        return UInt8(self & UInt32(0xff))
+    }
+    var lh: UInt8 {
+        return UInt8((self >> 8) & UInt32(0xff))
+    }
+    var hl: UInt8 {
+        return UInt8((self >> 16) & UInt32(0xff))
+    }
+    var hh: UInt8 {
+        return UInt8((self >> 24) & UInt32(0xff))
+    }
+}
+
+public extension UInt16
+{
+    var lo: UInt8 {
+        return UInt8(self & UInt16(UInt8.max))
+    }
+    var hi: UInt8 {
+        return UInt8((self >> 8) & UInt16(UInt8.max))
+    }
 }
 
 extension Collection where Iterator.Element == UInt8 {
@@ -220,12 +259,3 @@ extension Collection where Iterator.Element == UInt8 {
     }
 }
 
-extension String {
-    public func unhexlify() -> [UInt8] {
-        var pos = startIndex
-        return (0..<self.count/2).flatMap { _ in
-            defer { pos = index(pos, offsetBy: 2) }
-            return UInt8(self[pos...index(after: pos)], radix: 16)
-        }
-    }
-}

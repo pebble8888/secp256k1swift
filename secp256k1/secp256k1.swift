@@ -56,7 +56,7 @@ import Foundation
  *  If you need to convert to a format suitable for storage, transmission, or
  *  comparison, use secp256k1_ec_pubkey_serialize and secp256k1_ec_pubkey_parse.
  */
-public struct secp256k1_pubkey {
+public struct secp256k1_pubkey : CustomDebugStringConvertible {
     public var data:[UInt8] // size:64
     public mutating func clear(){
         data = [UInt8](repeating: 0, count: 64)
@@ -64,6 +64,18 @@ public struct secp256k1_pubkey {
     public init()
     {
         data = [UInt8](repeating: 0, count: 64)
+    }
+    func equal(_ v:secp256k1_pubkey) -> Bool
+    {
+        for i in 0..<64 {
+            if self.data[i] != data[i] {
+                return false
+            }
+        }
+        return true
+    }
+    public var debugDescription: String {
+        return data.hexDescription(separator: " ")
     }
 }
 
@@ -76,7 +88,7 @@ public struct secp256k1_pubkey {
  *  comparison, use the secp256k1_ecdsa_signature_serialize_* and
  *  secp256k1_ecdsa_signature_parse_* functions.
  */
-public struct secp256k1_ecdsa_signature {
+public struct secp256k1_ecdsa_signature : CustomDebugStringConvertible {
     public var data:[UInt8] // size:64
     public mutating func clear() {
         data = [UInt8](repeating: 0, count: 64)
@@ -84,6 +96,9 @@ public struct secp256k1_ecdsa_signature {
     public init()
     {
         data = [UInt8](repeating: 0, count: 64)
+    }
+    public var debugDescription: String {
+        return data.hexDescription(separator: " ")
     }
 }
 
@@ -172,7 +187,7 @@ fileprivate let default_error_callback = secp256k1_callback(
 )
 
 
-public struct secp256k1_context {
+public struct secp256k1_context : CustomDebugStringConvertible {
     public var ecmult_ctx:  secp256k1_ecmult_context
     var ecmult_gen_ctx:     secp256k1_ecmult_gen_context
     var illegal_callback:   secp256k1_callback
@@ -182,6 +197,9 @@ public struct secp256k1_context {
         ecmult_gen_ctx = secp256k1_ecmult_gen_context()
         illegal_callback = default_illegal_callback
         error_callback = default_error_callback
+    }
+    public var debugDescription: String {
+        return "\(ecmult_ctx)\n\(ecmult_gen_ctx)"
     }
 }
 
@@ -301,35 +319,44 @@ private func secp256k1_pubkey_load(_ ctx: secp256k1_context, _ ge: inout secp256
 {
     /*
     if (sizeof(secp256k1_ge_storage) == 64) {
+     */
         /* When the secp256k1_ge_storage type is exactly 64 byte, use its
          * representation inside secp256k1_pubkey, as conversion is very fast.
          * Note that secp256k1_pubkey_save must use the same representation. */
-        var s: secp256k1_ge_storage
-        memcpy(&s, &pubkey.data[0], 64);
-        secp256k1_ge_from_storage(ge, &s);
+        var s = secp256k1_ge_storage()
+        //memcpy(&s, &pubkey.data[0], 64);
+        UInt8ToUInt32LE(&s.x.n, 0, pubkey.data, 0, 32)
+        UInt8ToUInt32LE(&s.y.n, 0, pubkey.data, 32, 32)
+        secp256k1_ge_from_storage(&ge, s);
+    /*
     } else {
-     */
         /* Otherwise, fall back to 32-byte big endian for X and Y. */
         var x = secp256k1_fe()
         var y = secp256k1_fe()
         let _ = secp256k1_fe_set_b32(&x, Array(pubkey.data[0..<32]))
         let _ = secp256k1_fe_set_b32(&y, Array(pubkey.data[32..<64]))
         secp256k1_ge_set_xy(&ge, x, y);
-    /*
     }
      */
     if !ctx.ARG_CHECK(!secp256k1_fe_is_zero(ge.x), "invalid ge") { return false }
     return true
 }
 
-private func secp256k1_pubkey_save(_ pubkey: inout secp256k1_pubkey, _ ge: inout secp256k1_ge) {
+func secp256k1_pubkey_save(_ pubkey: inout secp256k1_pubkey, _ ge: inout secp256k1_ge) {
     /*
     if (sizeof(secp256k1_ge_storage) == 64) {
-        var s: secp256k1_ge_storage
-        secp256k1_ge_to_storage(&s, ge);
-        memcpy(&pubkey.data[0], &s, 64);
+     */
+    var s = secp256k1_ge_storage()
+    secp256k1_ge_to_storage(&s, ge);
+    //memcpy(&pubkey.data[0], &s, 64);
+    for i in 0 ..< 8 {
+        UInt32LEToUInt8(&pubkey.data, 4*i, s.x.n[i])
+    }
+    for i in 0 ..< 8 {
+        UInt32LEToUInt8(&pubkey.data, 32 + 4*i, s.y.n[i])
+    }
+    /*
     } else {
-         */
     //VERIFY_CHECK(!secp256k1_ge_is_infinity(ge));
     secp256k1_fe_normalize_var(&ge.x);
     secp256k1_fe_normalize_var(&ge.y);
@@ -341,7 +368,6 @@ private func secp256k1_pubkey_save(_ pubkey: inout secp256k1_pubkey, _ ge: inout
         pubkey.data[i] = v1[i]
         pubkey.data[32+i] = v2[i]
     }
-        /*
     }
      */
 }
@@ -654,8 +680,12 @@ public func secp256k1_ecdsa_verify(_ ctx: secp256k1_context, _ sig: secp256k1_ec
         secp256k1_pubkey_load(ctx, &q, pubkey) &&
         secp256k1_ecdsa_sig_verify(ctx.ecmult_ctx, r, s, q, m))
  */
-    if secp256k1_scalar_is_high(s) { return false }
-    if !secp256k1_pubkey_load(ctx, &q, pubkey) { return false }
+    if secp256k1_scalar_is_high(s) {
+        return false
+    }
+    if !secp256k1_pubkey_load(ctx, &q, pubkey) {
+        return false
+    }
     return secp256k1_ecdsa_sig_verify(ctx.ecmult_ctx, r, s, q, m)
 }
 
@@ -745,7 +775,9 @@ public func secp256k1_ecdsa_sign(_ ctx: secp256k1_context,
     var ret: Bool = false
     var overflow: Bool = false
     
-    if !ctx.ARG_CHECK(secp256k1_ecmult_gen_context_is_built(ctx.ecmult_gen_ctx), "invalid gen ctx") { return false }
+    if !ctx.ARG_CHECK(secp256k1_ecmult_gen_context_is_built(ctx.ecmult_gen_ctx), "invalid gen ctx") {
+        return false
+    }
     
     var noncefp: secp256k1_nonce_function
     if let v = a_noncefp {
@@ -827,12 +859,14 @@ public func secp256k1_ec_pubkey_create(_ ctx: secp256k1_context, _ pubkey: inout
     var ret: Bool = false
 
     pubkey.clear()
-    if !ctx.ARG_CHECK(secp256k1_ecmult_gen_context_is_built(ctx.ecmult_gen_ctx), "invalid ctx") { return false }
+    if !ctx.ARG_CHECK(secp256k1_ecmult_gen_context_is_built(ctx.ecmult_gen_ctx), "invalid ctx") {
+        return false
+    }
     
     secp256k1_scalar_set_b32(&sec, seckey, &overflow);
     ret = !overflow && !secp256k1_scalar_is_zero(sec)
     if (ret) {
-        secp256k1_ecmult_gen(ctx.ecmult_gen_ctx, &pj, sec);
+        secp256k1_ecmult_gen(ctx.ecmult_gen_ctx, &pj, sec)
         secp256k1_ge_set_gej(&p, &pj);
         secp256k1_pubkey_save(&pubkey, &p);
     }

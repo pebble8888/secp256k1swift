@@ -13,10 +13,6 @@
 
 import Foundation
 
-fileprivate func VERIFY_CHECK(_ cond: Bool) {
-    assert(cond)
-}
-
 /* Limbs of the secp256k1 order. */
 let SECP256K1_N_0: UInt32 = 0xD0364141
 let SECP256K1_N_1: UInt32 = 0xBFD25E8C
@@ -135,6 +131,7 @@ func secp256k1_scalar_reduce(_ r: inout secp256k1_scalar, _ a_overflow: Bool) ->
  uint32_t a[8] : scalar
  uint32_t b[8] : scalar
  */
+@discardableResult
 func secp256k1_scalar_add(_ r: inout secp256k1_scalar, _ a: secp256k1_scalar, _ b: secp256k1_scalar) -> Bool {
     var t: UInt64 = UInt64(a.d[0]) + UInt64(b.d[0])
     r.d[0] = t.lo; t >>= 32;
@@ -192,7 +189,7 @@ func secp256k1_scalar_cadd_bit(_ r: inout secp256k1_scalar, _ a_bit: UInt, _ fla
     r.d[7] = t.lo;
     #if VERIFY
         VERIFY_CHECK((t >> 32) == 0);
-        VERIFY_CHECK(secp256k1_scalar_check_overflow(r) == 0);
+        VERIFY_CHECK(!secp256k1_scalar_check_overflow(r));
     #endif
 }
 
@@ -261,7 +258,7 @@ func secp256k1_scalar_is_zero(_ a: secp256k1_scalar) -> Bool {
 }
 
 func secp256k1_scalar_negate(_ r: inout secp256k1_scalar, _ a: secp256k1_scalar) {
-    let nonzero:UInt32 = 0xFFFFFFFF * (secp256k1_scalar_is_zero(a) ? 1 : 0)
+    let nonzero:UInt32 = 0xFFFFFFFF * (secp256k1_scalar_is_zero(a) ? 0 : 1)
     var t:UInt64 = UInt64(~a.d[0]) + UInt64(SECP256K1_N_0) + UInt64(1)
     r.d[0] = t.lo & nonzero; t >>= 32;
     t += UInt64(~a.d[1]) + UInt64(SECP256K1_N_1)
@@ -431,6 +428,7 @@ fileprivate struct CA {
 }
 
 func secp256k1_scalar_reduce_512(_ r: inout secp256k1_scalar, _ l: [UInt32]) {
+   
     var c: UInt64
     let n0 = l[8]
     let n1 = l[9]
@@ -452,7 +450,7 @@ func secp256k1_scalar_reduce_512(_ r: inout secp256k1_scalar, _ l: [UInt32]) {
     var m9: UInt32 = 0
     var m10: UInt32 = 0
     var m11: UInt32 = 0
-    var m12: UInt32
+    var m12: UInt32 = 0
     var p0: UInt32 = 0
     var p1: UInt32 = 0
     var p2: UInt32 = 0
@@ -472,6 +470,7 @@ func secp256k1_scalar_reduce_512(_ r: inout secp256k1_scalar, _ l: [UInt32]) {
     /* m[0..12] = l[0..7] + n[0..7] * SECP256K1_N_C. */
     //c0 = l[0]; c1 = 0; c2 = 0;
     var ca = CA()
+    ca.c0 = l[0]; ca.c1 = 0; ca.c2 = 0
     ca.muladd_fast(n0, SECP256K1_N_C_0)
     ca.extract_fast(&m0);
     ca.sumadd_fast(l[1]);

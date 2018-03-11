@@ -15,18 +15,21 @@ import Foundation
 
 /** A group element of the secp256k1 curve, in affine coordinates. */
 // アフィン座標での点 x, y, infinity
-struct secp256k1_ge {
+struct secp256k1_ge : CustomDebugStringConvertible {
     var x: secp256k1_fe
     var y: secp256k1_fe
     var infinity: Bool /* whether this represents the point at infinity */
     init(){
-        self = SECP256K1_GE_CONST_INFINITY()
+        self = SECP256K1_GE_CONST_INFINITY
     }
     init(x: secp256k1_fe, y: secp256k1_fe, infinity: Bool)
     {
         self.x = x
         self.y = y
         self.infinity = infinity
+    }
+    var debugDescription: String {
+        return "\(x)\n\(y)\n"
     }
 }
 
@@ -52,21 +55,20 @@ func SECP256K1_GE_CONST(_ a: UInt32,
                         infinity: false)
 }
 
-func SECP256K1_GE_CONST_INFINITY() -> secp256k1_ge {
-    return secp256k1_ge(x: SECP256K1_FE_CONST(0, 0, 0, 0, 0, 0, 0, 0),
+let SECP256K1_GE_CONST_INFINITY: secp256k1_ge =
+    secp256k1_ge(x: SECP256K1_FE_CONST(0, 0, 0, 0, 0, 0, 0, 0),
                         y: SECP256K1_FE_CONST(0, 0, 0, 0, 0, 0, 0, 0),
                         infinity: true)
-}
 
 /** A group element of the secp256k1 curve, in jacobian coordinates. */
 // ヤコビアン座標での点 x, y, z, infinity
-struct secp256k1_gej {
+struct secp256k1_gej: CustomDebugStringConvertible {
     var x: secp256k1_fe /* actual X: x/z^2 */
     var y: secp256k1_fe /* actual Y: y/z^3 */
     var z: secp256k1_fe
     var infinity: Bool /* whether this represents the point at infinity */
     init() {
-        self = SECP256K1_GEJ_CONST_INFINITY()
+        self = SECP256K1_GEJ_CONST_INFINITY
     }
     init(x: secp256k1_fe,
          y: secp256k1_fe,
@@ -77,6 +79,9 @@ struct secp256k1_gej {
         self.y = y
         self.z = z
         self.infinity = infinity
+    }
+    var debugDescription: String {
+        return "\(x)"
     }
 }
 
@@ -104,15 +109,14 @@ func SECP256K1_GEJ_CONST(_ a: UInt32,
         infinity: false)
 }
 
-func SECP256K1_GEJ_CONST_INFINITY() -> secp256k1_gej {
-    return secp256k1_gej(
+let SECP256K1_GEJ_CONST_INFINITY: secp256k1_gej =
+    secp256k1_gej(
         x: SECP256K1_FE_CONST(0, 0, 0, 0, 0, 0, 0, 0),
         y: SECP256K1_FE_CONST(0, 0, 0, 0, 0, 0, 0, 0),
         z: SECP256K1_FE_CONST(0, 0, 0, 0, 0, 0, 0, 0),
         infinity: true)
-}
 
-struct secp256k1_ge_storage {
+struct secp256k1_ge_storage : CustomDebugStringConvertible {
     var x: secp256k1_fe_storage
     var y: secp256k1_fe_storage
     init(){
@@ -126,6 +130,9 @@ struct secp256k1_ge_storage {
     mutating func clear(){
         x.clear()
         y.clear()
+    }
+    var debugDescription: String {
+        return "\(x)\n\(y)\n"
     }
 }
 

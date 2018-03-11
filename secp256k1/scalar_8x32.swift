@@ -14,13 +14,34 @@
 import Foundation
 
 /** A scalar modulo the group order of the secp256k1 curve. */
-struct secp256k1_scalar
+struct secp256k1_scalar : CustomDebugStringConvertible
 {
-    //uint32_t d[8];
     var d: [UInt32] // size: 8
     init(){
         d = [UInt32](repeating: 0, count: 8)
     }
+    var debugDescription: String {
+        return d.hexDescription()
+    }
 }
 
-//#define SECP256K1_SCALAR_CONST(d7, d6, d5, d4, d3, d2, d1, d0) {{(d0), (d1), (d2), (d3), (d4), (d5), (d6), (d7)}}
+func SECP256K1_SCALAR_CONST(_ d7:UInt32,
+                            _ d6:UInt32,
+                            _ d5:UInt32,
+                            _ d4:UInt32,
+                            _ d3:UInt32,
+                            _ d2:UInt32,
+                            _ d1:UInt32,
+                            _ d0:UInt32) -> secp256k1_scalar
+{
+    var s = secp256k1_scalar()
+    s.d[0] = d0
+    s.d[1] = d1
+    s.d[2] = d2
+    s.d[3] = d3
+    s.d[4] = d4
+    s.d[5] = d5
+    s.d[6] = d6
+    s.d[7] = d7
+    return s
+}

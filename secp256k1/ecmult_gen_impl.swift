@@ -45,10 +45,10 @@ func secp256k1_ecmult_gen_context_build(_ ctx: inout secp256k1_ecmult_gen_contex
         let nums_b32: [UInt8] = Array("The scalar for this x is unknown".utf8)
         var nums_x = secp256k1_fe()
         var nums_ge = secp256k1_ge()
-        let _ = secp256k1_fe_set_b32(&nums_x, nums_b32);
-        //VERIFY_CHECK(r);
-        let _ = secp256k1_ge_set_xo_var(&nums_ge, nums_x, false);
-        //VERIFY_CHECK(r);
+        var r = secp256k1_fe_set_b32(&nums_x, nums_b32);
+        VERIFY_CHECK(r);
+        r = secp256k1_ge_set_xo_var(&nums_ge, nums_x, false);
+        VERIFY_CHECK(r);
         secp256k1_gej_set_ge(&nums_gej, nums_ge);
         /* Add G to make the bits in x uniformly distributed. */
         var dummy = secp256k1_fe()
@@ -144,8 +144,10 @@ func secp256k1_ecmult_gen(_ ctx: secp256k1_ecmult_gen_context,
     var bits: UInt
     adds.clear()
     r = ctx.initial;
+
     /* Blind scalar/point multiplication by computing (n-b)G + bG instead of nG. */
-    let _ = secp256k1_scalar_add(&gnb, gn, ctx.blind);
+    let _ = secp256k1_scalar_add(&gnb, gn, ctx.blind)
+
     add.infinity = false
     for j in 0..<64 {
         bits = secp256k1_scalar_get_bits(gnb, UInt(j * 4), UInt(4));
@@ -200,7 +202,9 @@ func secp256k1_ecmult_gen_blind(_ ctx: inout secp256k1_ecmult_gen_context, _ see
             keydata[32+i] = seed32[i]
         }
     }
+    
     secp256k1_rfc6979_hmac_sha256_initialize(&rng, keydata, seed32 != nil ? 64 : 32);
+
     //memset(keydata, 0, sizeof(keydata));
     for i in 0 ..< keydata.count {
         keydata[i] = 0
@@ -224,10 +228,11 @@ func secp256k1_ecmult_gen_blind(_ ctx: inout secp256k1_ecmult_gen_context, _ see
     for i in 0..<32 {
         nonce32[i] = 0
     }
+    
     secp256k1_ecmult_gen(ctx, &gb, b);
     secp256k1_scalar_negate(&b, b);
-    ctx.blind = b; // scalar
-    ctx.initial = gb; // gej
+    ctx.blind = b;
+    ctx.initial = gb;
     secp256k1_scalar_clear(&b);
     secp256k1_gej_clear(&gb);
 }

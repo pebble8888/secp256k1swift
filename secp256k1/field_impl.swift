@@ -268,8 +268,8 @@ func secp256k1_fe_inv_var(_ r: inout secp256k1_fe, _ a:secp256k1_fe) {
 // ただし、無駄な計算をしないようにする
 func secp256k1_fe_inv_all_var(_ r: inout [secp256k1_fe], _ a:[secp256k1_fe], _ len: UInt) {
     var u = secp256k1_fe()
-    var i: size_t
-    if (len < 1) {
+    var i: Int
+    if len < 1 {
         return;
     }
 
@@ -279,7 +279,7 @@ func secp256k1_fe_inv_all_var(_ r: inout [secp256k1_fe], _ a:[secp256k1_fe], _ l
 
     i = 0;
     i += 1
-    while (i < len) {
+    while i < len {
         secp256k1_fe_mul(&r[i], r[i - 1], a[i]);
         i += 1
     }
@@ -287,8 +287,8 @@ func secp256k1_fe_inv_all_var(_ r: inout [secp256k1_fe], _ a:[secp256k1_fe], _ l
     i -= 1
     secp256k1_fe_inv_var(&u, r[i]);
 
-    while (i > 0) {
-        let j:size_t = i
+    while i > 0 {
+        let j:Int = i
         i -= 1
         secp256k1_fe_mul(&r[j], r[i], u);
         secp256k1_fe_mul(&u, u, a[j]);

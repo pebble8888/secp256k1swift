@@ -22,11 +22,11 @@ import Foundation
 #if EXHAUSTIVE_TEST_ORDER
 #else
     /* optimal for 128-bit and 256-bit exponents. */
-    let WINDOW_A = 5
+    let WINDOW_A: Int = 5
     /** larger numbers may result in slightly better performance, at the cost of
      exponentially larger precomputed tables. */
     /** One table for window size 16: 1.375 MiB. */
-    let WINDOW_G = 16
+    let WINDOW_G: Int = 16
 #endif
 
 /** The number of entries a table with precomputed multiples needs to have. */
@@ -42,7 +42,7 @@ func secp256k1_ecmult_odd_multiples_table(_ n: Int, _ prej: inout [secp256k1_gej
     var a_ge = secp256k1_ge()
     var d_ge = secp256k1_ge()
 
-    //VERIFY_CHECK(!a.infinity);
+    VERIFY_CHECK(!a.infinity);
     
     var dummy = secp256k1_fe()
     secp256k1_gej_double_var(&d, a, &dummy)
@@ -111,18 +111,14 @@ func secp256k1_ecmult_odd_multiples_table_storage_var(_ n: Int, _ pre: inout [se
     for i in 0..<n {
         secp256k1_ge_to_storage(&pre[i], prea[i]);
     }
-    
-    //free(prea);
-    //free(prej);
-    //free(zr);
 }
 
 /** The following two macro retrieves a particular odd multiple from a table
  *  of precomputed multiples. */
 func ECMULT_TABLE_GET_GE(_ r: inout secp256k1_ge, _ pre: [secp256k1_ge], _ n: Int, _ w: Int){
-    //VERIFY_CHECK(((n) & 1) == 1);
-    //VERIFY_CHECK((n) >= -((1 << ((w)-1)) - 1));
-    //VERIFY_CHECK((n) <=  ((1 << ((w)-1)) - 1));
+    VERIFY_CHECK(((n) & 1) == 1);
+    VERIFY_CHECK((n) >= -((1 << ((w)-1)) - 1));
+    VERIFY_CHECK((n) <=  ((1 << ((w)-1)) - 1));
     if (n > 0) {
         r = pre[(n-1)/2]
     } else {
@@ -131,9 +127,9 @@ func ECMULT_TABLE_GET_GE(_ r: inout secp256k1_ge, _ pre: [secp256k1_ge], _ n: In
 }
 
 func ECMULT_TABLE_GET_GE_STORAGE(_ r: inout secp256k1_ge, _ pre: [secp256k1_ge_storage], _ n: Int, _ w: Int) {
-    //VERIFY_CHECK(((n) & 1) == 1);
-    //VERIFY_CHECK((n) >= -((1 << ((w)-1)) - 1));
-    //VERIFY_CHECK((n) <=  ((1 << ((w)-1)) - 1));
+    VERIFY_CHECK(((n) & 1) == 1);
+    VERIFY_CHECK((n) >= -((1 << ((w)-1)) - 1));
+    VERIFY_CHECK((n) <=  ((1 << ((w)-1)) - 1));
     if ((n) > 0) {
         secp256k1_ge_from_storage(&r, pre[(n-1)/2])
     } else {
@@ -201,9 +197,9 @@ func secp256k1_ecmult_wnaf(_ wnaf: inout [Int], _ len: Int, _ a: secp256k1_scala
     var carry: Int = 0;
     
     //VERIFY_CHECK(wnaf != NULL);
-    //VERIFY_CHECK(0 <= len && len <= 256);
+    VERIFY_CHECK(0 <= len && len <= 256);
     //VERIFY_CHECK(a != NULL);
-    //VERIFY_CHECK(2 <= w && w <= 31);
+    VERIFY_CHECK(2 <= w && w <= 31);
     
     for i in 0 ..< len {
         wnaf[i] = 0
@@ -240,7 +236,8 @@ func secp256k1_ecmult_wnaf(_ wnaf: inout [Int], _ len: Int, _ a: secp256k1_scala
     #if VERIFY
         CHECK(carry == 0);
         while (bit < 256) {
-            CHECK(secp256k1_scalar_get_bits(&s, bit++, 1) == 0);
+            CHECK(secp256k1_scalar_get_bits(s, UInt(bit), 1) == 0)
+            bit += 1
         }
     #endif
     return last_set_bit + 1;

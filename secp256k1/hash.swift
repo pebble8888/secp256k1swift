@@ -14,7 +14,7 @@
 import Foundation
 
 
-struct secp256k1_sha256_t {
+struct secp256k1_sha256_t : CustomDebugStringConvertible {
     var s: [UInt32] // size: 8
     var buf: [UInt32] /* size: 16, In big endian */
     var bytes: UInt
@@ -23,18 +23,24 @@ struct secp256k1_sha256_t {
         buf = [UInt32](repeating: 0, count: 16)
         bytes = 0
     }
+    var debugDescription: String {
+        return buf.hexDescription() + "\n" + s.hexDescription() + "\n"
+    }
 }
 
-struct secp256k1_hmac_sha256_t {
+struct secp256k1_hmac_sha256_t : CustomDebugStringConvertible {
     var inner: secp256k1_sha256_t
     var outer: secp256k1_sha256_t
     init(){
         inner = secp256k1_sha256_t()
         outer = secp256k1_sha256_t()
     }
+    var debugDescription: String {
+        return "inner:\n\(inner)\nouter:\n\(outer)"
+    }
 }
 
-public struct secp256k1_rfc6979_hmac_sha256_t {
+public struct secp256k1_rfc6979_hmac_sha256_t : CustomDebugStringConvertible {
     var v: [UInt8] // size: 32
     var k: [UInt8] // size: 32
     var retry: Bool
@@ -42,6 +48,9 @@ public struct secp256k1_rfc6979_hmac_sha256_t {
         v = [UInt8](repeating: 0, count: 32)
         k = [UInt8](repeating: 0, count: 32)
         retry = false
+    }
+    public var debugDescription: String {
+        return "k: \n\(k.hexDescription())\nv: \n\(v.hexDescription())"
     }
 }
 

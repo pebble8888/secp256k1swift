@@ -239,7 +239,7 @@ func secp256k1_gej_set_ge(_ r: inout secp256k1_gej, _ a: secp256k1_ge) {
 func secp256k1_gej_eq_x_var(_ x: secp256k1_fe, _ a: secp256k1_gej) -> Bool {
     var r = secp256k1_fe()
     var r2 = secp256k1_fe()
-    //VERIFY_CHECK(!a.infinity);
+    VERIFY_CHECK(!a.infinity);
     secp256k1_fe_sqr(&r, a.z); secp256k1_fe_mul(&r, r, x);
     r2 = a.x; secp256k1_fe_normalize_weak(&r2);
     return secp256k1_fe_equal_var(r, r2);
@@ -366,7 +366,7 @@ func secp256k1_gej_double_var(_ r: inout secp256k1_gej, _ a: secp256k1_gej, _ rz
 // a  : gej
 // rzr: fe
 func secp256k1_gej_double_nonzero(_ r: inout secp256k1_gej, _ a: secp256k1_gej, _ rzr: inout secp256k1_fe) {
-    //VERIFY_CHECK(!secp256k1_gej_is_infinity(a));
+    VERIFY_CHECK(!secp256k1_gej_is_infinity(a));
     secp256k1_gej_double_var(&r, a, &rzr);
 }
 
@@ -599,7 +599,7 @@ func secp256k1_gej_add_ge(_ r: inout secp256k1_gej, _ a: secp256k1_gej, _ b: sec
     var rr_alt = secp256k1_fe()
     var infinity: Bool
     var degenerate: Bool
-    //VERIFY_CHECK(!b.infinity);
+    VERIFY_CHECK(!b.infinity);
     //VERIFY_CHECK(a.infinity == 0 || a.infinity == 1);
     
     /** In:
@@ -720,7 +720,7 @@ func secp256k1_gej_add_ge(_ r: inout secp256k1_gej, _ a: secp256k1_gej, _ b: sec
 func secp256k1_gej_rescale(_ r: inout secp256k1_gej, _ s: secp256k1_fe) {
     /* Operations: 4 mul, 1 sqr */
     var zz = secp256k1_fe()
-    //VERIFY_CHECK(!secp256k1_fe_is_zero(s));
+    VERIFY_CHECK(!secp256k1_fe_is_zero(s));
     secp256k1_fe_sqr(&zz, s);
     secp256k1_fe_mul(&r.x, r.x, zz);                /* r.x *= s^2 */
     secp256k1_fe_mul(&r.y, r.y, zz);
@@ -733,7 +733,7 @@ func secp256k1_gej_rescale(_ r: inout secp256k1_gej, _ s: secp256k1_fe) {
 func secp256k1_ge_to_storage(_ r: inout secp256k1_ge_storage, _ a: secp256k1_ge) {
     var x: secp256k1_fe
     var y: secp256k1_fe
-    //VERIFY_CHECK(!a.infinity);
+    VERIFY_CHECK(!a.infinity);
     x = a.x;
     secp256k1_fe_normalize(&x);
     y = a.y;

@@ -47,9 +47,7 @@ let secp256k1_ecdsa_const_p_minus_order:secp256k1_fe = SECP256K1_FE_CONST(
 );
 
 // der読み込み
-fileprivate func secp256k1_der_read_len(/*const unsigned char ** */ _ sigp: [UInt8],
-                                                                    _ sigp_idx: Int,
-                                                                    _ sigend: Int) -> Int
+fileprivate func secp256k1_der_read_len(_ sigp: [UInt8], _ sigp_idx: Int, _ sigend: Int) -> Int
 {
     var lenleft: Int
     var b1:UInt8
@@ -268,7 +266,6 @@ func secp256k1_ecdsa_sig_verify(
     var pubkeyj = secp256k1_gej()
     var pr = secp256k1_gej()
     
-    // sigr, sigs がゼロ
     if (secp256k1_scalar_is_zero(sigr) || secp256k1_scalar_is_zero(sigs)) {
         return false
     }
