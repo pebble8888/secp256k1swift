@@ -14,6 +14,20 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "F8226361A28D5A280E6D85839CC2AAE0"
+               BuildableName = "Pods_secp256k1.framework"
+               BlueprintName = "Pods-secp256k1"
+               ReferencedContainer = "container:Pods/Pods.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "A2B45C9D1F94E61400249454"
                BuildableName = "secp256k1.framework"
                BlueprintName = "secp256k1"
