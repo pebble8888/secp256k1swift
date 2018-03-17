@@ -18,6 +18,10 @@
 		A25C3519205BE1F00079711B /* lax_der_privatekey_parsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = A25C3518205BE1F00079711B /* lax_der_privatekey_parsing.swift */; };
 		A25C351B205C0C6B0079711B /* tests_context.swift in Sources */ = {isa = PBXBuildFile; fileRef = A25C351A205C0C6B0079711B /* tests_context.swift */; };
 		A25C351D205C0D450079711B /* tests_ecmult.swift in Sources */ = {isa = PBXBuildFile; fileRef = A25C351C205C0D450079711B /* tests_ecmult.swift */; };
+		A25C351F205CE8840079711B /* tests_ecdsa.swift in Sources */ = {isa = PBXBuildFile; fileRef = A25C351E205CE8840079711B /* tests_ecdsa.swift */; };
+		A25C3521205CE9840079711B /* tests_ec.swift in Sources */ = {isa = PBXBuildFile; fileRef = A25C3520205CE9840079711B /* tests_ec.swift */; };
+		A25C3523205CE9CF0079711B /* tests_endomorphism.swift in Sources */ = {isa = PBXBuildFile; fileRef = A25C3522205CE9CF0079711B /* tests_endomorphism.swift */; };
+		A25C3525205CEA790079711B /* tests_openssl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A25C3524205CEA790079711B /* tests_openssl.swift */; };
 		A27F7DAC1FE66D250092FE18 /* ecdsa_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A27F7DAB1FE66D250092FE18 /* ecdsa_impl.swift */; };
 		A27F7DAE1FE66DA70092FE18 /* field_10x26.swift in Sources */ = {isa = PBXBuildFile; fileRef = A27F7DAD1FE66DA70092FE18 /* field_10x26.swift */; };
 		A2833E81203820FA0064702C /* ecmult.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2833E80203820FA0064702C /* ecmult.swift */; };
@@ -91,6 +95,10 @@
 		A25C3518205BE1F00079711B /* lax_der_privatekey_parsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = lax_der_privatekey_parsing.swift; sourceTree = "<group>"; };
 		A25C351A205C0C6B0079711B /* tests_context.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tests_context.swift; sourceTree = "<group>"; };
 		A25C351C205C0D450079711B /* tests_ecmult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tests_ecmult.swift; sourceTree = "<group>"; };
+		A25C351E205CE8840079711B /* tests_ecdsa.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tests_ecdsa.swift; sourceTree = "<group>"; };
+		A25C3520205CE9840079711B /* tests_ec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tests_ec.swift; sourceTree = "<group>"; };
+		A25C3522205CE9CF0079711B /* tests_endomorphism.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tests_endomorphism.swift; sourceTree = "<group>"; };
+		A25C3524205CEA790079711B /* tests_openssl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tests_openssl.swift; sourceTree = "<group>"; };
 		A27F7DAB1FE66D250092FE18 /* ecdsa_impl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ecdsa_impl.swift; sourceTree = "<group>"; };
 		A27F7DAD1FE66DA70092FE18 /* field_10x26.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = field_10x26.swift; sourceTree = "<group>"; };
 		A2833E80203820FA0064702C /* ecmult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ecmult.swift; sourceTree = "<group>"; };
@@ -273,6 +281,10 @@
 				A21A283B2055163E007A85A4 /* tests_num.swift */,
 				A21A283D205516D4007A85A4 /* tests_hash.swift */,
 				A25C351C205C0D450079711B /* tests_ecmult.swift */,
+				A25C351E205CE8840079711B /* tests_ecdsa.swift */,
+				A25C3520205CE9840079711B /* tests_ec.swift */,
+				A25C3522205CE9CF0079711B /* tests_endomorphism.swift */,
+				A25C3524205CEA790079711B /* tests_openssl.swift */,
 			);
 			path = secp256k1Tests;
 			sourceTree = "<group>";
@@ -696,12 +708,16 @@
 			files = (
 				A21A28382055146B007A85A4 /* tests_field.swift in Sources */,
 				A25C351B205C0C6B0079711B /* tests_context.swift in Sources */,
+				A25C351F205CE8840079711B /* tests_ecdsa.swift in Sources */,
 				A29D57D0204BBC6600E36F04 /* testrand_impl.swift in Sources */,
+				A25C3523205CE9CF0079711B /* tests_endomorphism.swift in Sources */,
 				A21A283A20551477007A85A4 /* tests_group.swift in Sources */,
+				A25C3521205CE9840079711B /* tests_ec.swift in Sources */,
 				A21A283E205516D4007A85A4 /* tests_hash.swift in Sources */,
 				A21A283420551422007A85A4 /* tests_random.swift in Sources */,
 				A21A283C2055163E007A85A4 /* tests_num.swift in Sources */,
 				A25C351D205C0D450079711B /* tests_ecmult.swift in Sources */,
+				A25C3525205CEA790079711B /* tests_openssl.swift in Sources */,
 				A2B45CAD1F94E61400249454 /* secp256k1Tests.swift in Sources */,
 				A2A2854F20550F9400B37A74 /* tests.swift in Sources */,
 				A21A28362055145E007A85A4 /* tests_scalar.swift in Sources */,
