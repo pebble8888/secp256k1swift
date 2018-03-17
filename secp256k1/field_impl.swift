@@ -13,25 +13,25 @@
 
 import Foundation
 
-// return mod qで a != b
+// a mod q != b
 func secp256k1_fe_equal(_ a: secp256k1_fe, _ b:secp256k1_fe) -> Bool {
     var na = secp256k1_fe()
     // 4*q -a
     secp256k1_fe_negate(&na, a, 1);
-    // 4*q -a + b
+    // val = 4*q -a + b
     secp256k1_fe_add(&na, b);
-    // val mod q が0かどうかを返す
+    // val mod q is zero or not
     return secp256k1_fe_normalizes_to_zero(&na);
 }
     
-// return mod qで a != b
+// a mod q != b
 func secp256k1_fe_equal_var(_ a:secp256k1_fe, _ b:secp256k1_fe) -> Bool {
     var na = secp256k1_fe()
     // 4*q -a
     secp256k1_fe_negate(&na, a, 1);
-    // val = 4*q-a + b
+    // val = 4*q -a + b
     secp256k1_fe_add(&na, b);
-    // val mod q が0かどうかを返す
+    // val mod q is 0 or not
     return secp256k1_fe_normalizes_to_zero_var(&na);
 }
     

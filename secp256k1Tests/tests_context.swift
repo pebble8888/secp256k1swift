@@ -5,6 +5,11 @@
 //  Created by pebble8888 on 2018/03/16.
 //  Copyright © 2018年 pebble8888. All rights reserved.
 //
+/**********************************************************************
+ * Copyright (c) 2013, 2014, 2015 Pieter Wuille, Gregory Maxwell      *
+ * Distributed under the MIT software license, see the accompanying   *
+ * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
+ **********************************************************************/
 
 import Foundation
 @testable import secp256k1
@@ -93,12 +98,12 @@ func run_context_tests() {
     CHECK(ecount2 == 14);
     CHECK(secp256k1_ec_pubkey_negate(vrfy, &zero_pubkey) == false);
     CHECK(ecount == 3);
-    CHECK(secp256k1_ec_pubkey_tweak_mul(vrfy, &pubkey, ctmp) == false);
+    CHECK(secp256k1_ec_pubkey_tweak_mul(vrfy, &pubkey, ctmp) == true);
     CHECK(ecount == 3);
     CHECK(secp256k1_context_randomize(&vrfy, ctmp) == false);
     CHECK(ecount == 4);
-    //CHECK(secp256k1_context_randomize(&sign, nil) == 1);
-    //CHECK(ecount2 == 14);
+    CHECK(secp256k1_context_randomize(&sign, nil) == true)
+    CHECK(ecount2 == 14)
     secp256k1_context_set_illegal_callback(&vrfy, nil, nil);
     secp256k1_context_set_illegal_callback(&sign, nil, nil);
     

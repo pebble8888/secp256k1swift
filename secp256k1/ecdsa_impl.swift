@@ -41,12 +41,11 @@ let secp256k1_ecdsa_const_order_as_fe:secp256k1_fe = SECP256K1_FE_CONST(
  *  sage: '%x' % (p - EllipticCurve ([F (a), F (b)]).order())
  *   '14551231950b75fc4402da1722fc9baee'
  */
-// 法素数(p) - 群の位数(n)
+// module prime - group order
 let secp256k1_ecdsa_const_p_minus_order:secp256k1_fe = SECP256K1_FE_CONST(
     0, 0, 0, 1, 0x45512319, 0x50B75FC4, 0x402DA172, 0x2FC9BAEE
 );
 
-// der読み込み
 fileprivate func secp256k1_der_read_len(_ sigp: [UInt8], _ sigp_idx: inout Int, _ sigend: UInt) -> Int
 {
     var lenleft: Int
@@ -100,7 +99,6 @@ fileprivate func secp256k1_der_read_len(_ sigp: [UInt8], _ sigp_idx: inout Int, 
     return Int(ret);
 }
 
-// der int パース
 func secp256k1_der_parse_integer(_ r:inout secp256k1_scalar, _ sig: [UInt8], _ sig_idx: inout Int, _ sigend: UInt) -> Bool
 {
     var overflow:Bool = false
@@ -151,7 +149,6 @@ func secp256k1_der_parse_integer(_ r:inout secp256k1_scalar, _ sig: [UInt8], _ s
     return true
 }
 
-// der パース
 func secp256k1_ecdsa_sig_parse(
     _ rr:inout secp256k1_scalar,
     _ rs:inout secp256k1_scalar,
@@ -196,7 +193,6 @@ func secp256k1_ecdsa_sig_parse(
     return true
 }
 
-// シリアライズ
 func secp256k1_ecdsa_sig_serialize(
     _ sig: inout [UInt8], // size 32
     _ size: inout UInt,
@@ -244,15 +240,6 @@ func secp256k1_ecdsa_sig_serialize(
     return true
 }
 
-/*
- @brief 署名のベリファイ
- @retval true  : valid
- @retval false : invalid
- @param [in]    sigr    : scalar 署名r
- @param [in]    sigs    : scalar 署名s
- @param [in]    pubkey  : scalar 公開鍵
- @param [in]    message : scalar メッセージ
- */
 func secp256k1_ecdsa_sig_verify(
     _ ctx: secp256k1_ecmult_context,
     _ sigr: secp256k1_scalar,
@@ -278,18 +265,20 @@ func secp256k1_ecdsa_sig_verify(
     secp256k1_scalar_mul(&u1, sn, message);
     // u2 = sigr * (sigs ^ -1)
     secp256k1_scalar_mul(&u2, sn, sigr);
-    // アフィン座標からヤコビアン座標へ変換する
+    // affine to jacobian
     secp256k1_gej_set_ge(&pubkeyj, pubkey);
-    // ヤコビアン座標点を計算する(G:ベースポイント, A:公開ポイント)
+    // calc jacobian point
+    // G: base point
+    // A: public point
     // pr = u1 * G + u2 * A 
     secp256k1_ecmult(ctx, &pr, pubkeyj, u2, u1);
     if (secp256k1_gej_is_infinity(pr)) {
         return false
     }
     
-    // sigr をBigEndian 32バイトへ変換する
+    // transform sigr to BigEndian 32 bytes
     secp256k1_scalar_get_b32(&c, sigr);
-    // BigEndian 32バイトから x座標値に変換する
+    // transform BigEndian 32 bytes to x point
     let _ = secp256k1_fe_set_b32(&xr, c);
     
     /** We now have the recomputed R point in pr, and its claimed x coordinate (modulo n)
@@ -308,7 +297,7 @@ func secp256k1_ecdsa_sig_verify(
      *  Thus, we can avoid the inversion, but we have to check both cases separately.
      *  secp256k1_gej_eq_x implements the (xr * pr.z^2 mod p == pr.x) test.
      */
-    // アフィン座標のX軸値xr と ヤコビアン座標 pr が一致する
+    // equal affine x point to jacobian pr
     if (secp256k1_gej_eq_x_var(xr, pr)) {
         /* xr * pr.z^2 mod p == pr.x, so the signature is valid. */
         return true
@@ -326,15 +315,7 @@ func secp256k1_ecdsa_sig_verify(
 }
 
 /*
- @brief 署名
- @param [out]    sigr    : scalar  署名r
- @param [out]    sigs    : scalar  署名s
- @param [in]     seckey  : scalar  秘密鍵
- @param [in]     message : scalar  メッセージ
- @param [in]     nonce   : scalar  ランダム値
- @param [out]    recid   : int     リカバリーID (0, 1, 2, 3)
- @retval 1: success
- @retval 0: fail
+ @param [out] recid   : int     recovery id (0, 1, 2, 3)
  */
 func secp256k1_ecdsa_sig_sign(
     _ ctx: secp256k1_ecmult_gen_context,
@@ -353,15 +334,15 @@ func secp256k1_ecdsa_sig_sign(
     
     // rp = nonce * G
     secp256k1_ecmult_gen(ctx, &rp, nonce)
-    // ヤコビアン座標からアフィン座標へ変換する
+    // transform jacobian to affine
     // r = rp
     secp256k1_ge_set_gej(&r, &rp)
-    // アフィン座標の点をノーマライズ(modを実施)
+    // normalize affine point by mod
     secp256k1_fe_normalize(&r.x)
     secp256k1_fe_normalize(&r.y)
-    // x座標をBigEndian 32バイトへ変換する
+    // x point to BigEndian 32 bytes
     secp256k1_fe_get_b32(&b, r.x)
-    // BigEndian 32バイトからスカラー値に変換する
+    // BigEndian 32 bytes to scalar
     // sigr = r.x
     secp256k1_scalar_set_b32(&sigr, b, &overflow)
     /* These two conditions should be checked before calling */
@@ -390,7 +371,7 @@ func secp256k1_ecdsa_sig_sign(
         return false
     }
     if (secp256k1_scalar_is_high(sigs)) {
-        // 負数になってもよいので mod n で0に近い方を取る
+        // take near zero, minus is ok
         secp256k1_scalar_negate(&sigs, sigs)
         if recid != 0 {
             recid ^= 1
@@ -398,4 +379,3 @@ func secp256k1_ecdsa_sig_sign(
     }
     return true
 }
-

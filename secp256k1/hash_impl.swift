@@ -231,12 +231,6 @@ func secp256k1_sha256_finalize(_ hash: inout secp256k1_sha256_t, _ out32: inout 
     }
     //memcpy(out32, (const unsigned char*)out, 32);
     for i in 0..<8 {
-        /*
-        out32[i*4]   = UInt8(0xff & out[i])
-        out32[i*4+1] = UInt8(0xff & (out[i] >> 8))
-        out32[i*4+2] = UInt8(0xff & (out[i] >> 16))
-        out32[i*4+3] = UInt8(0xff & (out[i] >> 24))
-         */
         UInt32LEToUInt8(&out32, i*4, out[i])
     }
 }

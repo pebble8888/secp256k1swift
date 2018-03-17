@@ -411,15 +411,15 @@ func secp256k1_pubkey_save(_ pubkey: inout secp256k1_pubkey, _ ge: inout secp256
     /*
     if (sizeof(secp256k1_ge_storage) == 64) {
      */
-    var s = secp256k1_ge_storage()
-    secp256k1_ge_to_storage(&s, ge);
-    //memcpy(&pubkey.data[0], &s, 64);
-    for i in 0 ..< 8 {
-        UInt32LEToUInt8(&pubkey.data, 4*i, s.x.n[i])
-    }
-    for i in 0 ..< 8 {
-        UInt32LEToUInt8(&pubkey.data, 32 + 4*i, s.y.n[i])
-    }
+        var s = secp256k1_ge_storage()
+        secp256k1_ge_to_storage(&s, ge);
+        //memcpy(&pubkey.data[0], &s, 64);
+        for i in 0 ..< 8 {
+            UInt32LEToUInt8(&pubkey.data, 4*i, s.x.n[i])
+        }
+        for i in 0 ..< 8 {
+            UInt32LEToUInt8(&pubkey.data, 32 + 4*i, s.y.n[i])
+        }
     /*
     } else {
     //VERIFY_CHECK(!secp256k1_ge_is_infinity(ge));
@@ -518,9 +518,9 @@ func secp256k1_ecdsa_signature_load(_ ctx: secp256k1_context, _ r: inout secp256
         memcpy(s, &sig->data[32], 32);
     } else {
      */
-    var dummy: Bool = false
-    secp256k1_scalar_set_b32(&r, sig.data, &dummy)
-    secp256k1_scalar_set_b32(&s, Array(sig.data[32..<64]), &dummy)
+        var dummy: Bool = false
+        secp256k1_scalar_set_b32(&r, sig.data, &dummy)
+        secp256k1_scalar_set_b32(&s, Array(sig.data[32..<64]), &dummy)
     /*
     }
      */
@@ -534,14 +534,14 @@ func secp256k1_ecdsa_signature_save(_ sig: inout secp256k1_ecdsa_signature, _ r:
         memcpy(&sig->data[32], s, 32);
     } else {
      */
-    var v1 = [UInt8](repeating: 0, count: 32)
-    var v2 = [UInt8](repeating: 0, count: 32)
-    secp256k1_scalar_get_b32(&v1, r);
-    secp256k1_scalar_get_b32(&v2, s);
-    for i in 0..<32 {
-        sig.data[i] = v1[i]
-        sig.data[32+i] = v2[i]
-    }
+        var v1 = [UInt8](repeating: 0, count: 32)
+        var v2 = [UInt8](repeating: 0, count: 32)
+        secp256k1_scalar_get_b32(&v1, r);
+        secp256k1_scalar_get_b32(&v2, s);
+        for i in 0..<32 {
+            sig.data[i] = v1[i]
+            sig.data[32+i] = v2[i]
+        }
     /*
     }
     */
@@ -890,7 +890,6 @@ public func secp256k1_ecdsa_sign(_ ctx: secp256k1_context,
             }
             secp256k1_scalar_set_b32(&non, nonce32, &overflow);
             if (!overflow && !secp256k1_scalar_is_zero(non)) {
-                // サイニング
                 var dummy: Int = 0
                 if (secp256k1_ecdsa_sig_sign(ctx.ecmult_gen_ctx, &r, &s, sec, msg, non, &dummy)) {
                     break;
@@ -904,7 +903,6 @@ public func secp256k1_ecdsa_sign(_ ctx: secp256k1_context,
         secp256k1_scalar_clear(&sec);
     }
     if (ret) {
-        // 署名を保存
         secp256k1_ecdsa_signature_save(&signature, r, s);
     } else {
         signature.clear()

@@ -216,7 +216,7 @@ func secp256k1_fe_normalize_var(_ r:inout secp256k1_fe) {
     #endif
 }
 
-// rがmod q で 0かどうかを返す
+// r mod q is zero or not
 func secp256k1_fe_normalizes_to_zero(_ r: inout secp256k1_fe) -> Bool {
     var t0 = r.n[0]
     var t1 = r.n[1]
@@ -254,7 +254,7 @@ func secp256k1_fe_normalizes_to_zero(_ r: inout secp256k1_fe) -> Bool {
     return (z0 == 0) || (z1 == 0x3FFFFFF);
 }
 
-// rがmod q で 0かどうかを返す
+// r mod q is zero or not
 func secp256k1_fe_normalizes_to_zero_var(_ r: inout secp256k1_fe) -> Bool {
     var t0, t1, t2, t3, t4, t5, t6, t7, t8, t9: UInt32
     var z0, z1: UInt32
@@ -307,7 +307,6 @@ func secp256k1_fe_normalizes_to_zero_var(_ r: inout secp256k1_fe) -> Bool {
     return (z0 == 0) || (z1 == 0x3FFFFFF);
 }
 
-// rに int aを設定する
 func secp256k1_fe_set_int(_ r: inout secp256k1_fe, _ a: UInt32) {
     r.n[0] = a
     for i in 1...9 {
@@ -320,7 +319,6 @@ func secp256k1_fe_set_int(_ r: inout secp256k1_fe, _ a: UInt32) {
     #endif
 }
 
-// aが0かどうかを返す
 func secp256k1_fe_is_zero(_ a: secp256k1_fe) -> Bool {
     let t = a.n
     #if VERIFY
@@ -330,7 +328,6 @@ func secp256k1_fe_is_zero(_ a: secp256k1_fe) -> Bool {
     return (t[0] | t[1] | t[2] | t[3] | t[4] | t[5] | t[6] | t[7] | t[8] | t[9]) == 0;
 }
 
-// aが奇数かどうかを返す
 func secp256k1_fe_is_odd(_ a: secp256k1_fe) -> Bool {
     #if VERIFY
         VERIFY_CHECK(a.normalized);
@@ -339,7 +336,6 @@ func secp256k1_fe_is_odd(_ a: secp256k1_fe) -> Bool {
     return (a.n[0] & 1) != 0
 }
 
-// aに0を設定する
 func secp256k1_fe_clear(_ a: inout secp256k1_fe) {
     #if VERIFY
         a.magnitude = 0
@@ -350,7 +346,7 @@ func secp256k1_fe_clear(_ a: inout secp256k1_fe) {
     }
 }
 
-// ノーマライズされたa, bを比較した結果-1, 0, 1を返す
+// compare normalized a and b return -1, 0 or 1
 func secp256k1_fe_cmp_var(_ a:secp256k1_fe, _ b:secp256k1_fe) -> Int {
     #if VERIFY
         VERIFY_CHECK(a.normalized);
@@ -1174,7 +1170,7 @@ func secp256k1_fe_cmov(_ r:inout secp256k1_fe, _ a:secp256k1_fe, _ flag:Bool) {
 // r : secp256k1_fe_storage
 // a : secp256k1_fe_storage
 // flag : int
-// TODO:要単体test追加
+// TODO:Unit test
 func secp256k1_fe_storage_cmov(_ r:inout secp256k1_fe_storage, _ a:secp256k1_fe_storage, _ flag:Bool) {
     var mask0, mask1:UInt32;
     mask0 = (flag ? 1 : 0) &+ UInt32.max

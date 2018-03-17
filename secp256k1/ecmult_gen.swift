@@ -13,9 +13,6 @@
 
 import Foundation
 
-//#include "scalar.h"
-//#include "group.h"
-
 struct secp256k1_ecmult_gen_context
 {
     /* For accelerating the computation of a*G:

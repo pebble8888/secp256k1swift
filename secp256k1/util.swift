@@ -14,16 +14,6 @@
 
 import Foundation
 
-//#if defined HAVE_CONFIG_H
-//    #include "libsecp256k1-config.h"
-//#endif
-
-/*
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdio.h>
- */
-
 struct secp256k1_callback {
     //void (*fn)(const char *text, void* data);
     var fn: (_ text: String, _ data: UnsafeMutableRawPointer? /*[UInt8] */) -> Void
@@ -131,7 +121,7 @@ func UInt8ToUInt32LE(_ dst: inout [UInt32],
     var src_idx: Int = src_begin
     while src_idx < src_begin + Int(size) {
         let v = Int(dst_begin) + src_idx - src_begin
-        let v4 = v/4
+        let v4 = v / 4
         let w = v % 4
         switch w {
         case 0:

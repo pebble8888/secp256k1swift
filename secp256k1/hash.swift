@@ -53,4 +53,3 @@ public struct secp256k1_rfc6979_hmac_sha256_t : CustomDebugStringConvertible {
         return "k: \n\(k.hexDescription())\nv: \n\(v.hexDescription())"
     }
 }
-

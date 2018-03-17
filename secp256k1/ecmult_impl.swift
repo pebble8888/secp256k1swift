@@ -13,12 +13,6 @@
 
 import Foundation
 
-//#include <string.h>
-
-//#include "group.h"
-//#include "scalar.h"
-//#include "ecmult.h"
-
 #if EXHAUSTIVE_TEST_ORDER
 #else
     /* optimal for 128-bit and 256-bit exponents. */
@@ -244,11 +238,11 @@ func secp256k1_ecmult_wnaf(_ wnaf: inout [Int], _ len: Int, _ a: secp256k1_scala
 }
 
 /**
- @brief (x1, y1) = ng * G + na * A を計算し、x1を返す
+ @brief calc (x1, y1) = ng * G + na * A, get x1
  @param r : gej
- @param a : gej      公開ポイントAのヤコビアン座標 (pubkey)
- @param na : scalar  A(公開ポイント)の係数 u2
- @param ng : scalar  Gの係数 u1
+ @param a : gej      jacobian cordinate of public piont A (pubkey)
+ @param na : scalar  u2: coef of A(public point)
+ @param ng : scalar  u1: coef of G(base point)
  */
 func secp256k1_ecmult(_ ctx: secp256k1_ecmult_context,
     _ r: inout secp256k1_gej,

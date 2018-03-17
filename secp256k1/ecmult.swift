@@ -13,9 +13,6 @@
 
 import Foundation
 
-//#include "num.h"
-//#include "group.h"
-
 //typealias Pre_G = () -> secp256k1_ge_storage
 
 public struct secp256k1_ecmult_context : CustomDebugStringConvertible {

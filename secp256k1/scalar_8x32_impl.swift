@@ -236,21 +236,13 @@ func secp256k1_scalar_set_b32(_ r: inout secp256k1_scalar, _ b32: [UInt8], _ ove
 
 func secp256k1_scalar_get_b32(_ bin: inout [UInt8], _ a: secp256k1_scalar) {
     assert(bin.count >= 32)
-    //bin[0] = UInt8(a.d[7] >> 24); bin[1] = UInt8(a.d[7] >> 16); bin[2] = UInt8(a.d[7] >> 8); bin[3] = UInt8(a.d[7])
     UInt32BEToUInt8(&bin, 0, a.d[7])
-    //bin[4] = UInt8(a.d[6] >> 24); bin[5] = UInt8(a.d[6] >> 16); bin[6] = UInt8(a.d[6] >> 8); bin[7] = UInt8(a.d[6])
     UInt32BEToUInt8(&bin, 4, a.d[6])
-    //bin[8] = UInt8(a.d[5] >> 24); bin[9] = UInt8(a.d[5] >> 16); bin[10] = UInt8(a.d[5] >> 8); bin[11] = UInt8(a.d[5])
     UInt32BEToUInt8(&bin, 8, a.d[5])
-    //bin[12] = UInt8(a.d[4] >> 24); bin[13] = UInt8(a.d[4] >> 16); bin[14] = UInt8(a.d[4] >> 8); bin[15] = UInt8(a.d[4])
     UInt32BEToUInt8(&bin, 12, a.d[4])
-    //bin[16] = UInt8(a.d[3] >> 24); bin[17] = UInt8(a.d[3] >> 16); bin[18] = UInt8(a.d[3] >> 8); bin[19] = UInt8(a.d[3])
     UInt32BEToUInt8(&bin, 16, a.d[3])
-    //bin[20] = UInt8(a.d[2] >> 24); bin[21] = UInt8(a.d[2] >> 16); bin[22] = UInt8(a.d[2] >> 8); bin[23] = UInt8(a.d[2])
     UInt32BEToUInt8(&bin, 20, a.d[2])
-    //bin[24] = UInt8(a.d[1] >> 24); bin[25] = UInt8(a.d[1] >> 16); bin[26] = UInt8(a.d[1] >> 8); bin[27] = UInt8(a.d[1])
     UInt32BEToUInt8(&bin, 24, a.d[1])
-    //bin[28] = UInt8(a.d[0] >> 24); bin[29] = UInt8(a.d[0] >> 16); bin[30] = UInt8(a.d[0] >> 8); bin[31] = UInt8(a.d[0])
     UInt32BEToUInt8(&bin, 28, a.d[0])
 }
 
@@ -757,14 +749,6 @@ fileprivate func secp256k1_scalar_sqr_512(_ l: inout [UInt32], _ a: secp256k1_sc
     VERIFY_CHECK(ca.c1 == 0);
     l[15] = ca.c0
 }
-
-//#undef sumadd
-//#undef sumadd_fast
-//#undef muladd
-//#undef muladd_fast
-//#undef muladd2
-//#undef extract
-//#undef extract_fast
 
 // r = a * b
 func secp256k1_scalar_mul(_ r: inout secp256k1_scalar, _ a: secp256k1_scalar, _ b: secp256k1_scalar) {

@@ -5,11 +5,6 @@
 //  Created by pebble8888 on 2017/10/16.
 //  Copyright © 2017年 pebble8888. All rights reserved.
 //
-/**********************************************************************
- * Copyright (c) 2013, 2014, 2015 Pieter Wuille, Gregory Maxwell      *
- * Distributed under the MIT software license, see the accompanying   *
- * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
- **********************************************************************/
 
 import XCTest
 @testable import secp256k1

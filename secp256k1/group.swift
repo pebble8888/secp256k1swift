@@ -14,7 +14,7 @@
 import Foundation
 
 /** A group element of the secp256k1 curve, in affine coordinates. */
-// アフィン座標での点 x, y, infinity
+// affine point
 struct secp256k1_ge : CustomDebugStringConvertible {
     var x: secp256k1_fe
     var y: secp256k1_fe
@@ -61,7 +61,7 @@ let SECP256K1_GE_CONST_INFINITY: secp256k1_ge =
                         infinity: true)
 
 /** A group element of the secp256k1 curve, in jacobian coordinates. */
-// ヤコビアン座標での点 x, y, z, infinity
+// yacobian point
 struct secp256k1_gej: CustomDebugStringConvertible {
     var x: secp256k1_fe /* actual X: x/z^2 */
     var y: secp256k1_fe /* actual Y: y/z^3 */
@@ -161,4 +161,3 @@ func SECP256K1_GE_STORAGE_CONST(
 }
 
 //#define SECP256K1_GE_STORAGE_CONST_GET(t) SECP256K1_FE_STORAGE_CONST_GET(t.x), SECP256K1_FE_STORAGE_CONST_GET(t.y)
-

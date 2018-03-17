@@ -15,5 +15,3 @@ FOUNDATION_EXPORT double secp256k1refVersionNumber;
 FOUNDATION_EXPORT const unsigned char secp256k1refVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <secp256k1ref/PublicHeader.h>
-
-

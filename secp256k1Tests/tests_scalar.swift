@@ -5,6 +5,11 @@
 //  Created by pebble8888 on 2018/03/11.
 //  Copyright © 2018年 pebble8888. All rights reserved.
 //
+/**********************************************************************
+ * Copyright (c) 2013, 2014, 2015 Pieter Wuille, Gregory Maxwell      *
+ * Distributed under the MIT software license, see the accompanying   *
+ * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
+ **********************************************************************/
 
 import Foundation
 @testable import secp256k1
@@ -974,4 +979,3 @@ func random_scalar_order(_ num: inout secp256k1_scalar) {
         break;
     } while true
 }
-

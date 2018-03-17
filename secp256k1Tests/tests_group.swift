@@ -5,6 +5,11 @@
 //  Created by pebble8888 on 2018/03/11.
 //  Copyright © 2018年 pebble8888. All rights reserved.
 //
+/**********************************************************************
+ * Copyright (c) 2013, 2014, 2015 Pieter Wuille, Gregory Maxwell      *
+ * Distributed under the MIT software license, see the accompanying   *
+ * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
+ **********************************************************************/
 
 import Foundation
 @testable import secp256k1
@@ -62,9 +67,6 @@ func ge_equals_gej(_ a: secp256k1_ge, _ b: secp256k1_gej) {
     CHECK(secp256k1_fe_equal_var(s1, s2));
 }
 
-
-
-
 func test_ge() {
     /*
 #if USE_ENDOMORPHISM
@@ -72,9 +74,9 @@ func test_ge() {
 #else
     */
     let runs:Int = 4;
-/*
+    /*
 #endif
- */
+     */
     /* Points: (infinity, p1, p1, -p1, -p1, p2, p2, -p2, -p2, p3, p3, -p3, -p3, p4, p4, -p4, -p4).
      * The second in each pair of identical points uses a random Z coordinate in the Jacobian form.
      * All magnitudes are randomized.
@@ -461,4 +463,3 @@ func random_group_element_jacobian_test(_ gej: inout secp256k1_gej, _ ge: secp25
     secp256k1_fe_mul(&gej.y, ge.y, z3);
     gej.infinity = ge.infinity;
 }
-

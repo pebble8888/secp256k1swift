@@ -41,7 +41,7 @@ import Foundation
 /** Generator for secp256k1, value 'g' defined in
  *  "Standards for Efficient Cryptography" (SEC2) 2.7.1.
  *
- *  @note ベースポイントB
+ *  @note base point G
  */
 let secp256k1_ge_const_g: secp256k1_ge = SECP256K1_GE_CONST(
     0x79BE667E, 0xF9DCBBAC, 0x55A06295, 0xCE870B07,
@@ -178,7 +178,7 @@ func secp256k1_ge_globalz_set_table_gej(_ len: UInt, _ r: inout [secp256k1_ge], 
     }
 }
 
-// ヤコビアン座標点 無限遠点セット
+// set yacobian O
 func secp256k1_gej_set_infinity(_ r: inout secp256k1_gej) {
     r.infinity = true
     secp256k1_fe_clear(&r.x);
@@ -186,7 +186,7 @@ func secp256k1_gej_set_infinity(_ r: inout secp256k1_gej) {
     secp256k1_fe_clear(&r.z);
 }
 
-// ヤコビアン座標点 0セット
+// set yacobian O
 func secp256k1_gej_clear(_ r: inout secp256k1_gej) {
     r.infinity = false
     secp256k1_fe_clear(&r.x);
@@ -194,7 +194,7 @@ func secp256k1_gej_clear(_ r: inout secp256k1_gej) {
     secp256k1_fe_clear(&r.z);
 }
 
-// アフィン座標点 0セット
+// set yacobian O
 func secp256k1_ge_clear(_ r: inout secp256k1_ge) {
     r.infinity = false
     secp256k1_fe_clear(&r.x);
@@ -227,7 +227,7 @@ func secp256k1_ge_set_xo_var(_ r: inout secp256k1_ge, _ x: secp256k1_fe, _ odd: 
     return true
 }
 
-// アフィン座標点をz=1のヤコビアン座標点に変換する
+// transform affine point to z=1 yacobian point
 func secp256k1_gej_set_ge(_ r: inout secp256k1_gej, _ a: secp256k1_ge) {
     r.infinity = a.infinity;
     r.x = a.x;
@@ -235,7 +235,7 @@ func secp256k1_gej_set_ge(_ r: inout secp256k1_gej, _ a: secp256k1_ge) {
     secp256k1_fe_set_int(&r.z, 1)
 }
 
-// ヤコビアン座標点a のアフィン座標x軸値がxと同じかどうか調べる
+// is equal yacobian a to affince x point
 func secp256k1_gej_eq_x_var(_ x: secp256k1_fe, _ a: secp256k1_gej) -> Bool {
     var r = secp256k1_fe()
     var r2 = secp256k1_fe()
@@ -254,7 +254,7 @@ func secp256k1_gej_neg(_ r: inout secp256k1_gej, _ a: secp256k1_gej) {
     secp256k1_fe_negate(&r.y, r.y, 1);
 }
 
-// ヤコビアン座標 無限遠点かどうか
+// is yacobian O
 func secp256k1_gej_is_infinity(_ a: secp256k1_gej) -> Bool {
     return a.infinity;
 }
@@ -299,7 +299,7 @@ func secp256k1_ge_is_valid_var(_ a: secp256k1_ge) -> Bool {
     return secp256k1_fe_equal_var(y2, x3);
 }
 
-// ヤコビアン座標 2倍算
+// doubling in yacobian
 // @param r  : gej
 // @param a  : gej
 // @param rzr: fe
@@ -361,7 +361,7 @@ func secp256k1_gej_double_var(_ r: inout secp256k1_gej, _ a: secp256k1_gej, _ rz
     secp256k1_fe_add(&r.y, t2);         /* Y' = 36*X^3*Y^2 - 27*X^6 - 8*Y^4 (4) */
 }
 
-// ヤコビアン座標 aが無限遠点でないことが分かっている場合
+// yacobian for a is not O
 // r  : gej
 // a  : gej
 // rzr: fe
@@ -370,7 +370,7 @@ func secp256k1_gej_double_nonzero(_ r: inout secp256k1_gej, _ a: secp256k1_gej, 
     secp256k1_gej_double_var(&r, a, &rzr);
 }
 
-// ヤコビアン座標 加法 r = a + b
+// yacobian r = a + b
 // r  : gej
 // a  : gej
 // b  : gej
@@ -439,7 +439,7 @@ func secp256k1_gej_add_var(_ r: inout secp256k1_gej, _ a: secp256k1_gej, _ b: se
     secp256k1_fe_add(&r.y, h3);
 }
 
-// ヤコビアン座標 加法 r = a + b
+// yacobian r = a + b
 // r  : gej
 // a  : gej
 // b  : ge

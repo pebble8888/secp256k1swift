@@ -5,13 +5,14 @@
 //  Created by pebble8888 on 2018/03/11.
 //  Copyright © 2018年 pebble8888. All rights reserved.
 //
+/**********************************************************************
+ * Copyright (c) 2013, 2014, 2015 Pieter Wuille, Gregory Maxwell      *
+ * Distributed under the MIT software license, see the accompanying   *
+ * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
+ **********************************************************************/
 
 import Foundation
 @testable import secp256k1
-
-//#include "secp256k1.c"
-//#include "include/secp256k1.h"
-//#include "testrand_impl.h"
 
 /*
 #ifdef ENABLE_OPENSSL_TESTS
@@ -38,6 +39,7 @@ import Foundation
 
 //func VG_UNDEF(_ x: inout Any, _ y: Any){
 //}
+
 func VG_CHECK(_ x: Any, _ y: Any){
 }
 
@@ -1145,7 +1147,7 @@ func run_random_pubkeys() {
 }
 
 func run_ecdsa_end_to_end() {
-    for i in 0 ..< 64*g_count {
+    for _ in 0 ..< 64*g_count {
         test_ecdsa_end_to_end();
     }
 }
@@ -2086,7 +2088,7 @@ func test_main(_ count: Int, _ ch:String?) {
     print(String(format: "random seed = %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n", seed16[0], seed16[1], seed16[2], seed16[3], seed16[4], seed16[5], seed16[6], seed16[7], seed16[8], seed16[9], seed16[10], seed16[11], seed16[12], seed16[13], seed16[14], seed16[15]))
     
     /* initialize */
-    //run_context_tests(); // fail
+    run_context_tests(); // pass
     ctx = secp256k1_context_create([SECP256K1_FLAGS.SECP256K1_CONTEXT_SIGN, SECP256K1_FLAGS.SECP256K1_CONTEXT_VERIFY])
     guard var ctx = ctx else { fatalError() }
     if secp256k1_rand_bits(1) != 0 {
@@ -2097,14 +2099,12 @@ func test_main(_ count: Int, _ ch:String?) {
             CHECK(secp256k1_context_randomize(&ctx, nil))
         }
     }
-    /*
     run_rand_bits(); // pass
     run_rand_int(); // pass
 
     run_sha256_tests(); // pass
     run_hmac_sha256_tests(); // pass
     run_rfc6979_hmac_sha256_tests(); // pass
-     */
 
     /*
      #ifndef USE_NUM_NONE
@@ -2113,7 +2113,6 @@ func test_main(_ count: Int, _ ch:String?) {
      #endif
      */
     
-    /*
     /* scalar tests */
     run_scalar_tests(); // pass
 
@@ -2129,21 +2128,16 @@ func test_main(_ count: Int, _ ch:String?) {
     /* group tests */
     run_ge(); // pass
     run_group_decompress(); // pass
-     */
 
     /* ecmult tests */
-    /*
     run_wnaf(); // pass
     run_point_times_order(); // pass
-     */
-    //run_ecmult_chain();
-    /*
+    run_ecmult_chain()
     run_ecmult_constants(); // pass
     run_ecmult_gen_blind(); // pass
     run_ecmult_const_tests(); // pass
 
     run_ec_combine(); // pass
-     */
     /*
     /* endomorphism tests */
     #if USE_ENDOMORPHISM
@@ -2151,14 +2145,12 @@ func test_main(_ count: Int, _ ch:String?) {
     #endif
      */
     
-    /*
     /* EC point parser test */
     run_ec_pubkey_parse_test(); // pass
 
     /* EC key edge cases */
     run_eckey_edge_case_test(); // pass
-     */
-    
+
     /*
     #if ENABLE_MODULE_ECDH
         /* ecdh tests */
@@ -2167,12 +2159,12 @@ func test_main(_ count: Int, _ ch:String?) {
      */
     
     /* ecdsa tests */
-    /*
     run_random_pubkeys(); // pass
     run_ecdsa_der_parse(); // pass
     run_ecdsa_sign_verify(); // pass
     run_ecdsa_end_to_end(); // wait
     run_ecdsa_edge_cases(); // pass
+     
     #if ENABLE_OPENSSL_TESTS
         run_ecdsa_openssl()
     #endif
@@ -2181,8 +2173,7 @@ func test_main(_ count: Int, _ ch:String?) {
         /* ECDSA pubkey recovery tests */
         run_recovery_tests();
     #endif
-     */
-    
+
     secp256k1_rand256(&run32);
     print(String(format:"random run = %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n", run32[0], run32[1], run32[2], run32[3], run32[4], run32[5], run32[6], run32[7], run32[8], run32[9], run32[10], run32[11], run32[12], run32[13], run32[14], run32[15]))
     /* shutdown */

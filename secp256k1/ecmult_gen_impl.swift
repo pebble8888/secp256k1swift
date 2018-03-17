@@ -131,7 +131,7 @@ func secp256k1_ecmult_gen_context_clear(_ ctx: inout secp256k1_ecmult_gen_contex
 }
 
 /**
- @brief gn * G の点を返す, ここで G は secp256k1 のベースポイント 
+ @brief get point gn * G, G: base point
  @param r : gej
  @param gn : scalar
  */
