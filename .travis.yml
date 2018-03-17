@@ -3,7 +3,7 @@ language: objective-c
 osx_image: xcode9.2
 env:
   global:
-  - WORKSPACE=secp256k1/secp256k1.xcworkspace
+  - WORKSPACE=secp256k1.xcworkspace
   - OSX_SCHEME="secp256k1"
   - OSX_SDK="macosx10.13"
   matrix:
