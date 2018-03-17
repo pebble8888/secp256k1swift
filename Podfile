@@ -4,7 +4,7 @@
 target 'secp256k1' do
   use_frameworks!
 
-  pod 'BigInt', :git => 'https://github.com/attaswift/BigInt.git'
+  #pod 'BigInt', :git => 'https://github.com/attaswift/BigInt.git'
 
   target 'secp256k1Tests' do
     inherit! :search_paths

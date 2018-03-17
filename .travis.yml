@@ -6,18 +6,16 @@ env:
   - WORKSPACE=secp256k1.xcworkspace
   - OSX_SCHEME="secp256k1"
   - OSX_SDK="macosx10.13"
-  - RUN_TESTS=YES
   matrix:
     - DESTINATION="arch=x86_64" SCHEME="$OSX_SCHEME" SDK="$OSX_SDK"
+cache: Podfile
+before_install:
+  - gem install cocoapods
+  - pod install
 
 script:
   - set -o pipefail
   - xcodebuild -version
   - xcodebuild -showsdks
-
-  - if [ $RUN_TESTS == "YES" ]; then
-      xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -sdk "$SDK" -destination "$DESTINATION" -configuration Debug ONLY_ACTIVE_ARCH=NO build test | xcpretty -c;
-    else
-      xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -sdk "$SDK" -destination "$DESTINATION" -configuration Debug ONLY_ACTIVE_ARCH=NO build | xcpretty -c;
-    fi
+  - xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -sdk "$SDK" -destination "$DESTINATION" -configuration Debug ONLY_ACTIVE_ARCH=NO build test | xcpretty
 

@@ -1,5 +1,5 @@
 PODS:
-  - BigInt (3.0.1):
+  - BigInt (3.0.2):
     - SipHash (~> 1.2)
   - SipHash (1.2.0)
 
@@ -12,13 +12,13 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   BigInt:
-    :commit: e3879c569817a844ca2c54a9095c59e1d779cd5d
+    :commit: 2256c581048079b5c20a003a5d7eeaec01e756de
     :git: https://github.com/attaswift/BigInt.git
 
 SPEC CHECKSUMS:
-  BigInt: dff99694437c15bd7f82980b6399a5b6dbd73fa7
+  BigInt: e9c681a5e230e75d1e3243ae762305f208585135
   SipHash: c6e9e43e9c531b5bc6602545130c26194a6d31ce
 
-PODFILE CHECKSUM: 63c12df02efb4509902bdb52c94c7dcd23feb2df
+PODFILE CHECKSUM: c6c9f9a4e3209bc2e8c7c882ae3950910d5ee306
 
-COCOAPODS: 1.4.0.beta.1
+COCOAPODS: 1.4.0.beta.2
