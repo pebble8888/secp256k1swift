@@ -1,6 +1,8 @@
 os: osx
 language: objective-c
 osx_image: xcode9.2
+xcode_workspace: secp256k1_xcworkspace 
+xcode_scheme: secp256k1
 env:
   global:
   - WORKSPACE=secp256k1.xcworkspace
@@ -8,14 +10,14 @@ env:
   - OSX_SDK="macosx10.13"
   matrix:
     - DESTINATION="arch=x86_64" SCHEME="$OSX_SCHEME" SDK="$OSX_SDK"
-cache: Podfile
-before_install:
-  - gem install cocoapods
-  - pod install
+#cache: Podfile
+#before_install:
+#  - gem install cocoapods
+#  - pod install
 
-script:
-  - set -o pipefail
-  - xcodebuild -version
-  - xcodebuild -showsdks
-  - xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -sdk "$SDK" -destination "$DESTINATION" -configuration Debug ONLY_ACTIVE_ARCH=NO build test | xcpretty
+#script:
+#  - set -o pipefail
+#  - xcodebuild -version
+#  - xcodebuild -showsdks
+#- xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -sdk "$SDK" -destination "$DESTINATION" -configuration Debug ONLY_ACTIVE_ARCH=NO build test | xcpretty
 
