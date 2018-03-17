@@ -23,7 +23,7 @@ WIP
 
 ## Implementation
 
-Is is ported from [bitcoin C implementation](https://github.com/bitcoin-core/secp256k1)
+It is ported from [bitcoin C implementation](https://github.com/bitcoin-core/secp256k1)
 
 ## Performance
 
