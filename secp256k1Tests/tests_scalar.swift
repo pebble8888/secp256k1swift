@@ -949,3 +949,29 @@ func run_scalar_tests() {
     }
 }
 
+func random_scalar_order_test(_ num: inout secp256k1_scalar) {
+    repeat {
+        var b32 = [UInt8](repeating:0, count:32)
+        var overflow = false
+        secp256k1_rand256_test(&b32);
+        secp256k1_scalar_set_b32(&num, b32, &overflow);
+        if (overflow || secp256k1_scalar_is_zero(num)) {
+            continue;
+        }
+        break;
+    } while true
+}
+
+func random_scalar_order(_ num: inout secp256k1_scalar) {
+    repeat {
+        var b32 = [UInt8](repeating: 0, count: 32)
+        var overflow: Bool = false
+        secp256k1_rand256(&b32);
+        secp256k1_scalar_set_b32(&num, b32, &overflow);
+        if (overflow || secp256k1_scalar_is_zero(num)) {
+            continue;
+        }
+        break;
+    } while true
+}
+

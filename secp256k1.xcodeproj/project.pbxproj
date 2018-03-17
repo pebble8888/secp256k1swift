@@ -15,6 +15,9 @@
 		A21A283A20551477007A85A4 /* tests_group.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21A283920551477007A85A4 /* tests_group.swift */; };
 		A21A283C2055163E007A85A4 /* tests_num.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21A283B2055163E007A85A4 /* tests_num.swift */; };
 		A21A283E205516D4007A85A4 /* tests_hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21A283D205516D4007A85A4 /* tests_hash.swift */; };
+		A25C3519205BE1F00079711B /* lax_der_privatekey_parsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = A25C3518205BE1F00079711B /* lax_der_privatekey_parsing.swift */; };
+		A25C351B205C0C6B0079711B /* tests_context.swift in Sources */ = {isa = PBXBuildFile; fileRef = A25C351A205C0C6B0079711B /* tests_context.swift */; };
+		A25C351D205C0D450079711B /* tests_ecmult.swift in Sources */ = {isa = PBXBuildFile; fileRef = A25C351C205C0D450079711B /* tests_ecmult.swift */; };
 		A27F7DAC1FE66D250092FE18 /* ecdsa_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A27F7DAB1FE66D250092FE18 /* ecdsa_impl.swift */; };
 		A27F7DAE1FE66DA70092FE18 /* field_10x26.swift in Sources */ = {isa = PBXBuildFile; fileRef = A27F7DAD1FE66DA70092FE18 /* field_10x26.swift */; };
 		A2833E81203820FA0064702C /* ecmult.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2833E80203820FA0064702C /* ecmult.swift */; };
@@ -48,6 +51,7 @@
 		A2C38D18203926CE003C02F2 /* group_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C38D17203926CE003C02F2 /* group_impl.swift */; };
 		A2C38D1C20393E61003C02F2 /* hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C38D1B20393E61003C02F2 /* hash.swift */; };
 		A2E6D83820529F26009949CD /* PBHex.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E6D83720529F26009949CD /* PBHex.swift */; };
+		A2EA1D6220581A8E009462D8 /* lax_der_parsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2EA1D6120581A8E009462D8 /* lax_der_parsing.swift */; };
 		D16F0E3C598726B28D210629 /* Pods_secp256k1.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD8FE2035503BB853B90B5D /* Pods_secp256k1.framework */; };
 		FB71E43E834A2F67781C1430 /* Pods_secp256k1ref.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EB7AE2E2026F83CFDA7DD4 /* Pods_secp256k1ref.framework */; };
 /* End PBXBuildFile section */
@@ -84,6 +88,9 @@
 		A21A283920551477007A85A4 /* tests_group.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tests_group.swift; sourceTree = "<group>"; };
 		A21A283B2055163E007A85A4 /* tests_num.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tests_num.swift; sourceTree = "<group>"; };
 		A21A283D205516D4007A85A4 /* tests_hash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tests_hash.swift; sourceTree = "<group>"; };
+		A25C3518205BE1F00079711B /* lax_der_privatekey_parsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = lax_der_privatekey_parsing.swift; sourceTree = "<group>"; };
+		A25C351A205C0C6B0079711B /* tests_context.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tests_context.swift; sourceTree = "<group>"; };
+		A25C351C205C0D450079711B /* tests_ecmult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tests_ecmult.swift; sourceTree = "<group>"; };
 		A27F7DAB1FE66D250092FE18 /* ecdsa_impl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ecdsa_impl.swift; sourceTree = "<group>"; };
 		A27F7DAD1FE66DA70092FE18 /* field_10x26.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = field_10x26.swift; sourceTree = "<group>"; };
 		A2833E80203820FA0064702C /* ecmult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ecmult.swift; sourceTree = "<group>"; };
@@ -123,6 +130,7 @@
 		A2C38D17203926CE003C02F2 /* group_impl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = group_impl.swift; sourceTree = "<group>"; };
 		A2C38D1B20393E61003C02F2 /* hash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = hash.swift; sourceTree = "<group>"; };
 		A2E6D83720529F26009949CD /* PBHex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBHex.swift; sourceTree = "<group>"; };
+		A2EA1D6120581A8E009462D8 /* lax_der_parsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = lax_der_parsing.swift; sourceTree = "<group>"; };
 		A67812152ABC1FF62F2D8A6B /* Pods-secp256k1ref.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-secp256k1ref.release.xcconfig"; path = "Pods/Target Support Files/Pods-secp256k1ref/Pods-secp256k1ref.release.xcconfig"; sourceTree = "<group>"; };
 		CC21612DB6450D7D74D14142 /* Pods-secp256k1refTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-secp256k1refTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-secp256k1refTests/Pods-secp256k1refTests.release.xcconfig"; sourceTree = "<group>"; };
 		EF84F73D481E352DB37CE431 /* Pods-secp256k1Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-secp256k1Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-secp256k1Tests/Pods-secp256k1Tests.release.xcconfig"; sourceTree = "<group>"; };
@@ -244,6 +252,8 @@
 				A2B45CA11F94E61400249454 /* secp256k1.h */,
 				A2BB0BFA1FE92C450081242C /* secp256k1.swift */,
 				A2833E88203824DA0064702C /* util.swift */,
+				A2EA1D6120581A8E009462D8 /* lax_der_parsing.swift */,
+				A25C3518205BE1F00079711B /* lax_der_privatekey_parsing.swift */,
 			);
 			path = secp256k1;
 			sourceTree = "<group>";
@@ -255,12 +265,14 @@
 				A2B45CAE1F94E61400249454 /* Info.plist */,
 				A29D57CF204BBC6600E36F04 /* testrand_impl.swift */,
 				A2A2854E20550F9400B37A74 /* tests.swift */,
+				A25C351A205C0C6B0079711B /* tests_context.swift */,
 				A21A283320551422007A85A4 /* tests_random.swift */,
 				A21A28352055145E007A85A4 /* tests_scalar.swift */,
 				A21A28372055146B007A85A4 /* tests_field.swift */,
 				A21A283920551477007A85A4 /* tests_group.swift */,
 				A21A283B2055163E007A85A4 /* tests_num.swift */,
 				A21A283D205516D4007A85A4 /* tests_hash.swift */,
+				A25C351C205C0D450079711B /* tests_ecmult.swift */,
 			);
 			path = secp256k1Tests;
 			sourceTree = "<group>";
@@ -655,9 +667,11 @@
 				A2833E85203822230064702C /* scalar_8x32.swift in Sources */,
 				A2BB0BFB1FE92C450081242C /* secp256k1.swift in Sources */,
 				A29CB93D20399FE0007FF743 /* hash_impl.swift in Sources */,
+				A2EA1D6220581A8E009462D8 /* lax_der_parsing.swift in Sources */,
 				A289B424204971AB0073004C /* scalar_impl.swift in Sources */,
 				A2E6D83820529F26009949CD /* PBHex.swift in Sources */,
 				A2833E81203820FA0064702C /* ecmult.swift in Sources */,
+				A25C3519205BE1F00079711B /* lax_der_privatekey_parsing.swift in Sources */,
 				A2C38D1620391F34003C02F2 /* eckey_impl.swift in Sources */,
 				A289B4222049673D0073004C /* field_impl.swift in Sources */,
 				A2833E8B203842750064702C /* gen_context.swift in Sources */,
@@ -681,11 +695,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				A21A28382055146B007A85A4 /* tests_field.swift in Sources */,
+				A25C351B205C0C6B0079711B /* tests_context.swift in Sources */,
 				A29D57D0204BBC6600E36F04 /* testrand_impl.swift in Sources */,
 				A21A283A20551477007A85A4 /* tests_group.swift in Sources */,
 				A21A283E205516D4007A85A4 /* tests_hash.swift in Sources */,
 				A21A283420551422007A85A4 /* tests_random.swift in Sources */,
 				A21A283C2055163E007A85A4 /* tests_num.swift in Sources */,
+				A25C351D205C0D450079711B /* tests_ecmult.swift in Sources */,
 				A2B45CAD1F94E61400249454 /* secp256k1Tests.swift in Sources */,
 				A2A2854F20550F9400B37A74 /* tests.swift in Sources */,
 				A21A28362055145E007A85A4 /* tests_scalar.swift in Sources */,
@@ -778,7 +794,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_SWIFT_FLAGS = "-Xfrontend -warn-long-function-bodies=1000 -DVERIFY";
+				OTHER_SWIFT_FLAGS = "";
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";

@@ -211,7 +211,7 @@ func secp256k1_ecmult_gen_blind(_ ctx: inout secp256k1_ecmult_gen_context, _ see
     }
     /* Retry for out of range results to achieve uniformity. */
     repeat {
-        secp256k1_rfc6979_hmac_sha256_generate(&rng, &nonce32, 32);
+        secp256k1_rfc6979_hmac_sha256_generate(&rng, &nonce32, outlen: 32);
         retry = !secp256k1_fe_set_b32(&s, nonce32);
         retry =  retry || secp256k1_fe_is_zero(s);
     } while (retry); /* This branch true is cryptographically unreachable. Requires sha256_hmac output > Fp. */
@@ -219,7 +219,7 @@ func secp256k1_ecmult_gen_blind(_ ctx: inout secp256k1_ecmult_gen_context, _ see
     secp256k1_gej_rescale(&ctx.initial, s);
     secp256k1_fe_clear(&s);
     repeat {
-        secp256k1_rfc6979_hmac_sha256_generate(&rng, &nonce32, 32);
+        secp256k1_rfc6979_hmac_sha256_generate(&rng, &nonce32, outlen: 32);
         secp256k1_scalar_set_b32(&b, nonce32, &retry);
         /* A blinding value of 0 works, but would undermine the projection hardening. */
         retry = retry || secp256k1_scalar_is_zero(b);

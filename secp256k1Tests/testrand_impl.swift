@@ -36,7 +36,7 @@ func secp256k1_rand_seed(_ seed16: [UInt8]) {
 func secp256k1_rand32() -> UInt32 {
     if (secp256k1_test_rng_precomputed_used == 8) {
         var v = [UInt8](repeating: 0, count: 256)
-        secp256k1_rfc6979_hmac_sha256_generate(&secp256k1_test_rng, &v, UInt(v.count));
+        secp256k1_rfc6979_hmac_sha256_generate(&secp256k1_test_rng, &v, outlen: UInt(v.count));
         secp256k1_test_rng_precomputed = v.toLEUInt32()!
         secp256k1_test_rng_precomputed_used = 0;
     }
@@ -98,22 +98,20 @@ func secp256k1_rand_int(_ range: UInt32) -> UInt32 {
     }
 }
 
-func secp256k1_rand256(_ b32: inout [UInt8]) {
-    secp256k1_rfc6979_hmac_sha256_generate(&secp256k1_test_rng, &b32, 32);
+func secp256k1_rand256(_ b32: inout [UInt8], from: Int = 0) {
+    secp256k1_rfc6979_hmac_sha256_generate(&secp256k1_test_rng, &b32, from: from, outlen: 32);
 }
 
-func secp256k1_rand_bytes_test(_ bytes: inout [UInt8], _ len: UInt) {
+func secp256k1_rand_bytes_test(_ bytes: inout [UInt8], from: Int, _ len: UInt) {
     var bits: UInt = 0
-    for i in 0 ..< Int(len) {
+    for i in from ..< from + Int(len) {
         bytes[i] = 0
     }
-    while (bits < len * 8) {
-        var now:Int
-        var val:UInt32
-        now = Int(1 + (secp256k1_rand_bits(6) * secp256k1_rand_bits(5) + 16) / 31)
-        val = secp256k1_rand_bits(1)
-        while (now > 0 && bits < len * 8) {
-            bytes[Int(bits / 8)] |= UInt8(val << (bits % 8))
+    while bits < len * 8 {
+        var now: Int = Int(1 + (secp256k1_rand_bits(6) * secp256k1_rand_bits(5) + 16) / 31)
+        let val:UInt32 = secp256k1_rand_bits(1)
+        while now > 0 && bits < len * 8 {
+            bytes[from + Int(bits / 8)] |= UInt8(val << (bits % 8))
             now -= 1
             bits += 1
         }
@@ -121,5 +119,5 @@ func secp256k1_rand_bytes_test(_ bytes: inout [UInt8], _ len: UInt) {
 }
 
 func secp256k1_rand256_test(_ b32: inout [UInt8]) {
-    secp256k1_rand_bytes_test(&b32, 32)
+    secp256k1_rand_bytes_test(&b32, from: 0, 32)
 }

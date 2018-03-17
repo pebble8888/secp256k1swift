@@ -1,3 +1,4 @@
+
 //
 //  util.swift
 //  secp256k1
@@ -237,7 +238,7 @@ public extension UInt16
     }
 }
 
-extension Collection where Iterator.Element == UInt8 {
+extension Array where Element == UInt8 {
     public func toLEUInt32() -> [UInt32]? {
         if self.count % 4 != 0 {
             return nil
@@ -257,5 +258,64 @@ extension Collection where Iterator.Element == UInt8 {
         }
         return v
     }
+    
 }
 
+extension Array where Element == UInt8 {
+    public mutating func fill(_ v: Element){
+        var i = self.startIndex
+        while i < self.endIndex {
+            self[i] = v
+            i = self.index(after: i)
+        }
+    }
+    public mutating func fill(_ v: Element, count: Int) {
+        var i = self.startIndex
+        while i < Swift.min(self.endIndex, self.startIndex + count) {
+            self[i] = v
+            i = self.index(after: i)
+        }
+    }
+    public mutating func clear() {
+        fill(0)
+    }
+    public mutating func clear(count: Int){
+        fill(0, count: count)
+    }
+}
+
+extension Array where Element == UInt8 {
+    public func compare(_ v: Array<Element>) -> Bool {
+        if self.count != v.count { return false }
+        for i in 0 ..< self.count {
+            if self[i] != v[i] { return false }
+        }
+        return true
+    }
+    public func compare(index1: Int = 0, _ v: Array<Element>, index2: Int = 0, count: Int) -> Bool {
+        if self.count - index1 < count { return false }
+        if v.count - index2 < count { return false }
+        for i in 0 ..< count {
+            if self[index1 + i] != v[index2 + i] { return false }
+        }
+        return true
+    }
+    public func is_zero_first_half() -> Bool {
+        if self.count < 32 { return false }
+        for i in 0 ..< 32 {
+            if self[i] != 0 {
+                return false
+            }
+        }
+        return true
+    }
+    public func is_zero_second_half() -> Bool {
+        if self.count < 64 { return false }
+        for i in 32 ..< 64 {
+            if self[i] != 0 {
+                return false
+            }
+        }
+        return true
+    }
+}

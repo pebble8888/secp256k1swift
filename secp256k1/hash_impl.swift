@@ -321,7 +321,7 @@ public func secp256k1_rfc6979_hmac_sha256_initialize(_ rng: inout secp256k1_rfc6
     rng.retry = false
 }
 
-public func secp256k1_rfc6979_hmac_sha256_generate(_ rng: inout secp256k1_rfc6979_hmac_sha256_t, _ out: inout [UInt8], _ outlen: UInt) {
+public func secp256k1_rfc6979_hmac_sha256_generate(_ rng: inout secp256k1_rfc6979_hmac_sha256_t, _ out: inout [UInt8], from: Int = 0, outlen: UInt) {
     /* RFC6979 3.2.h. */
     let zero: [UInt8] = [0x00]
     if (rng.retry) {
@@ -336,8 +336,8 @@ public func secp256k1_rfc6979_hmac_sha256_generate(_ rng: inout secp256k1_rfc697
     }
     
     var outlen = outlen
-    var outidx: Int = 0
-    while (outlen > 0) {
+    var outidx: Int = from
+    while outlen > 0 {
         var hmac = secp256k1_hmac_sha256_t()
         var now: Int = Int(outlen)
         secp256k1_hmac_sha256_initialize(&hmac, rng.k, 32);

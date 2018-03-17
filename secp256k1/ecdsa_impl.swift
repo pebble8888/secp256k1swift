@@ -47,17 +47,15 @@ let secp256k1_ecdsa_const_p_minus_order:secp256k1_fe = SECP256K1_FE_CONST(
 );
 
 // der読み込み
-fileprivate func secp256k1_der_read_len(_ sigp: [UInt8], _ sigp_idx: Int, _ sigend: Int) -> Int
+fileprivate func secp256k1_der_read_len(_ sigp: [UInt8], _ sigp_idx: inout Int, _ sigend: UInt) -> Int
 {
     var lenleft: Int
-    var b1:UInt8
+    var b1:Int
     var ret:Int = 0
-    var sigp_idx:Int = sigp_idx
-    if (sigp.count >= sigend) {
+    if sigp_idx >= sigend {
         return -1
     }
-    // *((*sigp)++);
-    b1 = sigp[sigp_idx]; sigp_idx += 1
+    b1 = Int(sigp[sigp_idx]); sigp_idx += 1
     
     if (b1 == 0xFF) {
         /* X.690-0207 8.1.3.5.c the value 0xFF shall not be used. */
@@ -65,15 +63,15 @@ fileprivate func secp256k1_der_read_len(_ sigp: [UInt8], _ sigp_idx: Int, _ sige
     }
     if ((b1 & 0x80) == 0) {
         /* X.690-0207 8.1.3.4 short form length octets */
-        return Int(b1)
+        return b1
     }
     if (b1 == 0x80) {
         /* Indefinite length is not allowed in DER. */
         return -1
     }
     /* X.690-207 8.1.3.5 long form length octets */
-    lenleft = Int(b1 & 0x7F)
-    if (lenleft > sigend - sigp_idx /* sigp */) {
+    lenleft = b1 & 0x7F
+    if (lenleft > Int(sigend) - sigp_idx) {
         return -1
     }
     if (sigp[sigp_idx] == 0) {
@@ -88,7 +86,7 @@ fileprivate func secp256k1_der_read_len(_ sigp: [UInt8], _ sigp_idx: Int, _ sige
     }
     while (lenleft > 0) {
         ret = (ret << 8) | Int(sigp[sigp_idx])
-        if (ret + lenleft > size_t(sigend - Int(sigp[sigp_idx]))) {
+        if ret + lenleft > Int(sigend) - sigp_idx {
             /* Result exceeds the length of the passed array. */
             return -1
         }
@@ -103,18 +101,18 @@ fileprivate func secp256k1_der_read_len(_ sigp: [UInt8], _ sigp_idx: Int, _ sige
 }
 
 // der int パース
-func secp256k1_der_parse_integer(_ r:inout secp256k1_scalar, _ sig: [UInt8], _ sigend: UInt8) -> Bool
+func secp256k1_der_parse_integer(_ r:inout secp256k1_scalar, _ sig: [UInt8], _ sig_idx: inout Int, _ sigend: UInt) -> Bool
 {
     var overflow:Bool = false
     var ra:[UInt8] = [UInt8](repeating:0, count:32)
     var rlen:Int
-    var sig_idx: Int = 0
+    //var sig_idx: Int = 0
     if (sig_idx == sigend || sig[sig_idx] != 0x02) {
         /* Not a primitive integer (X.690-0207 8.3.1). */
         return false
     }
     sig_idx += 1
-    rlen = secp256k1_der_read_len(sig, sig_idx, Int(sigend));
+    rlen = secp256k1_der_read_len(sig, &sig_idx, sigend);
     if (rlen <= 0 || sig_idx + rlen > sigend) {
         /* Exceeds bounds or not at least length 1 (X.690-0207 8.3.1).  */
         return false
@@ -142,7 +140,7 @@ func secp256k1_der_parse_integer(_ r:inout secp256k1_scalar, _ sig: [UInt8], _ s
     if (!overflow) {
         //memcpy(ra + 32 - rlen, *sig, rlen);
         for i in 0 ..< rlen {
-            ra[32+i-rlen] = sig[i]
+            ra[32+i-rlen] = sig[i+sig_idx]
         }
         secp256k1_scalar_set_b32(&r, ra, &overflow);
     }
@@ -158,31 +156,35 @@ func secp256k1_ecdsa_sig_parse(
     _ rr:inout secp256k1_scalar,
     _ rs:inout secp256k1_scalar,
     _ sig:[UInt8],
-    _ size:Int) -> Bool
+    _ size:UInt) -> Bool
 {
     //const unsigned char *sigend = sig + size;
     let sigend = size
     var rlen: Int
     var sig_idx: Int = 0
-    if (sig_idx == sigend || sig[sig_idx] != 0x30) {
+    if sig_idx == sigend {
+        return false
+    }
+    if sig[sig_idx] != 0x30 {
+        sig_idx += 1
         /* The encoding doesn't start with a constructed sequence (X.690-0207 8.9.1). */
         return false
     }
     sig_idx += 1
-    rlen = secp256k1_der_read_len(sig, sig_idx, sigend)
-    if (rlen < 0 || sig_idx + rlen > sigend) {
+    rlen = secp256k1_der_read_len(sig, &sig_idx, sigend)
+    if rlen < 0 || sig_idx + rlen > sigend {
         /* Tuple exceeds bounds */
         return false
     }
-    if (sig_idx + rlen != sigend) {
+    if sig_idx + rlen != sigend {
         /* Garbage after tuple. */
         return false
     }
     
-    if (!secp256k1_der_parse_integer(&rr, sig, UInt8(sigend))) {
+    if (!secp256k1_der_parse_integer(&rr, sig, &sig_idx, UInt(sigend))) {
         return false
     }
-    if (!secp256k1_der_parse_integer(&rs, sig, UInt8(sigend))) {
+    if (!secp256k1_der_parse_integer(&rs, sig, &sig_idx, UInt(sigend))) {
         return false
     }
     
@@ -203,21 +205,21 @@ func secp256k1_ecdsa_sig_serialize(
 {
     var r:[UInt8] = [UInt8](repeating:0, count:32)
     var s:[UInt8] = [UInt8](repeating:0, count:32)
-    var rp: Int = 0
-    var sp: Int = 0
+    var rp_idx: Int = 0
+    var sp_idx: Int = 0
     var lenR:Int = 33
     var lenS:Int = 33
     secp256k1_scalar_get_b32(&r, a_ar);
     secp256k1_scalar_get_b32(&s, a_as);
     r.insert(0, at: 0)
     s.insert(0, at: 0)
-    while (lenR > 1 && r[rp] == 0 && r[1+rp] < 0x80) {
+    while (lenR > 1 && r[rp_idx] == 0 && r[1+rp_idx] < 0x80) {
         lenR -= 1
-        rp += 1
+        rp_idx += 1
     }
-    while (lenS > 1 && s[sp] == 0 && s[1+sp] < 0x80) {
+    while (lenS > 1 && s[sp_idx] == 0 && s[1+sp_idx] < 0x80) {
         lenS -= 1
-        sp += 1
+        sp_idx += 1
     }
     if (size < 6 + lenS + lenR) {
         size = 6 + UInt(lenS) + UInt(lenR)
@@ -229,7 +231,7 @@ func secp256k1_ecdsa_sig_serialize(
     sig[2] = 0x02
     sig[3] = UInt8(lenR)
     for i in 0 ..< lenR {
-        sig[i] = r[rp+i]
+        sig[4+i] = r[rp_idx+i]
     }
     //memcpy(sig+4, rp, lenR)
         
@@ -237,7 +239,7 @@ func secp256k1_ecdsa_sig_serialize(
     sig[5+lenR] = UInt8(lenS)
     //memcpy(sig+lenR+6, sp, lenS)
     for i in 0 ..< lenS {
-        sig[lenR+6] = s[sp+i]
+        sig[lenR+6+i] = s[sp_idx+i]
     }
     return true
 }

@@ -180,21 +180,21 @@ func run_rfc6979_hmac_sha256_tests() {
 
     secp256k1_rfc6979_hmac_sha256_initialize(&rng, key1, 64);
     for i in 0 ..< 3 {
-        secp256k1_rfc6979_hmac_sha256_generate(&rng, &out, 32);
+        secp256k1_rfc6979_hmac_sha256_generate(&rng, &out, outlen: 32);
         CHECK(memcmp(out, out1[i], 32) == 0);
     }
     secp256k1_rfc6979_hmac_sha256_finalize(&rng);
 
     secp256k1_rfc6979_hmac_sha256_initialize(&rng, key1, 65);
     for i in 0 ..< 3 {
-        secp256k1_rfc6979_hmac_sha256_generate(&rng, &out, 32);
+        secp256k1_rfc6979_hmac_sha256_generate(&rng, &out, outlen: 32);
         CHECK(memcmp(out, out1[i], 32) != 0);
     }
     secp256k1_rfc6979_hmac_sha256_finalize(&rng);
 
     secp256k1_rfc6979_hmac_sha256_initialize(&rng, key2, 64);
     for i in 0 ..< 3 {
-        secp256k1_rfc6979_hmac_sha256_generate(&rng, &out, 32);
+        secp256k1_rfc6979_hmac_sha256_generate(&rng, &out, outlen: 32);
         CHECK(memcmp(out, out2[i], 32) == 0);
     }
     secp256k1_rfc6979_hmac_sha256_finalize(&rng);

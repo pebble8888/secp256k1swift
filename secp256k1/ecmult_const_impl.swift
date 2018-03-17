@@ -13,22 +13,15 @@
 
 import Foundation
 
-/*
-#include "scalar.h"
-#include "group.h"
-#include "ecmult_const.h"
-#include "ecmult_impl.h"
- */
-
 let WNAF_BITS: Int = 256
 func WNAF_SIZE(_ w: Int) -> Int {
     return ((WNAF_BITS + w - 1) / (w))
 }
 
 /* This is like `ECMULT_TABLE_GET_GE` but is constant time */
-func ECMULT_CONST_TABLE_GET_GE(_ r: inout secp256k1_ge, _ pre: [secp256k1_ge],_ n: UInt, _ w: UInt)
+func ECMULT_CONST_TABLE_GET_GE(_ r: inout secp256k1_ge, _ pre: [secp256k1_ge],_ n: Int, _ w: UInt)
 {
-    let abs_n: UInt = n * (((n > 0) ? 1 : 0) * 2 - 1)
+    let abs_n: UInt = UInt(n * (((n > 0) ? 1 : 0) * 2 - 1))
     let idx_n: UInt = abs_n / 2
     var neg_y = secp256k1_fe()
     VERIFY_CHECK(((n) & 1) == 1);
@@ -63,7 +56,8 @@ func ECMULT_CONST_TABLE_GET_GE(_ r: inout secp256k1_ge, _ pre: [secp256k1_ge],_ 
  *
  *  Numbers reference steps of `Algorithm SPA-resistant Width-w NAF with Odd Scalar` on pp. 335
  */
-func secp256k1_wnaf_const(_ wnaf: inout [Int], _ s: inout secp256k1_scalar,_ w: Int) -> Int {
+func secp256k1_wnaf_const(_ wnaf: inout [Int], _ a_s: secp256k1_scalar,_ w: Int) -> Int {
+    var s = a_s // ugly
     var global_sign: Int
     var skew: Int = 0;
     var word: Int = 0;
@@ -138,10 +132,10 @@ func secp256k1_ecmult_const(_ r: inout secp256k1_gej, _ a: secp256k1_ge, _ scala
     var wnaf_1 = [Int](repeating: 0, count: 1 + Int(WNAF_SIZE(WINDOW_A - 1)))
     
     var i : Int
-    var sc: secp256k1_scalar = scalar;
+    let sc: secp256k1_scalar = scalar;
     
     /* build wnaf representation for q. */
-    skew_1   = secp256k1_wnaf_const(&wnaf_1, &sc, WINDOW_A - 1);
+    skew_1   = secp256k1_wnaf_const(&wnaf_1, sc, WINDOW_A - 1);
     
     /* Calculate odd multiples of a.
      * All multiples are brought to the same Z 'denominator', which is stored
@@ -154,6 +148,7 @@ func secp256k1_ecmult_const(_ r: inout secp256k1_gej, _ a: secp256k1_ge, _ scala
     i = 0
     while i < ECMULT_TABLE_SIZE(WINDOW_A) {
         secp256k1_fe_normalize_weak(&pre_a[i].y);
+        i += 1
     }
     
     /* first loop iteration (separated out so we can directly set r, rather
@@ -161,7 +156,7 @@ func secp256k1_ecmult_const(_ r: inout secp256k1_gej, _ a: secp256k1_ge, _ scala
      * its new value added to it) */
     i = wnaf_1[Int(WNAF_SIZE(WINDOW_A - 1))];
     VERIFY_CHECK(i != 0);
-    ECMULT_CONST_TABLE_GET_GE(&tmpa, pre_a, UInt(i), UInt(WINDOW_A));
+    ECMULT_CONST_TABLE_GET_GE(&tmpa, pre_a, i, UInt(WINDOW_A));
     secp256k1_gej_set_ge(&r, tmpa);
     /* remaining loop iterations */
     i = Int(WNAF_SIZE(WINDOW_A - 1)) - 1
@@ -173,7 +168,7 @@ func secp256k1_ecmult_const(_ r: inout secp256k1_gej, _ a: secp256k1_ge, _ scala
         }
         
         n = wnaf_1[i];
-        ECMULT_CONST_TABLE_GET_GE(&tmpa, pre_a, UInt(n), UInt(WINDOW_A));
+        ECMULT_CONST_TABLE_GET_GE(&tmpa, pre_a, n, UInt(WINDOW_A));
         VERIFY_CHECK(n != 0);
         secp256k1_gej_add_ge(&r, r, tmpa);
         i -= 1

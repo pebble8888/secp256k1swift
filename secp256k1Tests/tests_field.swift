@@ -20,18 +20,17 @@ func random_fe(_ x: inout secp256k1_fe) {
         }
     } while true
 }
-/*
+
 func random_fe_test(_ x: inout secp256k1_fe) {
-    unsigned char bin[32];
-    do {
-        secp256k1_rand256_test(bin);
-        if (secp256k1_fe_set_b32(x, bin)) {
+    var bin = [UInt8](repeating: 0, count: 32)
+    repeat {
+        secp256k1_rand256_test(&bin);
+        if (secp256k1_fe_set_b32(&x, bin)) {
             return;
         }
-    } while(1);
+    } while true
 }
- */
- 
+
 func random_fe_non_zero(_ nz: inout secp256k1_fe) {
     var tries: Int = 10;
     tries -= 1
@@ -129,24 +128,32 @@ func run_field_misc() {
         /* Test fe conditional move; z is not normalized here. */
         q = x;
         secp256k1_fe_cmov(&x, z, false);
-        VERIFY_CHECK(!x.normalized && x.magnitude == z.magnitude);
+        #if VERIFY
+            VERIFY_CHECK(!x.normalized && x.magnitude == z.magnitude);
+        #endif
         secp256k1_fe_cmov(&x, x, true);
         CHECK(fe_memcmp(x, z) != 0);
         CHECK(fe_memcmp(x, q) == 0);
         secp256k1_fe_cmov(&q, z, true);
-        VERIFY_CHECK(!q.normalized && q.magnitude == z.magnitude);
+        #if VERIFY
+            VERIFY_CHECK(!q.normalized && q.magnitude == z.magnitude);
+        #endif
         CHECK(fe_memcmp(q, z) == 0);
         secp256k1_fe_normalize_var(&x);
         secp256k1_fe_normalize_var(&z);
         CHECK(!secp256k1_fe_equal_var(x, z));
         secp256k1_fe_normalize_var(&q);
         secp256k1_fe_cmov(&q, z, (i&1) != 0);
-        VERIFY_CHECK(q.normalized && q.magnitude == 1);
+        #if VERIFY
+            VERIFY_CHECK(q.normalized && q.magnitude == 1);
+        #endif
         for j in 0 ..< 6 {
             secp256k1_fe_negate(&z, z, UInt32(j) + 1);
             secp256k1_fe_normalize_var(&q);
             secp256k1_fe_cmov(&q, z, (j&1) != 0);
-            VERIFY_CHECK(!q.normalized && q.magnitude == (j+2));
+            #if VERIFY
+                VERIFY_CHECK(!q.normalized && q.magnitude == (j+2));
+            #endif
         }
         secp256k1_fe_normalize_var(&z);
         /* Test storage conversion and conditional moves. */
@@ -290,5 +297,31 @@ func run_sqrt() {
             test_sqrt(t, nil);
         }
     }
+}
+
+func random_field_element_test(_ fe: inout secp256k1_fe) {
+    repeat {
+        var b32 = [UInt8](repeating: 0, count:32)
+        secp256k1_rand256_test(&b32);
+        if (secp256k1_fe_set_b32(&fe, b32)) {
+            break;
+        }
+    } while true
+}
+
+func random_field_element_magnitude(_ fe: inout secp256k1_fe) {
+    var zero = secp256k1_fe()
+    let n: Int = Int(secp256k1_rand_int(9))
+    secp256k1_fe_normalize(&fe);
+    if (n == 0) {
+        return;
+    }
+    secp256k1_fe_clear(&zero);
+    secp256k1_fe_negate(&zero, zero, 0);
+    secp256k1_fe_mul_int(&zero, UInt32(n - 1));
+    secp256k1_fe_add(&fe, zero);
+    #if VERIFY
+        VERIFY_CHECK(fe.magnitude == n);
+    #endif
 }
 

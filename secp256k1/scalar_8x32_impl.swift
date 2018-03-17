@@ -194,6 +194,7 @@ func secp256k1_scalar_cadd_bit(_ r: inout secp256k1_scalar, _ a_bit: UInt, _ fla
 }
 
 func secp256k1_scalar_set_b32(_ r: inout secp256k1_scalar, _ b32: [UInt8], _ overflow: inout Bool) {
+    assert(b32.count >= 32)
     var over: Bool
     r.d[0] = UInt32(b32[31])
     r.d[0] = r.d[0] | UInt32(b32[30]) << 8
@@ -234,7 +235,7 @@ func secp256k1_scalar_set_b32(_ r: inout secp256k1_scalar, _ b32: [UInt8], _ ove
 }
 
 func secp256k1_scalar_get_b32(_ bin: inout [UInt8], _ a: secp256k1_scalar) {
-    assert(bin.count == 32)
+    assert(bin.count >= 32)
     //bin[0] = UInt8(a.d[7] >> 24); bin[1] = UInt8(a.d[7] >> 16); bin[2] = UInt8(a.d[7] >> 8); bin[3] = UInt8(a.d[7])
     UInt32BEToUInt8(&bin, 0, a.d[7])
     //bin[4] = UInt8(a.d[6] >> 24); bin[5] = UInt8(a.d[6] >> 16); bin[6] = UInt8(a.d[6] >> 8); bin[7] = UInt8(a.d[6])

@@ -361,22 +361,23 @@ func run_ge() {
     test_add_neg_y_diff_x();
 }
 
-/*
 func test_group_decompress(_ x: secp256k1_fe) {
     /* The input itself, normalized. */
-    secp256k1_fe fex = *x;
-    secp256k1_fe fez;
+    var fex: secp256k1_fe = x;
+    var fez = secp256k1_fe()
     /* Results of set_xquad_var, set_xo_var(..., 0), set_xo_var(..., 1). */
-    secp256k1_ge ge_quad, ge_even, ge_odd;
-    secp256k1_gej gej_quad;
+    var ge_quad = secp256k1_ge()
+    var ge_even = secp256k1_ge()
+    var ge_odd = secp256k1_ge()
+    var gej_quad = secp256k1_gej()
     /* Return values of the above calls. */
-    int res_quad, res_even, res_odd;
+    var res_quad, res_even, res_odd: Bool
 
     secp256k1_fe_normalize_var(&fex);
 
-    res_quad = secp256k1_ge_set_xquad(&ge_quad, &fex);
-    res_even = secp256k1_ge_set_xo_var(&ge_even, &fex, 0);
-    res_odd = secp256k1_ge_set_xo_var(&ge_odd, &fex, 1);
+    res_quad = secp256k1_ge_set_xquad(&ge_quad, fex);
+    res_even = secp256k1_ge_set_xo_var(&ge_even, fex, false);
+    res_odd = secp256k1_ge_set_xo_var(&ge_odd, fex, true);
 
     CHECK(res_quad == res_even);
     CHECK(res_quad == res_odd);
@@ -395,44 +396,69 @@ func test_group_decompress(_ x: secp256k1_fe) {
         CHECK(!ge_odd.infinity);
 
         /* Check that the x coordinates check out. */
-        CHECK(secp256k1_fe_equal_var(&ge_quad.x, x));
-        CHECK(secp256k1_fe_equal_var(&ge_even.x, x));
-        CHECK(secp256k1_fe_equal_var(&ge_odd.x, x));
+        CHECK(secp256k1_fe_equal_var(ge_quad.x, x));
+        CHECK(secp256k1_fe_equal_var(ge_even.x, x));
+        CHECK(secp256k1_fe_equal_var(ge_odd.x, x));
 
         /* Check that the Y coordinate result in ge_quad is a square. */
-        CHECK(secp256k1_fe_is_quad_var(&ge_quad.y));
+        CHECK(secp256k1_fe_is_quad_var(ge_quad.y));
 
         /* Check odd/even Y in ge_odd, ge_even. */
-        CHECK(secp256k1_fe_is_odd(&ge_odd.y));
-        CHECK(!secp256k1_fe_is_odd(&ge_even.y));
+        CHECK(secp256k1_fe_is_odd(ge_odd.y));
+        CHECK(!secp256k1_fe_is_odd(ge_even.y));
 
         /* Check secp256k1_gej_has_quad_y_var. */
-        secp256k1_gej_set_ge(&gej_quad, &ge_quad);
-        CHECK(secp256k1_gej_has_quad_y_var(&gej_quad));
-        do {
+        secp256k1_gej_set_ge(&gej_quad, ge_quad);
+        CHECK(secp256k1_gej_has_quad_y_var(gej_quad));
+        repeat {
             random_fe_test(&fez);
-        } while (secp256k1_fe_is_zero(&fez));
-        secp256k1_gej_rescale(&gej_quad, &fez);
-        CHECK(secp256k1_gej_has_quad_y_var(&gej_quad));
-        secp256k1_gej_neg(&gej_quad, &gej_quad);
-        CHECK(!secp256k1_gej_has_quad_y_var(&gej_quad));
-        do {
+        } while (secp256k1_fe_is_zero(fez));
+        secp256k1_gej_rescale(&gej_quad, fez);
+        CHECK(secp256k1_gej_has_quad_y_var(gej_quad));
+        secp256k1_gej_neg(&gej_quad, gej_quad);
+        CHECK(!secp256k1_gej_has_quad_y_var(gej_quad));
+        repeat {
             random_fe_test(&fez);
-        } while (secp256k1_fe_is_zero(&fez));
-        secp256k1_gej_rescale(&gej_quad, &fez);
-        CHECK(!secp256k1_gej_has_quad_y_var(&gej_quad));
-        secp256k1_gej_neg(&gej_quad, &gej_quad);
-        CHECK(secp256k1_gej_has_quad_y_var(&gej_quad));
+        } while (secp256k1_fe_is_zero(fez));
+        secp256k1_gej_rescale(&gej_quad, fez);
+        CHECK(!secp256k1_gej_has_quad_y_var(gej_quad));
+        secp256k1_gej_neg(&gej_quad, gej_quad);
+        CHECK(secp256k1_gej_has_quad_y_var(gej_quad));
     }
 }
 
 func run_group_decompress() {
-    int i;
-    for (i = 0; i < g_count * 4; i++) {
-        secp256k1_fe fe;
+    for _ in 0 ..< g_count * 4 {
+        var fe = secp256k1_fe()
         random_fe_test(&fe);
-        test_group_decompress(&fe);
+        test_group_decompress(fe);
     }
 }
 
-*/
+func random_group_element_test(_ ge: inout secp256k1_ge) {
+    var fe = secp256k1_fe()
+    repeat {
+        random_field_element_test(&fe);
+        if (secp256k1_ge_set_xo_var(&ge, fe, secp256k1_rand_bits(1) != 0)) {
+            secp256k1_fe_normalize(&ge.y);
+            break;
+        }
+    } while(true);
+}
+
+func random_group_element_jacobian_test(_ gej: inout secp256k1_gej, _ ge: secp256k1_ge) {
+    var z2 = secp256k1_fe()
+    var z3 = secp256k1_fe()
+    repeat {
+        random_field_element_test(&gej.z);
+        if (!secp256k1_fe_is_zero(gej.z)) {
+            break;
+        }
+    } while true;
+    secp256k1_fe_sqr(&z2, gej.z);
+    secp256k1_fe_mul(&z3, z2, gej.z);
+    secp256k1_fe_mul(&gej.x, ge.x, z2);
+    secp256k1_fe_mul(&gej.y, ge.y, z3);
+    gej.infinity = ge.infinity;
+}
+
