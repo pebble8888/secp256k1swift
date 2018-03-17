@@ -1,3 +1,6 @@
 os: osx
 osx_image: xcode9.2
+language: swift
+xcode_project: secp256k1.xcodeproj
+xcode_scheme: secp256k1Tests
 
