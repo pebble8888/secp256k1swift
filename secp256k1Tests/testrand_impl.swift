@@ -12,16 +12,7 @@
  **********************************************************************/
 
 import Foundation
-import secp256k1
-
-//#ifndef SECP256K1_TESTRAND_IMPL_H
-//#define SECP256K1_TESTRAND_IMPL_H
-
-//#include <stdint.h>
-//#include <string.h>
-
-//#include "testrand.h"
-//#include "hash.h"
+@testable import secp256k1
 
 var secp256k1_test_rng = secp256k1_rfc6979_hmac_sha256_t()
 var secp256k1_test_rng_precomputed = [UInt32](repeating: 0, count: 8)
@@ -45,6 +36,7 @@ func secp256k1_rand32() -> UInt32 {
     return ret
 }
 
+// ex: random value from 00000 to 11111 for bits = 5
 func secp256k1_rand_bits(_ bits: Int) -> UInt32 {
     var ret: UInt32
     if (secp256k1_test_rng_integer_bits_left < bits) {
@@ -103,13 +95,17 @@ func secp256k1_rand256(_ b32: inout [UInt8], from: Int = 0) {
 }
 
 func secp256k1_rand_bytes_test(_ bytes: inout [UInt8], from: Int, _ len: UInt) {
+    assert(bytes.count >= from + Int(len))
     var bits: UInt = 0
+    // set 0 in [0, from)
     for i in from ..< from + Int(len) {
         bytes[i] = 0
     }
+    // set random byte in [from, from + len)
     while bits < len * 8 {
+        // now : [1, 64]
         var now: Int = Int(1 + (secp256k1_rand_bits(6) * secp256k1_rand_bits(5) + 16) / 31)
-        let val:UInt32 = secp256k1_rand_bits(1)
+        let val: UInt32 = secp256k1_rand_bits(1)
         while now > 0 && bits < len * 8 {
             bytes[from + Int(bits / 8)] |= UInt8(val << (bits % 8))
             now -= 1
@@ -118,6 +114,8 @@ func secp256k1_rand_bytes_test(_ bytes: inout [UInt8], from: Int, _ len: UInt) {
     }
 }
 
+// get random 32bytes
 func secp256k1_rand256_test(_ b32: inout [UInt8]) {
+    assert(b32.count == 32)
     secp256k1_rand_bytes_test(&b32, from: 0, 32)
 }

@@ -44,13 +44,16 @@ import Foundation
  *  @note base point G
  */
 let secp256k1_ge_const_g: secp256k1_ge = SECP256K1_GE_CONST(
+    // x
     0x79BE667E, 0xF9DCBBAC, 0x55A06295, 0xCE870B07,
     0x029BFCDB, 0x2DCE28D9, 0x59F2815B, 0x16F81798,
+    // y
     0x483ADA77, 0x26A3C465, 0x5DA4FBFC, 0x0E1108A8,
     0xFD17B448, 0xA6855419, 0x9C47D08F, 0xFB10D4B8
 );
 
-let CURVE_B: UInt32 = 7;
+// y ^ 2 = x ^ 3 + CURVE_B
+let CURVE_B: UInt32 = 7
 
 func secp256k1_ge_set_gej_zinv(_ r: inout secp256k1_ge, _ a: secp256k1_gej, _ zi: secp256k1_fe) {
     var zi2 = secp256k1_fe()
@@ -299,7 +302,7 @@ func secp256k1_ge_is_valid_var(_ a: secp256k1_ge) -> Bool {
     return secp256k1_fe_equal_var(y2, x3);
 }
 
-// doubling in yacobian
+// r = 2 * a
 // @param r  : gej
 // @param a  : gej
 // @param rzr: fe
@@ -361,7 +364,7 @@ func secp256k1_gej_double_var(_ r: inout secp256k1_gej, _ a: secp256k1_gej, _ rz
     secp256k1_fe_add(&r.y, t2);         /* Y' = 36*X^3*Y^2 - 27*X^6 - 8*Y^4 (4) */
 }
 
-// yacobian for a is not O
+// r = 2 * a for a is not O
 // r  : gej
 // a  : gej
 // rzr: fe
@@ -370,7 +373,7 @@ func secp256k1_gej_double_nonzero(_ r: inout secp256k1_gej, _ a: secp256k1_gej, 
     secp256k1_gej_double_var(&r, a, &rzr);
 }
 
-// yacobian r = a + b
+// r = a + b
 // r  : gej
 // a  : gej
 // b  : gej
@@ -439,7 +442,7 @@ func secp256k1_gej_add_var(_ r: inout secp256k1_gej, _ a: secp256k1_gej, _ b: se
     secp256k1_fe_add(&r.y, h3);
 }
 
-// yacobian r = a + b
+// r = a + b
 // r  : gej
 // a  : gej
 // b  : ge

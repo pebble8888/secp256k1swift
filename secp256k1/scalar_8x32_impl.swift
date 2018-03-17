@@ -14,6 +14,7 @@
 import Foundation
 
 /* Limbs of the secp256k1 order. */
+/* order of base point */
 let SECP256K1_N_0: UInt32 = 0xD0364141
 let SECP256K1_N_1: UInt32 = 0xBFD25E8C
 let SECP256K1_N_2: UInt32 = 0xAF48A03B
@@ -85,6 +86,7 @@ func secp256k1_scalar_get_bits_var(_ a: secp256k1_scalar, _ offset: UInt, _ coun
 }
 
 func secp256k1_scalar_check_overflow(_ a: secp256k1_scalar) -> Bool {
+    // 条件文の実行数を減らすため、上位から判断を開始する
     var yes: Bool = false
     var no: Bool = false
     no = no || (a.d[7] < SECP256K1_N_7); /* No need for a > check. */
@@ -99,7 +101,7 @@ func secp256k1_scalar_check_overflow(_ a: secp256k1_scalar) -> Bool {
     no = no || ((a.d[1] < SECP256K1_N_1) && !yes)
     yes = yes || ((a.d[1] > SECP256K1_N_1) && !no)
     yes = yes || ((a.d[0] >= SECP256K1_N_0) && !no)
-    return yes;
+    return yes
 }
 
 func secp256k1_scalar_reduce(_ r: inout secp256k1_scalar, _ a_overflow: Bool) -> Bool {

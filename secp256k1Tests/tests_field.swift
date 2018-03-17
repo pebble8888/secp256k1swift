@@ -16,7 +16,6 @@ import Foundation
 
 /***** FIELD TESTS *****/
 func random_fe(_ x: inout secp256k1_fe) {
-    //unsigned char bin[32];
     var bin = [UInt8](repeating: 0, count: 32)
     repeat {
         secp256k1_rand256(&bin);
@@ -73,6 +72,7 @@ func check_fe_inverse(_ a: secp256k1_fe, _ ai: secp256k1_fe) -> Bool {
     secp256k1_fe_mul(&x, a, ai)
     return check_fe_equal(x, one)
 }
+
 func run_field_convert() {
     let b32:[UInt8] = [
         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -103,7 +103,7 @@ func run_field_convert() {
     CHECK(fes2.equal(fes))
 }
 
-func fe_memcmp(_ a: secp256k1_fe, _ b: secp256k1_fe) -> Int {
+fileprivate func fe_memcmp(_ a: secp256k1_fe, _ b: secp256k1_fe) -> Int {
     var t: secp256k1_fe = b
 #if VERIFY
     t.magnitude = a.magnitude;
@@ -167,9 +167,9 @@ func run_field_misc() {
         secp256k1_fe_to_storage(&zs, z);
         secp256k1_fe_storage_cmov(&zs, xs, false);
         secp256k1_fe_storage_cmov(&zs, zs, true);
-        CHECK(!xs.equal(zs)) // memcmp(&xs, &zs, sizeof(xs)) != 0);
+        CHECK(!xs.equal(zs))
         secp256k1_fe_storage_cmov(&ys, xs, true);
-        CHECK(xs.equal(ys)) // memcmp(&xs, &ys, sizeof(xs)) == 0);
+        CHECK(xs.equal(ys))
         secp256k1_fe_from_storage(&x, xs);
         secp256k1_fe_from_storage(&y, ys);
         secp256k1_fe_from_storage(&z, zs);
@@ -304,28 +304,4 @@ func run_sqrt() {
     }
 }
 
-func random_field_element_test(_ fe: inout secp256k1_fe) {
-    repeat {
-        var b32 = [UInt8](repeating: 0, count:32)
-        secp256k1_rand256_test(&b32);
-        if (secp256k1_fe_set_b32(&fe, b32)) {
-            break;
-        }
-    } while true
-}
 
-func random_field_element_magnitude(_ fe: inout secp256k1_fe) {
-    var zero = secp256k1_fe()
-    let n: Int = Int(secp256k1_rand_int(9))
-    secp256k1_fe_normalize(&fe);
-    if (n == 0) {
-        return;
-    }
-    secp256k1_fe_clear(&zero);
-    secp256k1_fe_negate(&zero, zero, 0);
-    secp256k1_fe_mul_int(&zero, UInt32(n - 1));
-    secp256k1_fe_add(&fe, zero);
-    #if VERIFY
-        VERIFY_CHECK(fe.magnitude == n);
-    #endif
-}

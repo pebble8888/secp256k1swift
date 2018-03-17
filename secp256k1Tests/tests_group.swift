@@ -16,6 +16,32 @@ import Foundation
 
 /***** GROUP TESTS *****/
 
+func random_field_element_test(_ fe: inout secp256k1_fe) {
+    repeat {
+        var b32 = [UInt8](repeating: 0, count:32)
+        secp256k1_rand256_test(&b32);
+        if (secp256k1_fe_set_b32(&fe, b32)) {
+            break;
+        }
+    } while true
+}
+
+func random_field_element_magnitude(_ fe: inout secp256k1_fe) {
+    var zero = secp256k1_fe()
+    let n: Int = Int(secp256k1_rand_int(9))
+    secp256k1_fe_normalize(&fe);
+    if (n == 0) {
+        return;
+    }
+    secp256k1_fe_clear(&zero);
+    secp256k1_fe_negate(&zero, zero, 0);
+    secp256k1_fe_mul_int(&zero, UInt32(n - 1));
+    secp256k1_fe_add(&fe, zero);
+    #if VERIFY
+        VERIFY_CHECK(fe.magnitude == n);
+    #endif
+}
+
 func ge_equals_ge(_ a: secp256k1_ge, _ b:secp256k1_ge) {
     CHECK(a.infinity == b.infinity);
     if (a.infinity) {

@@ -436,7 +436,7 @@ func secp256k1_fe_get_b32(_ r:inout [UInt8], _ a:secp256k1_fe) {
     r[31] = a.n[0].ll
 }
 
-// -aを計算する
+// calc -a
 // mには元々の大きさmagnitude以上の値を設定する
 func secp256k1_fe_negate(_ r:inout secp256k1_fe, _ a:secp256k1_fe, _ m:UInt32) {
     #if VERIFY

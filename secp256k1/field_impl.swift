@@ -18,30 +18,30 @@ func secp256k1_fe_equal(_ a: secp256k1_fe, _ b:secp256k1_fe) -> Bool {
     var na = secp256k1_fe()
     // 4*q -a
     secp256k1_fe_negate(&na, a, 1);
-    // val = 4*q -a + b
+    // v = 4*q -a + b
     secp256k1_fe_add(&na, b);
-    // val mod q is zero or not
+    // v mod q is zero or not
     return secp256k1_fe_normalizes_to_zero(&na);
 }
     
-// a mod q != b
+// a mod p != b
 func secp256k1_fe_equal_var(_ a:secp256k1_fe, _ b:secp256k1_fe) -> Bool {
     var na = secp256k1_fe()
-    // 4*q -a
+    // 4*p -a
     secp256k1_fe_negate(&na, a, 1);
-    // val = 4*q -a + b
+    // v = 4*p -a + b
     secp256k1_fe_add(&na, b);
-    // val mod q is 0 or not
+    // v mod p is 0 or not
     return secp256k1_fe_normalizes_to_zero_var(&na);
 }
     
-// 平方剰余
+// quadratic redisue 
 // http://pebble8888.hatenablog.com/entry/2017/07/30/222227
-// q は q mod 4 = 3 を満たすとする.
-// ここで q = 2^256 - 2^32 - 2^9 - 2^8 - 2^7 - 2^6 - 2^4 - 1 である.
-// x^2 = a を満たす x が存在する場合,
-// x = a ^ ((q+1)/4)が解である.
-// (q+1)/4 = 2^252 - 2^30 - 2^7 - 2^6 - 2^5 - 2^4 - 2^2
+// case : p mod 4 = 3.
+// p is defined as 2^256 - 2^32 - 2^9 - 2^8 - 2^7 - 2^6 - 2^4 - 1.
+// if x exists that x^2 = a,
+// solution is x = a ^ ((p+1)/4).
+// (p+1)/4 = 2^252 - 2^30 - 2^7 - 2^6 - 2^5 - 2^4 - 2^2
 //
 func secp256k1_fe_sqrt(_ r: inout secp256k1_fe, _ a: secp256k1_fe) -> Bool {
     /** Given that p is congruent to 3 mod 4, we can compute the square root of
@@ -258,14 +258,12 @@ func secp256k1_fe_inv(_ r: inout secp256k1_fe, _ a:secp256k1_fe) {
     secp256k1_fe_mul(&r, a, t1);
 }
     
-// 1/a
+// r = 1/a
 func secp256k1_fe_inv_var(_ r: inout secp256k1_fe, _ a:secp256k1_fe) {
     secp256k1_fe_inv(&r, a);
 }
 
-// a[0], a[1], ..., a[n]に対して、
-// 1/a[0], 1/a[1], ..., 1/a[n] をrに入れる
-// ただし、無駄な計算をしないようにする
+// r = [ 1/a[0], 1/a[1], ..., 1/a[n] ]
 func secp256k1_fe_inv_all_var(_ r: inout [secp256k1_fe], _ a:[secp256k1_fe], _ len: UInt) {
     var u = secp256k1_fe()
     var i: Int
@@ -297,8 +295,8 @@ func secp256k1_fe_inv_all_var(_ r: inout [secp256k1_fe], _ a:[secp256k1_fe], _ l
     r[0] = u;
 }
 
-// 平方剰余
-// x^2 = a mod q を満たす x が存在するかどうか
+// Is quadratic redisue
+// Does x exist to meet x^2 = a mod q ?
 func secp256k1_fe_is_quad_var(_ a:secp256k1_fe) -> Bool {
     var r = secp256k1_fe()
     return secp256k1_fe_sqrt(&r, a);

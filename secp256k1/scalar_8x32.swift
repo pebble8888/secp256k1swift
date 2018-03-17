@@ -16,6 +16,8 @@ import Foundation
 /** A scalar modulo the group order of the secp256k1 curve. */
 struct secp256k1_scalar : CustomDebugStringConvertible
 {
+    // d[0] is lowest digit
+    // d[7] is highest digit
     var d: [UInt32] // size: 8
     init(){
         d = [UInt32](repeating: 0, count: 8)
@@ -23,6 +25,20 @@ struct secp256k1_scalar : CustomDebugStringConvertible
     var debugDescription: String {
         return d.hexDescription()
     }
+    
+    // for debug only
+    #if DEBUG
+    // basepoint order
+    static let L: secp256k1_scalar
+        = SECP256K1_SCALAR_CONST(SECP256K1_N_7,
+                                 SECP256K1_N_6,
+                                 SECP256K1_N_5,
+                                 SECP256K1_N_4,
+                                 SECP256K1_N_3,
+                                 SECP256K1_N_2,
+                                 SECP256K1_N_1,
+                                 SECP256K1_N_0)
+    #endif
 }
 
 func SECP256K1_SCALAR_CONST(_ d7:UInt32,

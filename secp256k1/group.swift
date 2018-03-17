@@ -31,6 +31,12 @@ struct secp256k1_ge : CustomDebugStringConvertible {
     var debugDescription: String {
         return "\(x)\n\(y)\n"
     }
+    
+    #if DEBUG
+    // for only Debug
+    // base point
+    static let G = secp256k1_ge_const_g
+    #endif
 }
 
 func SECP256K1_GE_CONST(_ a: UInt32,

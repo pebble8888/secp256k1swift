@@ -51,6 +51,7 @@
 		A2B45CCB1F94E63C00249454 /* secp256k1refTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B45CCA1F94E63C00249454 /* secp256k1refTests.swift */; };
 		A2B45CCD1F94E63C00249454 /* secp256k1ref.h in Headers */ = {isa = PBXBuildFile; fileRef = A2B45CBF1F94E63C00249454 /* secp256k1ref.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A2BB0BFB1FE92C450081242C /* secp256k1.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2BB0BFA1FE92C450081242C /* secp256k1.swift */; };
+		A2C36E62205D176200CEDA55 /* secp256k1AdditionalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C36E61205D176200CEDA55 /* secp256k1AdditionalTests.swift */; };
 		A2C38D1620391F34003C02F2 /* eckey_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C38D1520391F34003C02F2 /* eckey_impl.swift */; };
 		A2C38D18203926CE003C02F2 /* group_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C38D17203926CE003C02F2 /* group_impl.swift */; };
 		A2C38D1C20393E61003C02F2 /* hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C38D1B20393E61003C02F2 /* hash.swift */; };
@@ -134,6 +135,7 @@
 		A2B45CCA1F94E63C00249454 /* secp256k1refTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = secp256k1refTests.swift; sourceTree = "<group>"; };
 		A2B45CCC1F94E63C00249454 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A2BB0BFA1FE92C450081242C /* secp256k1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = secp256k1.swift; sourceTree = "<group>"; };
+		A2C36E61205D176200CEDA55 /* secp256k1AdditionalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = secp256k1AdditionalTests.swift; sourceTree = "<group>"; };
 		A2C38D1520391F34003C02F2 /* eckey_impl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = eckey_impl.swift; sourceTree = "<group>"; };
 		A2C38D17203926CE003C02F2 /* group_impl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = group_impl.swift; sourceTree = "<group>"; };
 		A2C38D1B20393E61003C02F2 /* hash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = hash.swift; sourceTree = "<group>"; };
@@ -285,6 +287,7 @@
 				A25C3520205CE9840079711B /* tests_ec.swift */,
 				A25C3522205CE9CF0079711B /* tests_endomorphism.swift */,
 				A25C3524205CEA790079711B /* tests_openssl.swift */,
+				A2C36E61205D176200CEDA55 /* secp256k1AdditionalTests.swift */,
 			);
 			path = secp256k1Tests;
 			sourceTree = "<group>";
@@ -715,6 +718,7 @@
 				A25C3521205CE9840079711B /* tests_ec.swift in Sources */,
 				A21A283E205516D4007A85A4 /* tests_hash.swift in Sources */,
 				A21A283420551422007A85A4 /* tests_random.swift in Sources */,
+				A2C36E62205D176200CEDA55 /* secp256k1AdditionalTests.swift in Sources */,
 				A21A283C2055163E007A85A4 /* tests_num.swift in Sources */,
 				A25C351D205C0D450079711B /* tests_ecmult.swift in Sources */,
 				A25C3525205CEA790079711B /* tests_openssl.swift in Sources */,
