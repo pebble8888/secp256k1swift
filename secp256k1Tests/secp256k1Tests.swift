@@ -21,8 +21,41 @@ class secp256k1Tests: XCTestCase {
         super.tearDown()
     }
     
-    func testMain() {
-        test_main(1, "00000000000000000000000000000000")
+    func testHash(){
+        test_type(.hash)
+    }
+    
+    // long time need
+    func testScalar(){
+        test_type(.scalar)
+    }
+    
+    func testField(){
+        test_type(.field)
+    }
+    
+    // long time need
+    func testGroup(){
+        test_type(.group)
+    }
+    
+    // long time need
+    func testEcmult(){
+        test_type(.ecmult)
+    }
+    
+    // long time need
+    func testEc(){
+        test_type(.ec)
+    }
+    
+    // long time need
+    func testEcdsa(){
+        test_type(.ecdsa)
+    }
+
+    func test_type(_ type: TestType){
+        test_main(1, "00000000000000000000000000000000", type)
     }
 }
    

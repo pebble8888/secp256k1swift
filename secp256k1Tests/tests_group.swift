@@ -357,8 +357,12 @@ func test_add_neg_y_diff_x() {
 }
 
 func run_ge() {
-    for _ in 0 ..< g_count * 32 {
-        test_ge();
+    print("count \(g_count * 32)")
+    for i in 0 ..< g_count * 32 {
+        if i % 50 == 0 {
+            print("\(i) ", terminator:"")
+        }
+        test_ge()
     }
     test_add_neg_y_diff_x();
 }

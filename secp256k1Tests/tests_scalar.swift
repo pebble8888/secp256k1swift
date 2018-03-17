@@ -327,7 +327,9 @@ func scalar_test() {
 func run_scalar_tests() {
     print("count \(128 * g_count)")
     for i in 0 ..< 128 * g_count {
-        print("\(i) ", terminator:""); fflush(stdout)
+        if i % 100 == 0 {
+            print("\(i) ", terminator:""); fflush(stdout)
+        }
         scalar_test();
     }
 

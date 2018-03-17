@@ -1165,6 +1165,3 @@ func test_ecdsa_edge_cases() {
 func run_ecdsa_edge_cases() {
     test_ecdsa_edge_cases()
 }
-
-
-

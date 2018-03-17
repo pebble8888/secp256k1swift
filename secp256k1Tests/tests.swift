@@ -69,7 +69,20 @@ func timelog(_ s:String)
     print("\(Date()) \(s)")
 }
 
-func test_main(_ count: Int, _ ch:String?) {
+struct TestType : OptionSet {
+    let rawValue: Int
+    static let hash = TestType(rawValue: 1 << 0)
+    static let scalar = TestType(rawValue: 1 << 1)
+    static let field = TestType(rawValue: 1 << 2)
+    static let group = TestType(rawValue: 1 << 3)
+    static let ecmult = TestType(rawValue: 1 << 4)
+    static let ec = TestType(rawValue: 1 << 5)
+    static let ecdsa = TestType(rawValue: 1 << 6)
+    static let all: TestType
+        = [.hash, .scalar, .field, .group, .ecmult, .ec, .ecdsa]
+}
+
+func test_main(_ count: Int, _ ch:String?, _ type: TestType) {
     var seed16 = [UInt8](repeating: 0, count:16)
     var run32 = [UInt8](repeating: 0, count:32)
     /* find iteration count */
@@ -132,20 +145,22 @@ func test_main(_ count: Int, _ ch:String?) {
             CHECK(secp256k1_context_randomize(&ctx, nil))
         }
     }
-    timelog("run_rand_bits")
-    run_rand_bits()
+    if type.contains(.hash) {
+        timelog("run_rand_bits")
+        run_rand_bits()
     
-    timelog("run_rand_init")
-    run_rand_int()
+        timelog("run_rand_init")
+        run_rand_int()
 
-    timelog("run_sha256_tests")
-    run_sha256_tests()
+        timelog("run_sha256_tests")
+        run_sha256_tests()
     
-    timelog("run_hmac_sha256_tests")
-    run_hmac_sha256_tests()
+        timelog("run_hmac_sha256_tests")
+        run_hmac_sha256_tests()
     
-    timelog("run_rfc6979_hmac_sha256_tests")
-    run_rfc6979_hmac_sha256_tests()
+        timelog("run_rfc6979_hmac_sha256_tests")
+        run_rfc6979_hmac_sha256_tests()
+    }
 
     /*
      #ifndef USE_NUM_NONE
@@ -154,74 +169,85 @@ func test_main(_ count: Int, _ ch:String?) {
      #endif
      */
     
-    /* scalar tests */
-    timelog("run_scalar_tests")
-    run_scalar_tests()
+    if type.contains(.scalar) {
+        /* scalar tests */
+        timelog("run_scalar_tests")
+        run_scalar_tests()
+    }
 
-    /* field tests */
-    timelog("run_field_inv")
-    run_field_inv()
+    if type.contains(.field) {
+        /* field tests */
+        timelog("run_field_inv")
+        run_field_inv()
     
-    timelog("run_field_inv_var")
-    run_field_inv_var()
+        timelog("run_field_inv_var")
+        run_field_inv_var()
     
-    timelog("run_field_inv_all_var")
-    run_field_inv_all_var()
+        timelog("run_field_inv_all_var")
+        run_field_inv_all_var()
     
-    timelog("run_field_misc")
-    run_field_misc()
+        timelog("run_field_misc")
+        run_field_misc()
     
-    timelog("run_field_convert")
-    run_field_convert()
+        timelog("run_field_convert")
+        run_field_convert()
     
-    timelog("run_sqr")
-    run_sqr()
+        timelog("run_sqr")
+        run_sqr()
     
-    timelog("run_sqrt")
-    run_sqrt()
+        timelog("run_sqrt")
+        run_sqrt()
+    }
 
-    /* group tests */
-    timelog("run_ge")
-    run_ge()
+    if type.contains(.group) {
+        /* group tests */
+        timelog("run_ge")
+        run_ge()
     
-    timelog("run_group_decompress")
-    run_group_decompress()
+        timelog("run_group_decompress")
+        run_group_decompress()
+    }
 
-    /* ecmult tests */
-    timelog("run_wnag")
-    run_wnaf()
+    if type.contains(.ecmult){
+        /* ecmult tests */
+        timelog("run_wnaf")
+        run_wnaf()
     
-    timelog("run_point_times_order")
-    run_point_times_order()
+        timelog("run_point_times_order")
+        run_point_times_order()
     
-    timelog("run_ecmult_chain")
-    run_ecmult_chain()
+        timelog("run_ecmult_chain")
+        run_ecmult_chain()
     
-    timelog("run_ecmult_constants")
-    run_ecmult_constants()
+        timelog("run_ecmult_constants")
+        run_ecmult_constants()
     
-    timelog("run_ecmult_gen_blind")
-    run_ecmult_gen_blind()
+        timelog("run_ecmult_gen_blind")
+        run_ecmult_gen_blind()
     
-    timelog("run_ecmult_const_tests")
-    run_ecmult_const_tests()
+        timelog("run_ecmult_const_tests")
+        run_ecmult_const_tests()
+    }
 
-    timelog("run_ec_combine")
-    run_ec_combine()
-    /*
-    /* endomorphism tests */
-    #if USE_ENDOMORPHISM
-        run_endomorphism_tests();
-    #endif
-     */
-    
-    /* EC point parser test */
-    timelog("run_ec_pubkey_parse_test")
-    run_ec_pubkey_parse_test();
+    if type.contains(.ec) {
+        timelog("run_ec_combine")
+        run_ec_combine()
 
-    /* EC key edge cases */
-    timelog("run_eckey_edge_case_test")
-    run_eckey_edge_case_test();
+        /*
+        /* endomorphism tests */
+        #if USE_ENDOMORPHISM
+            run_endomorphism_tests();
+        #endif
+         */
+    
+        /* EC point parser test */
+        timelog("run_ec_pubkey_parse_test")
+        run_ec_pubkey_parse_test();
+
+        /* EC key edge cases */
+        timelog("run_eckey_edge_case_test")
+        run_eckey_edge_case_test();
+    }
 
     /*
     #if ENABLE_MODULE_ECDH
@@ -230,21 +256,23 @@ func test_main(_ count: Int, _ ch:String?) {
     #endif
      */
     
-    /* ecdsa tests */
-    timelog("run_random_pubkeys")
-    run_random_pubkeys()
+    if type.contains(.ecdsa) {
+        /* ecdsa tests */
+        timelog("run_random_pubkeys")
+        run_random_pubkeys()
     
-    timelog("run_ecdsa_der_parse")
-    run_ecdsa_der_parse()
+        timelog("run_ecdsa_der_parse")
+        run_ecdsa_der_parse()
     
-    timelog("run_ecdsa_sign_verify")
-    run_ecdsa_sign_verify()
+        timelog("run_ecdsa_sign_verify")
+        run_ecdsa_sign_verify()
     
-    timelog("run_rcdsa_ends_to_end")
-    run_ecdsa_end_to_end()
+        timelog("run_rcdsa_ends_to_end")
+        run_ecdsa_end_to_end()
     
-    timelog("run_ecdsa_edge_cases")
-    run_ecdsa_edge_cases()
+        timelog("run_ecdsa_edge_cases")
+        run_ecdsa_edge_cases()
+    }
      
     #if ENABLE_OPENSSL_TESTS
         run_ecdsa_openssl()

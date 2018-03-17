@@ -45,7 +45,11 @@ func test_ec_combine() {
 }
 
 func run_ec_combine() {
-    for _ in 0 ..< g_count * 8 {
+    print("count \(g_count * 8)")
+    for i in 0 ..< g_count * 8 {
+        if i % 50 == 0 {
+            print("\(i) ", terminator:"")
+        }
         test_ec_combine()
     }
 }
