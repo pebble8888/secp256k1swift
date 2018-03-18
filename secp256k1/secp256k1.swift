@@ -153,7 +153,7 @@ public struct secp256k1_ecdsa_signature : CustomDebugStringConvertible {
         return true
     }
     public func is_zero() -> Bool {
-        if !is_valid_len() return false
+        if !is_valid_len() { return false }
         for i in 0 ..< 64 {
             if data[i] != 0 {
                 return false
@@ -981,7 +981,7 @@ public func secp256k1_ec_privkey_negate(_ ctx: secp256k1_context, _ seckey: inou
 {
     var sec = secp256k1_scalar()
     
-    if !ctx.ARG_CHECK(seckey.count >= 32, "invalid seckey") else { return false }
+    if !ctx.ARG_CHECK(seckey.count >= 32, "invalid seckey") { return false }
     
     var dummy: Bool = false
     secp256k1_scalar_set_b32(&sec, seckey, &dummy);
