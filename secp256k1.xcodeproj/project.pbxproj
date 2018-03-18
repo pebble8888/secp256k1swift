@@ -55,6 +55,7 @@
 		A2C38D1620391F34003C02F2 /* eckey_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C38D1520391F34003C02F2 /* eckey_impl.swift */; };
 		A2C38D18203926CE003C02F2 /* group_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C38D17203926CE003C02F2 /* group_impl.swift */; };
 		A2C38D1C20393E61003C02F2 /* hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C38D1B20393E61003C02F2 /* hash.swift */; };
+		A2C6D818205DF6440034F76F /* PBInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C6D817205DF6440034F76F /* PBInt.swift */; };
 		A2E6D83820529F26009949CD /* PBHex.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E6D83720529F26009949CD /* PBHex.swift */; };
 		A2EA1D6220581A8E009462D8 /* lax_der_parsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2EA1D6120581A8E009462D8 /* lax_der_parsing.swift */; };
 		D16F0E3C598726B28D210629 /* Pods_secp256k1.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD8FE2035503BB853B90B5D /* Pods_secp256k1.framework */; };
@@ -139,6 +140,7 @@
 		A2C38D1520391F34003C02F2 /* eckey_impl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = eckey_impl.swift; sourceTree = "<group>"; };
 		A2C38D17203926CE003C02F2 /* group_impl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = group_impl.swift; sourceTree = "<group>"; };
 		A2C38D1B20393E61003C02F2 /* hash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = hash.swift; sourceTree = "<group>"; };
+		A2C6D817205DF6440034F76F /* PBInt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBInt.swift; sourceTree = "<group>"; };
 		A2E6D83720529F26009949CD /* PBHex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBHex.swift; sourceTree = "<group>"; };
 		A2EA1D6120581A8E009462D8 /* lax_der_parsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = lax_der_parsing.swift; sourceTree = "<group>"; };
 		A67812152ABC1FF62F2D8A6B /* Pods-secp256k1ref.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-secp256k1ref.release.xcconfig"; path = "Pods/Target Support Files/Pods-secp256k1ref/Pods-secp256k1ref.release.xcconfig"; sourceTree = "<group>"; };
@@ -256,6 +258,7 @@
 				A2C38D1B20393E61003C02F2 /* hash.swift */,
 				A2B45CA21F94E61400249454 /* Info.plist */,
 				A2E6D83720529F26009949CD /* PBHex.swift */,
+				A2C6D817205DF6440034F76F /* PBInt.swift */,
 				A2833E8E2038511C0064702C /* scalar_8x32_impl.swift */,
 				A2833E84203822230064702C /* scalar_8x32.swift */,
 				A289B423204971AB0073004C /* scalar_impl.swift */,
@@ -685,6 +688,7 @@
 				A2EA1D6220581A8E009462D8 /* lax_der_parsing.swift in Sources */,
 				A289B424204971AB0073004C /* scalar_impl.swift in Sources */,
 				A2E6D83820529F26009949CD /* PBHex.swift in Sources */,
+				A2C6D818205DF6440034F76F /* PBInt.swift in Sources */,
 				A2833E81203820FA0064702C /* ecmult.swift in Sources */,
 				A25C3519205BE1F00079711B /* lax_der_privatekey_parsing.swift in Sources */,
 				A2C38D1620391F34003C02F2 /* eckey_impl.swift in Sources */,

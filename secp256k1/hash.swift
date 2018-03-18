@@ -40,7 +40,7 @@ struct secp256k1_hmac_sha256_t : CustomDebugStringConvertible {
     }
 }
 
-public struct secp256k1_rfc6979_hmac_sha256_t : CustomDebugStringConvertible {
+struct secp256k1_rfc6979_hmac_sha256_t : CustomDebugStringConvertible {
     var v: [UInt8] // size: 32
     var k: [UInt8] // size: 32
     var retry: Bool
