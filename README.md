@@ -20,9 +20,9 @@ None
 ## How to use
 
 ``` swift
-struct secp256k1_pubkey (64bytes)
-struct secp256k1_ecdsa_signature (64bytes)
-struct secp256k1_context (opaque)
+struct secp256k1_pubkey  // 64bytes
+struct secp256k1_ecdsa_signature //64bytes
+struct secp256k1_context // opaque
 
 struct SECP256K1_FLAGS: OptionSet {
     /** Flags to pass to secp256k1_context_create. */
@@ -34,7 +34,7 @@ struct SECP256K1_FLAGS: OptionSet {
     public static let SECP256K1_EC_UNCOMPRESSED: SECP256K1_FLAGS
 }
 
-func secp256k1_context_create(_ flags: SECP256K1_FLAGS) -> secp256k1_context ?
+func secp256k1_context_create(_ flags: SECP256K1_FLAGS) -> secp256k1_context?
 func secp256k1_context_clone(_ ctx: secp256k1_context) -> secp256k1_context
 func secp256k1_context_destroy(_ ctx: inout secp256k1_context)
 func secp256k1_ec_pubkey_parse(_ ctx: secp256k1_context, _ pubkey: inout secp256k1_pubkey, _ input: [UInt8], _ inputlen: UInt) -> Bool
@@ -56,6 +56,7 @@ func secp256k1_ec_privkey_tweak_mul(_ ctx: secp256k1_context, _ seckey: inout [U
 func secp256k1_ec_pubkey_tweak_mul(_ ctx: secp256k1_context, _ pubkey: inout secp256k1_pubkey, _ tweak: [UInt8]) -> Bool
 func secp256k1_context_randomize(_ ctx: inout secp256k1_context, _ seed32: [UInt8]?) -> Bool
 func secp256k1_ec_pubkey_combine(_ ctx: secp256k1_context, _ pubnonce: inout secp256k1_pubkey, _ pubnonces:[secp256k1_pubkey], _ n: UInt) -> Bool
+```
 
 ## Implementation
 
