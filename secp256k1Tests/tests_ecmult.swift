@@ -39,7 +39,7 @@ func test_ec_combine() {
         secp256k1_ecmult_gen(ctx.ecmult_gen_ctx, &Qj, sum)
         secp256k1_ge_set_gej(&Q, &Qj)
         secp256k1_pubkey_save(&sd, &Q)
-        CHECK(secp256k1_ec_pubkey_combine(ctx, &sd2, d, i))
+        CHECK(secp256k1_ec_pubkey_combine(ctx, &sd2, d, UInt(i)))
         CHECK(sd.equal(sd2))
     }
 }

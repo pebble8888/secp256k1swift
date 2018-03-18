@@ -724,7 +724,7 @@ public func secp256k1_ecdsa_signature_normalize(_ ctx: secp256k1_context, _ sigo
     var s = secp256k1_scalar()
     var ret: Bool = false
     
-    if !ctx.ARG_CHECK(sigout.is_valid_len(), "invalid sigout2") { return false }
+    if !ctx.ARG_CHECK(sigout.is_valid_len(), "invalid sigout") { return false }
     if !ctx.ARG_CHECK(sigin.is_valid_len(), "invalid sigin") { return false }
 
     secp256k1_ecdsa_signature_load(ctx, &r, &s, sigin);
@@ -1065,7 +1065,7 @@ public func secp256k1_ec_pubkey_tweak_add(_ ctx: secp256k1_context, _ pubkey: in
     var ret: Bool = false
     var overflow: Bool = false
     if !ctx.ARG_CHECK(secp256k1_ecmult_context_is_built(ctx.ecmult_ctx), "invalid ctx") { return false }
-    if !ctx.ARG_CHECK(pubkey.is_valid_len(), "insufficinent pubkey length") { return false }
+    if !ctx.ARG_CHECK(pubkey.is_valid_len(), "invalid pubkey") { return false }
     if !ctx.ARG_CHECK(tweak.count >= 32, "insufficient tweak length") { return false }
     
     secp256k1_scalar_set_b32(&term, tweak, &overflow);
@@ -1127,7 +1127,7 @@ public func secp256k1_ec_pubkey_tweak_mul(_ ctx: secp256k1_context, _ pubkey: in
     var ret: Bool = false
     var overflow: Bool = false
     if !ctx.ARG_CHECK(secp256k1_ecmult_context_is_built(ctx.ecmult_ctx), "invalid ctx") { return false }
-    if !ctx.ARG_CHECK(pubkey.is_valid_len(), "insufficinent tweak length") { return false }
+    if !ctx.ARG_CHECK(pubkey.is_valid_len(), "invalid pubkey") { return false }
     if !ctx.ARG_CHECK(tweak.count >= 32, "insufficient tweak length") { return false }
     
     secp256k1_scalar_set_b32(&factor, tweak, &overflow);
