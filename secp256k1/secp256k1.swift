@@ -462,7 +462,6 @@ func secp256k1_pubkey_save(_ pubkey: inout secp256k1_pubkey, _ ge: inout secp256
 public func secp256k1_ec_pubkey_parse(_ ctx: secp256k1_context, _ pubkey: inout secp256k1_pubkey, _ input: [UInt8], _ inputlen: UInt) -> Bool
 {
     var Q = secp256k1_ge()
-    //memset(pubkey, 0, sizeof(*pubkey));
     let _ = ctx.ARG_CHECK(input.count != 0, "")
     pubkey.clear()
     if (!secp256k1_eckey_pubkey_parse(&Q, input, inputlen)) {
@@ -497,8 +496,7 @@ public func secp256k1_ec_pubkey_serialize(_ ctx: secp256k1_context, _ output: in
     if !ctx.ARG_CHECK(outputlen >= (flags.contains(.SECP256K1_FLAGS_BIT_COMPRESSION) ? 33 : 65), "invalid outputlen and flags") { return false }
     len = outputlen;
     outputlen = 0;
-    //memset(output, 0, len);
-    if !ctx.ARG_CHECK(output.count != 0, "outputlen != NULL") { return false }
+    if !ctx.ARG_CHECK(output.count >= outputlen, "insufficient output length") { return false }
     output = [UInt8](repeating: 0, count: Int(len))
     let _ = ctx.ARG_CHECK(true, "pubkey != NULL")
     let val: Bool = (flags.intersection(.SECP256K1_FLAGS_TYPE_MASK) == SECP256K1_FLAGS.SECP256K1_FLAGS_TYPE_COMPRESSION)

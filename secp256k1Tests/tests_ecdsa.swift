@@ -262,7 +262,6 @@ func test_ecdsa_end_to_end() {
     
     /* Serialize/parse DER and verify again */
     CHECK(secp256k1_ecdsa_signature_serialize_der(ctx, &sig, &siglen, signature[0]) == true)
-    //memset(&signature[0], 0, sizeof(signature[0]));
     signature[0].clear()
     CHECK(secp256k1_ecdsa_signature_parse_der(ctx, &signature[0], sig, siglen) == true)
     CHECK(secp256k1_ecdsa_verify(ctx, signature[0], message, pubkey) == true)

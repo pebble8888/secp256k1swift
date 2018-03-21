@@ -17,11 +17,11 @@ func secp256k1_eckey_pubkey_parse(_ elem: inout secp256k1_ge, _ pub:[UInt8], _ s
     guard size <= pub.count else {
         return false
     }
-    if (size == 33 && (pub[0] == SECP256K1_TAG_PUBKEY_EVEN || pub[0] == SECP256K1_TAG_PUBKEY_ODD)) {
+    if size == 33 && (pub[0] == SECP256K1_TAG_PUBKEY_EVEN || pub[0] == SECP256K1_TAG_PUBKEY_ODD) {
         var x = secp256k1_fe()
         return secp256k1_fe_set_b32(&x, Array(pub[1...])) &&
                secp256k1_ge_set_xo_var(&elem, x, pub[0] == SECP256K1_TAG_PUBKEY_ODD);
-    } else if (size == 65 && (pub[0] == 0x04 || pub[0] == 0x06 || pub[0] == 0x07)) {
+    } else if size == 65 && (pub[0] == 0x04 || pub[0] == 0x06 || pub[0] == 0x07) {
         var x = secp256k1_fe()
         var y = secp256k1_fe()
         if !secp256k1_fe_set_b32(&x, Array(pub[1..<33])) {

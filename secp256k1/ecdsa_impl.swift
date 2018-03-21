@@ -104,7 +104,6 @@ func secp256k1_der_parse_integer(_ r:inout secp256k1_scalar, _ sig: [UInt8], _ s
     var overflow:Bool = false
     var ra:[UInt8] = [UInt8](repeating:0, count:32)
     var rlen:Int
-    //var sig_idx: Int = 0
     if (sig_idx == sigend || sig[sig_idx] != 0x02) {
         /* Not a primitive integer (X.690-0207 8.3.1). */
         return false
@@ -136,7 +135,6 @@ func secp256k1_der_parse_integer(_ r:inout secp256k1_scalar, _ sig: [UInt8], _ s
         overflow = true
     }
     if (!overflow) {
-        //memcpy(ra + 32 - rlen, *sig, rlen);
         for i in 0 ..< rlen {
             ra[32+i-rlen] = sig[i+sig_idx]
         }
@@ -155,15 +153,14 @@ func secp256k1_ecdsa_sig_parse(
     _ sig:[UInt8],
     _ size:UInt) -> Bool
 {
-    //const unsigned char *sigend = sig + size;
     let sigend = size
     var rlen: Int
     var sig_idx: Int = 0
     if sig_idx == sigend {
+        // size is zero
         return false
     }
     if sig[sig_idx] != 0x30 {
-        sig_idx += 1
         /* The encoding doesn't start with a constructed sequence (X.690-0207 8.9.1). */
         return false
     }
@@ -185,7 +182,7 @@ func secp256k1_ecdsa_sig_parse(
         return false
     }
     
-    if (sig_idx != sigend) {
+    if sig_idx != sigend {
         /* Trailing garbage inside tuple. */
         return false
     }
