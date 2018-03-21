@@ -41,7 +41,10 @@ func ec_pubkey_parse_pointtest(_ input: [UInt8], _ xvalid: Bool, _ yvalid: Bool)
     secp256k1_context_set_illegal_callback(&ctx, counting_illegal_callback_fn, &ecount);
     for pubkeyclen in 3 ... 65 {
         /* Smaller sizes are tested exhaustively elsewhere. */
-        memcpy(&pubkeyc[1], input, 64);
+        //memcpy(&pubkeyc[1], input, 64);
+        for i in 0 ..< 64 {
+            pubkeyc[1+i] = input[i]
+        }
         //VG_UNDEF(&pubkeyc[pubkeyclen], 65 - pubkeyclen);
         for i in 0 ..< 256 {
             /* Try all type bytes. */
@@ -529,7 +532,11 @@ func run_eckey_edge_case_test() {
     pubkey_one = pubkey;
     /* Group order + 1 is too large, reject. */
     //memcpy(ctmp, orderc, 32);
-    ctmp = orderc
+    assert(ctmp.count == 33)
+    for i in 0 ..< 32 {
+        ctmp[i] = orderc[i]
+    }
+    assert(ctmp.count == 33)
     ctmp[31] = 0x42;
     CHECK(secp256k1_ec_seckey_verify(ctx, ctmp) == false);
     //memset(&pubkey, 1, sizeof(pubkey));
@@ -551,32 +558,45 @@ func run_eckey_edge_case_test() {
     /* Tweak of zero leaves the value changed. */
     //memset(ctmp2, 0, 32);
     ctmp2.clear(count:32)
+    assert(ctmp.count == 33)
     CHECK(secp256k1_ec_privkey_tweak_add(ctx, &ctmp, ctmp2) == true);
+    assert(ctmp.count == 33)
     CHECK(orderc.compare(ctmp, count:31) && ctmp[31] == 0x40) //memcmp(orderc, ctmp, 31) == 0 && ctmp[31] == 0x40);
     //memcpy(&pubkey2, &pubkey, sizeof(pubkey));
     pubkey2 = pubkey
     CHECK(secp256k1_ec_pubkey_tweak_add(ctx, &pubkey, ctmp2) == true);
     CHECK(pubkey.equal(pubkey2)) // memcmp(&pubkey, &pubkey2, sizeof(pubkey)) == 0);
     /* Multiply tweak of zero zeroizes the output. */
+    assert(ctmp.count == 33)
     CHECK(secp256k1_ec_privkey_tweak_mul(ctx, &ctmp, ctmp2) == false);
-    CHECK(memcmp(zeros, ctmp, 32) == 0);
+    assert(ctmp.count == 33)
+    //CHECK(memcmp(zeros, ctmp, 32) == 0);
+    for i in 0 ..< 32 {
+        CHECK(ctmp[i] == 0)
+    }
     CHECK(secp256k1_ec_pubkey_tweak_mul(ctx, &pubkey, ctmp2) == false);
     CHECK(pubkey.is_zero()) // memcmp(&pubkey, zeros, sizeof(pubkey)) == 0);
     //memcpy(&pubkey, &pubkey2, sizeof(pubkey));
     pubkey = pubkey2
     /* Overflowing key tweak zeroizes. */
     //memcpy(ctmp, orderc, 32);
-    ctmp = orderc
+    for i in 0 ..< 32 {
+        ctmp[i] = orderc[i]
+    }
     ctmp[31] = 0x40;
     CHECK(secp256k1_ec_privkey_tweak_add(ctx, &ctmp, orderc) == false);
     CHECK(memcmp(zeros, ctmp, 32) == 0);
     //memcpy(ctmp, orderc, 32);
-    ctmp = orderc
+    for i in 0 ..< 32 {
+        ctmp[i] = orderc[i]
+    }
     ctmp[31] = 0x40;
     CHECK(secp256k1_ec_privkey_tweak_mul(ctx, &ctmp, orderc) == false);
     CHECK(memcmp(zeros, ctmp, 32) == 0);
     //memcpy(ctmp, orderc, 32);
-    ctmp = orderc
+    for i in 0 ..< 32 {
+        ctmp[i] = orderc[i]
+    }
     ctmp[31] = 0x40;
     CHECK(secp256k1_ec_pubkey_tweak_add(ctx, &pubkey, orderc) == false);
     CHECK(pubkey.is_zero()) // memcmp(&pubkey, zeros, sizeof(pubkey)) == 0);
@@ -589,7 +609,10 @@ func run_eckey_edge_case_test() {
     /* Private key tweaks results in a key of zero. */
     ctmp2[31] = 1;
     CHECK(secp256k1_ec_privkey_tweak_add(ctx, &ctmp2, ctmp) == false);
-    CHECK(memcmp(zeros, ctmp2, 32) == 0);
+    //CHECK( memcmp(zeros, ctmp2, 32) == 0);
+    for i in 0 ..< 32 {
+        CHECK(zeros[i] == ctmp2[i])
+    }
     ctmp2[31] = 1;
     CHECK(secp256k1_ec_pubkey_tweak_add(ctx, &pubkey, ctmp2) == false);
     CHECK(pubkey.is_zero()) // // memcmp(&pubkey, zeros, sizeof(pubkey)) == 0);
@@ -598,7 +621,11 @@ func run_eckey_edge_case_test() {
     /* Tweak computation wraps and results in a key of 1. */
     ctmp2[31] = 2;
     CHECK(secp256k1_ec_privkey_tweak_add(ctx, &ctmp2, ctmp) == true);
-    CHECK(memcmp(ctmp2, zeros, 31) == 0 && ctmp2[31] == 1);
+    //CHECK(memcmp(ctmp2, zeros, 31) == 0 && ctmp2[31] == 1);
+    for i in 0 ..< 31 {
+        CHECK(ctmp2[i] == 0)
+    }
+    CHECK(ctmp2[31] == 1)
     ctmp2[31] = 2;
     CHECK(secp256k1_ec_pubkey_tweak_add(ctx, &pubkey, ctmp2) == true);
     ctmp2[31] = 1;
@@ -657,7 +684,9 @@ func run_eckey_edge_case_test() {
     var dummy_tmp = [UInt8](repeating: 0, count: 0)
     CHECK(secp256k1_ec_privkey_tweak_add(ctx, &dummy_tmp, ctmp2) == false);
     CHECK(ecount == 1);
+    assert(ctmp.count == 33)
     CHECK(secp256k1_ec_privkey_tweak_add(ctx, &ctmp, dummy_seckey) == false);
+    assert(ctmp.count == 33)
     CHECK(ecount == 2);
     ecount = 0;
     //memset(ctmp2, 0, 32);
@@ -665,7 +694,9 @@ func run_eckey_edge_case_test() {
     ctmp2[31] = 1;
     CHECK(secp256k1_ec_privkey_tweak_mul(ctx, &dummy_tmp, ctmp2) == false);
     CHECK(ecount == 1);
+    assert(ctmp.count == 33)
     CHECK(secp256k1_ec_privkey_tweak_mul(ctx, &ctmp, dummy_tmp) == false);
+    assert(ctmp.count == 33)
     CHECK(ecount == 2);
     ecount = 0;
     CHECK(secp256k1_ec_pubkey_create(ctx, &dummy_pubkey, ctmp) == false);
@@ -704,9 +735,10 @@ func run_eckey_edge_case_test() {
     //VG_UNDEF(&pubkey, sizeof(secp256k1_pubkey));
     CHECK(secp256k1_ec_pubkey_combine(ctx, &pubkey, pubkeys, 1) == true);
     //VG_CHECK(&pubkey, sizeof(secp256k1_pubkey));
-    CHECK(!pubkey.is_zero()) // memcmp(&pubkey, zeros, sizeof(secp256k1_pubkey)) > 0);
+    CHECK(!pubkey.is_zero())
     CHECK(ecount == 3);
     len = 33;
+    assert(ctmp.count == 33)
     CHECK(secp256k1_ec_pubkey_serialize(ctx, &ctmp, &len, pubkey, .SECP256K1_EC_COMPRESSED) == true);
     CHECK(secp256k1_ec_pubkey_serialize(ctx, &ctmp2, &len, pubkey_negone, .SECP256K1_EC_COMPRESSED) == true);
     CHECK(ctmp.compare(ctmp2, count: 33))

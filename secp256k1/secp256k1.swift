@@ -494,15 +494,15 @@ public func secp256k1_ec_pubkey_serialize(_ ctx: secp256k1_context, _ output: in
     var ret: Bool = false
     
     if !ctx.ARG_CHECK(outputlen >= (flags.contains(.SECP256K1_FLAGS_BIT_COMPRESSION) ? 33 : 65), "invalid outputlen and flags") { return false }
-    len = outputlen;
-    outputlen = 0;
-    if !ctx.ARG_CHECK(output.count >= outputlen, "insufficient output length") { return false }
-    output = [UInt8](repeating: 0, count: Int(len))
-    let _ = ctx.ARG_CHECK(true, "pubkey != NULL")
-    let val: Bool = (flags.intersection(.SECP256K1_FLAGS_TYPE_MASK) == SECP256K1_FLAGS.SECP256K1_FLAGS_TYPE_COMPRESSION)
-    if !ctx.ARG_CHECK(val, "invalid flags") {
-        return false
+    len = outputlen
+    outputlen = 0
+    if !ctx.ARG_CHECK(output.count >= len, "insufficient output length") { return false }
+    for i in 0 ..< output.count {
+        output[i] = 0
     }
+    if !ctx.ARG_CHECK(pubkey.is_valid_len(), "invalid pubkey") { return false }
+    let val: Bool = (flags.intersection(.SECP256K1_FLAGS_TYPE_MASK) == SECP256K1_FLAGS.SECP256K1_FLAGS_TYPE_COMPRESSION)
+    if !ctx.ARG_CHECK(val, "invalid flags") { return false }
     if (secp256k1_pubkey_load(ctx, &Q, pubkey)) {
         ret = secp256k1_eckey_pubkey_serialize(&Q, &output, &len, flags.contains(.SECP256K1_FLAGS_BIT_COMPRESSION))
         if (ret) {
@@ -822,9 +822,7 @@ func nonce_function_rfc6979(
         keylen += 16;
     }
     secp256k1_rfc6979_hmac_sha256_initialize(&rng, keydata, UInt(keylen));
-    for i in 0..<112 {
-        keydata[i] = 0
-    }
+    keydata.clear(count: 112)
     for _ in 0 ... counter {
         secp256k1_rfc6979_hmac_sha256_generate(&rng, &nonce32, outlen: 32);
     }
@@ -1034,9 +1032,7 @@ public func secp256k1_ec_privkey_tweak_add(_ ctx: secp256k1_context, _ seckey: i
     secp256k1_scalar_set_b32(&sec, seckey, &dummy);
     
     ret = !overflow && secp256k1_eckey_privkey_tweak_add(&sec, term);
-    for i in 0..<32 {
-        seckey[i] = 0
-    }
+    seckey.clear(count:32)
     if (ret) {
         secp256k1_scalar_get_b32(&seckey, sec);
     }
@@ -1076,7 +1072,6 @@ public func secp256k1_ec_pubkey_tweak_add(_ ctx: secp256k1_context, _ pubkey: in
             ret = false
         }
     }
-    
     return ret;
 }
 
@@ -1100,7 +1095,7 @@ public func secp256k1_ec_privkey_tweak_mul(_ ctx: secp256k1_context, _ seckey: i
     var dummy: Bool = false
     secp256k1_scalar_set_b32(&sec, seckey, &dummy);
     ret = !overflow && secp256k1_eckey_privkey_tweak_mul(&sec, factor);
-    seckey = [UInt8](repeating: 0, count: 32)
+    seckey.clear(count: 32)
     if (ret) {
         secp256k1_scalar_get_b32(&seckey, sec);
     }

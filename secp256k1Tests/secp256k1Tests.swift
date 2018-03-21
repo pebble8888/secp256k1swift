@@ -57,7 +57,7 @@ class secp256k1Tests: XCTestCase {
     }
 
     // long time need
-    func testRecocery(){
+    func testRecovery(){
         test_type(.recovery)
     }
 

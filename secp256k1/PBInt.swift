@@ -187,6 +187,16 @@ extension Array where Element == UInt8 {
         }
         return true
     }
+    public func is_zero(count: Int) -> Bool {
+        if self.count < count { return false }
+        for i in 0 ..< count {
+            if self[i] != 0 {
+                return false
+            }
+        }
+        return true
+    }
+    
     public func is_zero_first_half() -> Bool {
         if self.count < 32 { return false }
         for i in 0 ..< 32 {

@@ -10,21 +10,26 @@ import XCTest
 import secp256k1
 
 class secp256k1AdditionalTests: XCTestCase {
-
+    var ctx: secp256k1_context?
     override func setUp() {
         super.setUp()
+        self.ctx = secp256k1_context_create(.SECP256K1_CONTEXT_NONE)
     }
     
     override func tearDown() {
+        guard var ctx = self.ctx else { return }
+        secp256k1_context_destroy(&ctx)
         super.tearDown()
     }
 
-    func testExample() {
-        guard var ctx = secp256k1_context_create(.SECP256K1_CONTEXT_NONE) else { fatalError() }
-        defer { secp256k1_context_destroy(&ctx) }
+    func testExample1() {
+        guard let ctx = ctx else { fatalError() }
         var seckey = [UInt8](repeating: 0, count: 32)
         seckey[31] = 1
         XCTAssert(secp256k1_ec_seckey_verify(ctx, seckey))
+    }
+    
+    func testExample2() {
     }
 
 }
