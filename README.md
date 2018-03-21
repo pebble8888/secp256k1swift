@@ -5,7 +5,7 @@ secp256k1 by pure swift
 secp256k1 can be used, distributed and modified user the MIT license.
 
 ## Requirements
-secp256k1 requires Swift 4.
+secp256k1 requires Swift4.
 
 macOS
 
@@ -20,9 +20,10 @@ None
 ## How to use
 
 ``` swift
-struct secp256k1_pubkey  // 64bytes
-struct secp256k1_ecdsa_signature //64bytes
+struct secp256k1_pubkey  // 64 bytes
+struct secp256k1_ecdsa_signature //64 bytes
 struct secp256k1_context // opaque
+struct secp256k1_ecdsa_recoverable_signature // 65 bytes
 
 struct SECP256K1_FLAGS: OptionSet {
     /** Flags to pass to secp256k1_context_create. */
@@ -56,11 +57,17 @@ func secp256k1_ec_privkey_tweak_mul(_ ctx: secp256k1_context, _ seckey: inout [U
 func secp256k1_ec_pubkey_tweak_mul(_ ctx: secp256k1_context, _ pubkey: inout secp256k1_pubkey, _ tweak: [UInt8]) -> Bool
 func secp256k1_context_randomize(_ ctx: inout secp256k1_context, _ seed32: [UInt8]?) -> Bool
 func secp256k1_ec_pubkey_combine(_ ctx: secp256k1_context, _ pubnonce: inout secp256k1_pubkey, _ pubnonces:[secp256k1_pubkey], _ n: UInt) -> Bool
+
+func secp256k1_ecdsa_recoverable_signature_parse_compact(_ ctx: secp256k1_context, _ sig: inout secp256k1_ecdsa_recoverable_signature, _ input64: [UInt8], _ recid: Int) -> Bool
+func secp256k1_ecdsa_recoverable_signature_serialize_compact( _ ctx: secp256k1_context, _ output64: inout [UInt8], _ recid: inout Int, _ sig: secp256k1_ecdsa_recoverable_signature) -> Bool
+func secp256k1_ecdsa_recoverable_signature_convert( _ ctx: secp256k1_context, _ sig: inout secp256k1_ecdsa_signature, _ sigin: secp256k1_ecdsa_recoverable_signature) -> Bool
+func secp256k1_ecdsa_sign_recoverable( _ ctx: secp256k1_context, _ signature: inout secp256k1_ecdsa_recoverable_signature, _ msg32: [UInt8], _ seckey: [UInt8], _ noncefp: secp256k1_nonce_function?, _ noncedata:[UInt8]?) -> Bool
+func secp256k1_ecdsa_recover( _ ctx: secp256k1_context, _ pubkey: inout secp256k1_pubkey, _ signature: secp256k1_ecdsa_recoverable_signature, _ msg32: [UInt8]) -> Bool
 ```
 
 ## Implementation
 
-It is ported from [bitcoin C implementation](https://github.com/bitcoin-core/secp256k1)
+It is ported from [bitcoin implementation in C89](https://github.com/bitcoin-core/secp256k1)
 
 ## Performance
 

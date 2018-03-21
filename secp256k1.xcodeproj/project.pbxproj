@@ -44,6 +44,7 @@
 		A2A2854B2053800F00B37A74 /* ecmult_const_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A2854A2053800F00B37A74 /* ecmult_const_impl.swift */; };
 		A2A2854D20550EB700B37A74 /* field_10x26_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A2854C20550EB700B37A74 /* field_10x26_impl.swift */; };
 		A2A2854F20550F9400B37A74 /* tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A2854E20550F9400B37A74 /* tests.swift */; };
+		A2AC7330205E915A00B80086 /* recovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2AC732F205E915A00B80086 /* recovery.swift */; };
 		A2B45CA81F94E61400249454 /* secp256k1.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A2B45C9E1F94E61400249454 /* secp256k1.framework */; };
 		A2B45CAD1F94E61400249454 /* secp256k1Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B45CAC1F94E61400249454 /* secp256k1Tests.swift */; };
 		A2B45CAF1F94E61400249454 /* secp256k1.h in Headers */ = {isa = PBXBuildFile; fileRef = A2B45CA11F94E61400249454 /* secp256k1.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -56,6 +57,7 @@
 		A2C38D18203926CE003C02F2 /* group_impl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C38D17203926CE003C02F2 /* group_impl.swift */; };
 		A2C38D1C20393E61003C02F2 /* hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C38D1B20393E61003C02F2 /* hash.swift */; };
 		A2C6D818205DF6440034F76F /* PBInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C6D817205DF6440034F76F /* PBInt.swift */; };
+		A2D87144205FCCB00092FB40 /* tests_recovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D87143205FCCB00092FB40 /* tests_recovery.swift */; };
 		A2E6D83820529F26009949CD /* PBHex.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E6D83720529F26009949CD /* PBHex.swift */; };
 		A2EA1D6220581A8E009462D8 /* lax_der_parsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2EA1D6120581A8E009462D8 /* lax_der_parsing.swift */; };
 		D16F0E3C598726B28D210629 /* Pods_secp256k1.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD8FE2035503BB853B90B5D /* Pods_secp256k1.framework */; };
@@ -123,6 +125,7 @@
 		A2A2854A2053800F00B37A74 /* ecmult_const_impl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ecmult_const_impl.swift; sourceTree = "<group>"; };
 		A2A2854C20550EB700B37A74 /* field_10x26_impl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = field_10x26_impl.swift; sourceTree = "<group>"; };
 		A2A2854E20550F9400B37A74 /* tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tests.swift; sourceTree = "<group>"; };
+		A2AC732F205E915A00B80086 /* recovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = recovery.swift; sourceTree = "<group>"; };
 		A2B45C9E1F94E61400249454 /* secp256k1.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = secp256k1.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2B45CA11F94E61400249454 /* secp256k1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = secp256k1.h; sourceTree = "<group>"; };
 		A2B45CA21F94E61400249454 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -141,6 +144,7 @@
 		A2C38D17203926CE003C02F2 /* group_impl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = group_impl.swift; sourceTree = "<group>"; };
 		A2C38D1B20393E61003C02F2 /* hash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = hash.swift; sourceTree = "<group>"; };
 		A2C6D817205DF6440034F76F /* PBInt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBInt.swift; sourceTree = "<group>"; };
+		A2D87143205FCCB00092FB40 /* tests_recovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tests_recovery.swift; sourceTree = "<group>"; };
 		A2E6D83720529F26009949CD /* PBHex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBHex.swift; sourceTree = "<group>"; };
 		A2EA1D6120581A8E009462D8 /* lax_der_parsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = lax_der_parsing.swift; sourceTree = "<group>"; };
 		A67812152ABC1FF62F2D8A6B /* Pods-secp256k1ref.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-secp256k1ref.release.xcconfig"; path = "Pods/Target Support Files/Pods-secp256k1ref/Pods-secp256k1ref.release.xcconfig"; sourceTree = "<group>"; };
@@ -267,6 +271,7 @@
 				A2833E88203824DA0064702C /* util.swift */,
 				A2EA1D6120581A8E009462D8 /* lax_der_parsing.swift */,
 				A25C3518205BE1F00079711B /* lax_der_privatekey_parsing.swift */,
+				A2AC732F205E915A00B80086 /* recovery.swift */,
 			);
 			path = secp256k1;
 			sourceTree = "<group>";
@@ -274,9 +279,8 @@
 		A2B45CAB1F94E61400249454 /* secp256k1Tests */ = {
 			isa = PBXGroup;
 			children = (
-				A2B45CAC1F94E61400249454 /* secp256k1Tests.swift */,
 				A2B45CAE1F94E61400249454 /* Info.plist */,
-				A29D57CF204BBC6600E36F04 /* testrand_impl.swift */,
+				A2B45CAC1F94E61400249454 /* secp256k1Tests.swift */,
 				A2A2854E20550F9400B37A74 /* tests.swift */,
 				A25C351A205C0C6B0079711B /* tests_context.swift */,
 				A21A283320551422007A85A4 /* tests_random.swift */,
@@ -290,6 +294,8 @@
 				A25C3520205CE9840079711B /* tests_ec.swift */,
 				A25C3522205CE9CF0079711B /* tests_endomorphism.swift */,
 				A25C3524205CEA790079711B /* tests_openssl.swift */,
+				A2D87143205FCCB00092FB40 /* tests_recovery.swift */,
+				A29D57CF204BBC6600E36F04 /* testrand_impl.swift */,
 				A2C36E61205D176200CEDA55 /* secp256k1AdditionalTests.swift */,
 			);
 			path = secp256k1Tests;
@@ -691,6 +697,7 @@
 				A2C6D818205DF6440034F76F /* PBInt.swift in Sources */,
 				A2833E81203820FA0064702C /* ecmult.swift in Sources */,
 				A25C3519205BE1F00079711B /* lax_der_privatekey_parsing.swift in Sources */,
+				A2AC7330205E915A00B80086 /* recovery.swift in Sources */,
 				A2C38D1620391F34003C02F2 /* eckey_impl.swift in Sources */,
 				A289B4222049673D0073004C /* field_impl.swift in Sources */,
 				A2833E8B203842750064702C /* gen_context.swift in Sources */,
@@ -719,6 +726,7 @@
 				A29D57D0204BBC6600E36F04 /* testrand_impl.swift in Sources */,
 				A25C3523205CE9CF0079711B /* tests_endomorphism.swift in Sources */,
 				A21A283A20551477007A85A4 /* tests_group.swift in Sources */,
+				A2D87144205FCCB00092FB40 /* tests_recovery.swift in Sources */,
 				A25C3521205CE9840079711B /* tests_ec.swift in Sources */,
 				A21A283E205516D4007A85A4 /* tests_hash.swift in Sources */,
 				A21A283420551422007A85A4 /* tests_random.swift in Sources */,

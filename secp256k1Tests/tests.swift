@@ -60,9 +60,9 @@ var ctx: secp256k1_context?
 //#include "modules/ecdh/tests_impl.h"
 #endif
  
-#if ENABLE_MODULE_RECOVERY
+//#if ENABLE_MODULE_RECOVERY
 //#include "modules/recovery/tests_impl.h"
-#endif
+//#endif
 
 func timelog(_ s:String)
 {
@@ -78,8 +78,10 @@ struct TestType : OptionSet {
     static let ecmult = TestType(rawValue: 1 << 4)
     static let ec = TestType(rawValue: 1 << 5)
     static let ecdsa = TestType(rawValue: 1 << 6)
+    static let recovery = TestType(rawValue: 1 << 7)
+    static let context = TestType(rawValue: 1 << 8)
     static let all: TestType
-        = [.hash, .scalar, .field, .group, .ecmult, .ec, .ecdsa]
+        = [.hash, .scalar, .field, .group, .ecmult, .ec, .ecdsa, .recovery, .context]
 }
 
 func test_main(_ count: Int, _ ch:String?, _ type: TestType) {
@@ -133,8 +135,11 @@ func test_main(_ count: Int, _ ch:String?, _ type: TestType) {
     timelog(String(format: "random seed = %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x", seed16[0], seed16[1], seed16[2], seed16[3], seed16[4], seed16[5], seed16[6], seed16[7], seed16[8], seed16[9], seed16[10], seed16[11], seed16[12], seed16[13], seed16[14], seed16[15]))
     
     /* initialize */
-    timelog("run_context_tests")
-    run_context_tests()
+    if type.contains(.context) {
+        timelog("run_context_tests")
+        run_context_tests()
+    }
+
     ctx = secp256k1_context_create([SECP256K1_FLAGS.SECP256K1_CONTEXT_SIGN, SECP256K1_FLAGS.SECP256K1_CONTEXT_VERIFY])
     guard var ctx = ctx else { fatalError() }
     if secp256k1_rand_bits(1) != 0 {
@@ -278,10 +283,10 @@ func test_main(_ count: Int, _ ch:String?, _ type: TestType) {
         run_ecdsa_openssl()
     #endif
     
-    #if ENABLE_MODULE_RECOVERY
+    if type.contains(.recovery) {
         /* ECDSA pubkey recovery tests */
         run_recovery_tests();
-    #endif
+    }
 
     timelog("secp256k1_rand256")
     secp256k1_rand256(&run32);

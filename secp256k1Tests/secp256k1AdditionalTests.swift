@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import secp256k1
+import secp256k1
 
 class secp256k1AdditionalTests: XCTestCase {
 
@@ -20,6 +20,11 @@ class secp256k1AdditionalTests: XCTestCase {
     }
 
     func testExample() {
+        guard var ctx = secp256k1_context_create(.SECP256K1_CONTEXT_NONE) else { fatalError() }
+        defer { secp256k1_context_destroy(&ctx) }
+        var seckey = [UInt8](repeating: 0, count: 32)
+        seckey[31] = 1
+        XCTAssert(secp256k1_ec_seckey_verify(ctx, seckey))
     }
 
 }

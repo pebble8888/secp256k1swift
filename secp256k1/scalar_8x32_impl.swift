@@ -85,6 +85,7 @@ func secp256k1_scalar_get_bits_var(_ a: secp256k1_scalar, _ offset: UInt, _ coun
     }
 }
 
+// ベースポイントのorderを越えているかどうか
 func secp256k1_scalar_check_overflow(_ a: secp256k1_scalar) -> Bool {
     // 条件文の実行数を減らすため、上位から判断を開始する
     var yes: Bool = false
@@ -104,19 +105,19 @@ func secp256k1_scalar_check_overflow(_ a: secp256k1_scalar) -> Bool {
     return yes
 }
 
-func secp256k1_scalar_reduce(_ r: inout secp256k1_scalar, _ a_overflow: Bool) -> Bool {
+func secp256k1_scalar_reduce(_ r: inout secp256k1_scalar, _ overflow: Bool) -> Bool {
     var t: UInt64
-    let overflow: UInt64 = a_overflow ? 1 : 0
-    VERIFY_CHECK(overflow <= 1);
-    t = UInt64(r.d[0]) + overflow * UInt64(SECP256K1_N_C_0)
+    let v_overflow: UInt64 = overflow ? 1 : 0
+    VERIFY_CHECK(v_overflow <= 1);
+    t = UInt64(r.d[0]) + v_overflow * UInt64(SECP256K1_N_C_0)
     r.d[0] = t.lo; t >>= 32;
-    t += UInt64(r.d[1]) + overflow * UInt64(SECP256K1_N_C_1)
+    t += UInt64(r.d[1]) + v_overflow * UInt64(SECP256K1_N_C_1)
     r.d[1] = t.lo; t >>= 32
-    t += UInt64(r.d[2]) + overflow * UInt64(SECP256K1_N_C_2)
+    t += UInt64(r.d[2]) + v_overflow * UInt64(SECP256K1_N_C_2)
     r.d[2] = t.lo; t >>= 32
-    t += UInt64(r.d[3]) + overflow * UInt64(SECP256K1_N_C_3)
+    t += UInt64(r.d[3]) + v_overflow * UInt64(SECP256K1_N_C_3)
     r.d[3] = t.lo; t >>= 32
-    t += UInt64(r.d[4]) + overflow * UInt64(SECP256K1_N_C_4)
+    t += UInt64(r.d[4]) + v_overflow * UInt64(SECP256K1_N_C_4)
     r.d[4] = t.lo; t >>= 32
     t += UInt64(r.d[5])
     r.d[5] = t.lo; t >>= 32
@@ -124,7 +125,7 @@ func secp256k1_scalar_reduce(_ r: inout secp256k1_scalar, _ a_overflow: Bool) ->
     r.d[6] = t.lo; t >>= 32
     t += UInt64(r.d[7])
     r.d[7] = t.lo
-    return a_overflow
+    return overflow
 }
 
 /**
@@ -195,6 +196,8 @@ func secp256k1_scalar_cadd_bit(_ r: inout secp256k1_scalar, _ a_bit: UInt, _ fla
     #endif
 }
 
+// スカラー値をb32に設定して返す,
+// overflow していた場合は範囲内の値にして返す
 func secp256k1_scalar_set_b32(_ r: inout secp256k1_scalar, _ b32: [UInt8], _ overflow: inout Bool) {
     assert(b32.count >= 32)
     var over: Bool

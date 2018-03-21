@@ -838,10 +838,10 @@ func nonce_function_rfc6979(
  * If a data pointer is passed, it is assumed to be a pointer to 32 bytes of
  * extra entropy.
  */
-fileprivate let secp256k1_nonce_function_rfc6979: secp256k1_nonce_function = nonce_function_rfc6979
+let secp256k1_nonce_function_rfc6979: secp256k1_nonce_function = nonce_function_rfc6979
 
 /** A default safe nonce generation function (currently equal to secp256k1_nonce_function_rfc6979). */
-fileprivate let secp256k1_nonce_function_default: secp256k1_nonce_function = nonce_function_rfc6979
+let secp256k1_nonce_function_default: secp256k1_nonce_function = nonce_function_rfc6979
 
 /** Create an ECDSA signature.
  *

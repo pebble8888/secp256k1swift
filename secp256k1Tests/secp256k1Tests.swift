@@ -13,12 +13,14 @@ class secp256k1Tests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
     }
     
     override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
+    }
+    
+    func testContext(){
+        test_type(.context)
     }
     
     func testHash(){
@@ -52,6 +54,11 @@ class secp256k1Tests: XCTestCase {
     // long time need
     func testEcdsa(){
         test_type(.ecdsa)
+    }
+
+    // long time need
+    func testRecocery(){
+        test_type(.recovery)
     }
 
     func test_type(_ type: TestType){

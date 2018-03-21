@@ -373,9 +373,9 @@ func secp256k1_ecdsa_sig_sign(
     if (secp256k1_scalar_is_high(sigs)) {
         // take near zero, minus is ok
         secp256k1_scalar_negate(&sigs, sigs)
-        if recid != 0 {
+        //if recid != 0 {
             recid ^= 1
-        }
+        //}
     }
     return true
 }

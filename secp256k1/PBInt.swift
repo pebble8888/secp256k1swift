@@ -8,8 +8,9 @@
 
 import Foundation
 
-func UInt8ToUInt32LE(_ dst: inout [UInt32],
-                     _ dst_begin: UInt, // by UInt8 size
+func UInt8ToUInt32LE(
+    _ dst: inout [UInt32],
+    _ dst_begin: UInt, // by UInt8 size
     _ src: [UInt8],
     _ src_begin: Int,
     _ size: UInt)
