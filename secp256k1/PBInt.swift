@@ -216,3 +216,10 @@ extension Array where Element == UInt8 {
         return true
     }
 }
+
+public extension String {
+    public var toUInt8: [UInt8] {
+        let v = self.utf8CString.map({ UInt8($0) })
+        return Array(v[0 ..< (v.count-1)])
+    }
+}
