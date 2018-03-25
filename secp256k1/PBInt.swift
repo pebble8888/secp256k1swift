@@ -172,10 +172,18 @@ extension Array where Element == UInt8 {
 }
 
 extension Array where Element == UInt8 {
-    public func compare(_ v: Array<Element>) -> Bool {
+    public func equal(_ v: Array<Element>) -> Bool {
         if self.count != v.count { return false }
         for i in 0 ..< self.count {
             if self[i] != v[i] { return false }
+        }
+        return true
+    }
+    public func equal(index1: Int = 0, _ v: Array<Element>, index2: Int = 0, count: Int) -> Bool {
+        if self.count - index1 < count { return false }
+        if v.count - index2 < count { return false }
+        for i in 0 ..< count {
+            if self[index1 + i] != v[index2 + i] { return false }
         }
         return true
     }
@@ -183,7 +191,7 @@ extension Array where Element == UInt8 {
         if self.count - index1 < count { return false }
         if v.count - index2 < count { return false }
         for i in 0 ..< count {
-            if self[index1 + i] != v[index2 + i] { return false }
+            if !(self[index1 + i] < v[index2 + i]) { return false }
         }
         return true
     }

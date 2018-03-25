@@ -561,7 +561,7 @@ func run_eckey_edge_case_test() {
     assert(ctmp.count == 33)
     CHECK(secp256k1_ec_privkey_tweak_add(ctx, &ctmp, ctmp2) == true);
     assert(ctmp.count == 33)
-    CHECK(orderc.compare(ctmp, count:31) && ctmp[31] == 0x40) //memcmp(orderc, ctmp, 31) == 0 && ctmp[31] == 0x40);
+    CHECK(orderc.equal(ctmp, count:31) && ctmp[31] == 0x40) //memcmp(orderc, ctmp, 31) == 0 && ctmp[31] == 0x40);
     //memcpy(&pubkey2, &pubkey, sizeof(pubkey));
     pubkey2 = pubkey
     CHECK(secp256k1_ec_pubkey_tweak_add(ctx, &pubkey, ctmp2) == true);
@@ -741,7 +741,7 @@ func run_eckey_edge_case_test() {
     assert(ctmp.count == 33)
     CHECK(secp256k1_ec_pubkey_serialize(ctx, &ctmp, &len, pubkey, .SECP256K1_EC_COMPRESSED) == true);
     CHECK(secp256k1_ec_pubkey_serialize(ctx, &ctmp2, &len, pubkey_negone, .SECP256K1_EC_COMPRESSED) == true);
-    CHECK(ctmp.compare(ctmp2, count: 33))
+    CHECK(ctmp.equal(ctmp2, count: 33))
     /* Result is infinity. */
     pubkeys[0] = pubkey_one;
     pubkeys[1] = pubkey_negone;
@@ -764,7 +764,7 @@ func run_eckey_edge_case_test() {
     len = 33;
     CHECK(secp256k1_ec_pubkey_serialize(ctx, &ctmp, &len, pubkey, .SECP256K1_EC_COMPRESSED) == true);
     CHECK(secp256k1_ec_pubkey_serialize(ctx, &ctmp2, &len, pubkey_one, .SECP256K1_EC_COMPRESSED) == true);
-    CHECK(ctmp.compare(ctmp2, count:33))
+    CHECK(ctmp.equal(ctmp2, count:33))
     /* Adds to two. */
     pubkeys[1] = pubkey_one;
     //memset(&pubkey, 255, sizeof(secp256k1_pubkey));

@@ -307,7 +307,7 @@ func test_random_pubkeys() {
         /* If the pubkey can be parsed, it should round-trip... */
         CHECK(secp256k1_eckey_pubkey_serialize(&elem, &out, &size, len == 33));
         CHECK(size == len);
-        CHECK(l_in.compare(index1: 1, l_in, index2: 1, count: Int(len)-1)) // memcmp(&l_in[1], &out[1], len-1) == 0);
+        CHECK(l_in.equal(index1: 1, l_in, index2: 1, count: Int(len)-1)) // memcmp(&l_in[1], &out[1], len-1) == 0);
         /* ... except for the type of hybrid inputs. */
         if ((l_in[0] != 6) && (l_in[0] != 7)) {
             CHECK(l_in[0] == out[0]);
@@ -330,7 +330,7 @@ func test_random_pubkeys() {
         if (res) {
             ge_equals_ge(elem, elem2);
             CHECK(secp256k1_eckey_pubkey_serialize(&elem, &out, &size, false));
-            CHECK(l_in.compare(index1: 1, out, index2: 1, count: 64)) // memcmp(&l_in[1], &out[1], 64) == 0);
+            CHECK(l_in.equal(index1: 1, out, index2: 1, count: 64)) // memcmp(&l_in[1], &out[1], 64) == 0);
         }
     }
 }
@@ -395,7 +395,7 @@ func test_ecdsa_der_parse(_ sig: [UInt8], _ siglen: UInt, _ certainly_der: Bool,
     }
     if (valid_der) {
         ret |=  (!secp256k1_ecdsa_signature_serialize_der(ctx, &roundtrip_der, &len_der, sig_der) ? 1 : 0) << 1
-        roundtrips_der = (len_der == siglen) && roundtrip_der.compare(sig, count: Int(siglen))
+        roundtrips_der = (len_der == siglen) && roundtrip_der.equal(sig, count: Int(siglen))
     }
     
     parsed_der_lax = ecdsa_signature_parse_der_lax(&ctx, &sig_der_lax, sig, Int(siglen));
@@ -405,7 +405,7 @@ func test_ecdsa_der_parse(_ sig: [UInt8], _ siglen: UInt, _ certainly_der: Bool,
     }
     if (valid_der_lax) {
         ret |= (!secp256k1_ecdsa_signature_serialize_der(ctx, &roundtrip_der_lax, &len_der_lax, sig_der_lax) ? 1 : 0) << 11;
-        roundtrips_der_lax = (len_der_lax == siglen) && roundtrip_der_lax.compare(sig, count: Int(siglen))
+        roundtrips_der_lax = (len_der_lax == siglen) && roundtrip_der_lax.equal(sig, count: Int(siglen))
     }
     
     if (certainly_der) {
@@ -421,7 +421,7 @@ func test_ecdsa_der_parse(_ sig: [UInt8], _ siglen: UInt, _ certainly_der: Bool,
     if (valid_der) {
         ret |= (!roundtrips_der_lax ? 1 : 0) << 12;
         ret |= (len_der != len_der_lax ? 1 : 0) << 13;
-        ret |= (!roundtrip_der_lax.compare(roundtrip_der, count: Int(len_der)) ? 1 : 0) << 14;
+        ret |= (!roundtrip_der_lax.equal(roundtrip_der, count: Int(len_der)) ? 1 : 0) << 14;
     }
     ret |= (roundtrips_der != roundtrips_der_lax ? 1 : 0) << 15;
     if (parsed_der) {
