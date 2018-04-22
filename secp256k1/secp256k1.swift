@@ -56,7 +56,7 @@ import Foundation
  *  comparison, use secp256k1_ec_pubkey_serialize and secp256k1_ec_pubkey_parse.
  */
 public struct secp256k1_pubkey : CustomDebugStringConvertible {
-    public var data:[UInt8] // size:64
+    public var data:[UInt8] // size:64 little endian
     public mutating func clear(){
         data = [UInt8](repeating: 0, count: 64)
     }
@@ -791,7 +791,6 @@ func nonce_function_rfc6979(
     _ data: [UInt8]?,
     _ counter: UInt) -> Bool
 {
-    //unsigned char keydata[112];
     var keydata:[UInt8] = [UInt8](repeating: 0, count: 112)
     var keylen: Int = 64;
     var rng = secp256k1_rfc6979_hmac_sha256_t()
@@ -882,7 +881,6 @@ public func secp256k1_ecdsa_sign(_ ctx: secp256k1_context,
     secp256k1_scalar_set_b32(&sec, seckey, &overflow);
     /* Fail if the secret key is invalid. */
     if (!overflow && !secp256k1_scalar_is_zero(sec)) {
-        //unsigned char nonce32[32];
         var nonce32: [UInt8] = [UInt8](repeating: 0, count: 32)
         var count: UInt = 0;
         var dummy: Bool = false
