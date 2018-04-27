@@ -89,7 +89,7 @@ func secp256k1_ecdsa_signature_serialize_compact(_ ctx: secp256k1_context, _ out
 /**
  * normalize secp256k1_ecdsa_signature to lower-S form.
  * The secp256k1_ecdsa_sign function will by default create signatures in the
- *lower-S form, and secp256k1_ecdsa_verify will not accept others
+ * lower-S form, and secp256k1_ecdsa_verify will not accept others
  */
 func secp256k1_ecdsa_signature_normalize(_ ctx: secp256k1_context, _ sigout: inout secp256k1_ecdsa_signature , _ sigin: secp256k1_ecdsa_signature) -> Bool
 
