@@ -397,7 +397,6 @@ func secp256k1_pubkey_load(_ ctx: secp256k1_context, _ ge: inout secp256k1_ge, _
          * representation inside secp256k1_pubkey, as conversion is very fast.
          * Note that secp256k1_pubkey_save must use the same representation. */
         var s = secp256k1_ge_storage()
-        //memcpy(&s, &pubkey.data[0], 64);
         UInt8ToUInt32LE(&s.x.n, 0, pubkey.data, 0, 32)
         UInt8ToUInt32LE(&s.y.n, 0, pubkey.data, 32, 32)
         secp256k1_ge_from_storage(&ge, s);
