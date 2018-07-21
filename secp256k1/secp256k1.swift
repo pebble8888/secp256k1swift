@@ -420,7 +420,6 @@ func secp256k1_pubkey_save(_ pubkey: inout secp256k1_pubkey, _ ge: inout secp256
      */
         var s = secp256k1_ge_storage()
         secp256k1_ge_to_storage(&s, ge);
-        //memcpy(&pubkey.data[0], &s, 64);
         for i in 0 ..< 8 {
             UInt32LEToUInt8(&pubkey.data, 4*i, s.x.n[i])
         }
@@ -768,11 +767,6 @@ public func secp256k1_ecdsa_verify(_ ctx: secp256k1_context, _ sig: secp256k1_ec
     var dummy: Bool = false
     secp256k1_scalar_set_b32(&m, msg32, &dummy)
     secp256k1_ecdsa_signature_load(ctx, &r, &s, sig)
-    /*
-    return (!secp256k1_scalar_is_high(s) &&
-        secp256k1_pubkey_load(ctx, &q, pubkey) &&
-        secp256k1_ecdsa_sig_verify(ctx.ecmult_ctx, r, s, q, m))
- */
     if secp256k1_scalar_is_high(s) {
         return false
     }
