@@ -705,32 +705,29 @@ func run_eckey_edge_case_test() {
     pubkey.data.fill(1)
     CHECK(secp256k1_ec_pubkey_create(ctx, &pubkey, dummy_tmp) == false);
     CHECK(ecount == 2);
-    CHECK(pubkey.is_zero()) // memcmp(&pubkey, zeros, sizeof(secp256k1_pubkey)) == 0);
+    CHECK(pubkey.is_zero())
     /* secp256k1_ec_pubkey_combine tests. */
     ecount = 0;
     pubkeys[0] = pubkey_one;
     //VG_UNDEF(&pubkeys[0], sizeof(secp256k1_pubkey *));
     //VG_UNDEF(&pubkeys[1], sizeof(secp256k1_pubkey *));
     //VG_UNDEF(&pubkeys[2], sizeof(secp256k1_pubkey *));
-    //memset(&pubkey, 255, sizeof(secp256k1_pubkey));
     pubkey.data.fill(255)
     //VG_UNDEF(&pubkey, sizeof(secp256k1_pubkey));
     CHECK(secp256k1_ec_pubkey_combine(ctx, &pubkey, pubkeys, 0) == false);
     //VG_CHECK(&pubkey, sizeof(secp256k1_pubkey));
-    CHECK(pubkey.is_zero()) // memcmp(&pubkey, zeros, sizeof(secp256k1_pubkey)) == 0);
+    CHECK(pubkey.is_zero())
     CHECK(ecount == 1);
     CHECK(secp256k1_ec_pubkey_combine(ctx, &dummy_pubkey, pubkeys, 1) == false);
-    CHECK(pubkey.is_zero()) // memcmp(&pubkey, zeros, sizeof(secp256k1_pubkey)) == 0);
+    CHECK(pubkey.is_zero())
     CHECK(ecount == 2);
-    //memset(&pubkey, 255, sizeof(secp256k1_pubkey));
     pubkey.data.fill(255)
     //VG_UNDEF(&pubkey, sizeof(secp256k1_pubkey));
     CHECK(secp256k1_ec_pubkey_combine(ctx, &pubkey, [], 1) == false);
     //VG_CHECK(&pubkey, sizeof(secp256k1_pubkey));
-    CHECK(pubkey.is_zero()) // memcmp(&pubkey, zeros, sizeof(secp256k1_pubkey)) == 0);
+    CHECK(pubkey.is_zero())
     CHECK(ecount == 3);
     pubkeys[0] = pubkey_negone;
-    //memset(&pubkey, 255, sizeof(secp256k1_pubkey));
     pubkey.data.fill(255)
     //VG_UNDEF(&pubkey, sizeof(secp256k1_pubkey));
     CHECK(secp256k1_ec_pubkey_combine(ctx, &pubkey, pubkeys, 1) == true);
@@ -745,21 +742,19 @@ func run_eckey_edge_case_test() {
     /* Result is infinity. */
     pubkeys[0] = pubkey_one;
     pubkeys[1] = pubkey_negone;
-    //memset(&pubkey, 255, sizeof(secp256k1_pubkey));
     pubkey.data.fill(255)
     //VG_UNDEF(&pubkey, sizeof(secp256k1_pubkey));
     CHECK(secp256k1_ec_pubkey_combine(ctx, &pubkey, pubkeys, 2) == false);
     //VG_CHECK(&pubkey, sizeof(secp256k1_pubkey));
-    CHECK(pubkey.is_zero()) // memcmp(&pubkey, zeros, sizeof(secp256k1_pubkey)) == 0);
+    CHECK(pubkey.is_zero())
     CHECK(ecount == 3);
     /* Passes through infinity but comes out one. */
     pubkeys[2] = pubkey_one;
-    //memset(&pubkey, 255, sizeof(secp256k1_pubkey));
     pubkey.data.fill(255)
     //VG_UNDEF(&pubkey, sizeof(secp256k1_pubkey));
     CHECK(secp256k1_ec_pubkey_combine(ctx, &pubkey, pubkeys, 3) == true);
     //VG_CHECK(&pubkey, sizeof(secp256k1_pubkey));
-    CHECK(!pubkey.is_zero()) // memcmp(&pubkey, zeros, sizeof(secp256k1_pubkey)) > 0);
+    CHECK(!pubkey.is_zero())
     CHECK(ecount == 3);
     len = 33;
     CHECK(secp256k1_ec_pubkey_serialize(ctx, &ctmp, &len, pubkey, .SECP256K1_EC_COMPRESSED) == true);
@@ -767,12 +762,11 @@ func run_eckey_edge_case_test() {
     CHECK(ctmp.equal(ctmp2, count:33))
     /* Adds to two. */
     pubkeys[1] = pubkey_one;
-    //memset(&pubkey, 255, sizeof(secp256k1_pubkey));
     pubkey.data.fill(255)
     //VG_UNDEF(&pubkey, sizeof(secp256k1_pubkey));
     CHECK(secp256k1_ec_pubkey_combine(ctx, &pubkey, pubkeys, 2) == true);
     //VG_CHECK(&pubkey, sizeof(secp256k1_pubkey));
-    CHECK(!pubkey.is_zero()) //memcmp(&pubkey, zeros, sizeof(secp256k1_pubkey)) > 0);
+    CHECK(!pubkey.is_zero())
     CHECK(ecount == 3);
     secp256k1_context_set_illegal_callback(&ctx, nil, nil);
 }

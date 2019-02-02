@@ -65,7 +65,6 @@ func secp256k1_fe_sqrt(_ r: inout secp256k1_fe, _ a: secp256k1_fe) -> Bool {
     var x220:secp256k1_fe
     var x223:secp256k1_fe
     var t1:secp256k1_fe
-    //var j:Int
 
     /** The binary representation of (p + 1)/4 has 3 blocks of 1s, with lengths in
      *  { 2, 22, 223 }. Use an addition chain to calculate 2^n - 1 for each block:

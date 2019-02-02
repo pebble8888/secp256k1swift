@@ -13,11 +13,9 @@
 
 import Foundation
 
-//typealias Pre_G = () -> secp256k1_ge_storage
-
 public struct secp256k1_ecmult_context : CustomDebugStringConvertible {
     /* For accelerating the computation of a*P + b*G: */
-    var pre_g: [/*Pre_G*/ secp256k1_ge_storage]    /* odd multiples of the generator */
+    var pre_g: [secp256k1_ge_storage]    /* odd multiples of the generator */
     init() {
         pre_g = [secp256k1_ge_storage](repeating: secp256k1_ge_storage(), count: 0)
     }

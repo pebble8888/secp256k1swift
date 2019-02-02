@@ -19,7 +19,6 @@ func ec_privkey_import_der(_ ctx: secp256k1_context, _ out32: inout [UInt8], _ p
     let end: Int = privkeylen
     var lenb: Int = 0
     var len: Int = 0
-    //memset(out32, 0, 32);
     for i in 0 ..< 32 {
         out32[i] = 0
     }
@@ -56,13 +55,11 @@ func ec_privkey_import_der(_ ctx: secp256k1_context, _ out32: inout [UInt8], _ p
     if end < privkey_idx+2 || privkey[privkey_idx+0] != 0x04 || privkey[privkey_idx+1] > 0x20 || end < privkey_idx+2+Int(privkey[privkey_idx+1]) {
         return false
     }
-    //memcpy(out32 + 32 - privkey[1], privkey + 2, privkey[1]);
     for i in 0 ..< privkey[privkey_idx+1] {
         out32[Int(i)+32-Int(privkey[privkey_idx+1])] = privkey[Int(privkey_idx)+2+Int(i)]
     }
     
     if (!secp256k1_ec_seckey_verify(ctx, out32)) {
-        //memset(out32, 0, 32);
         for i in 0 ..< 32 {
             out32[i] = 0
         }
@@ -98,25 +95,18 @@ func ec_privkey_export_der(_ ctx: secp256k1_context,
             0xFF,0xFF,0xFF,0xFF,0xFE,0xBA,0xAE,0xDC,0xE6,0xAF,0x48,0xA0,0x3B,0xBF,0xD2,0x5E,
             0x8C,0xD0,0x36,0x41,0x41,0x02,0x01,0x01,0xA1,0x24,0x03,0x22,0x00
         ]
-        //unsigned char *ptr = privkey;
         var ptr: Int = 0
-        //memcpy(ptr, begin, sizeof(begin));
         for i in 0 ..< begin.count {
             privkey[ptr+i] = begin[i]
         }
-        //ptr += sizeof(begin);
         ptr += begin.count
-        //memcpy(ptr, key32, 32);
         for i in 0 ..< 32 {
             privkey[ptr+i] = key32[i]
         }
-        //ptr += 32;
         ptr += 32
-        //memcpy(ptr, middle, sizeof(middle));
         for i in 0 ..< middle.count {
             privkey[ptr+i] = middle[i]
         }
-        //ptr += sizeof(middle);
         ptr += middle.count
         pubkeylen = 33;
         
@@ -126,7 +116,7 @@ func ec_privkey_export_der(_ ctx: secp256k1_context,
             privkey[ptr+i] = q[i]
         }
         ptr += Int(pubkeylen)
-        privkeylen = UInt(ptr) //ptr - privkey;
+        privkeylen = UInt(ptr)
     } else {
         let begin: [UInt8] = [
             0x30,0x82,0x01,0x13,0x02,0x01,0x01,0x04,0x20
@@ -144,34 +134,27 @@ func ec_privkey_export_der(_ ctx: secp256k1_context,
             0xFF,0xFF,0xFF,0xFF,0xFE,0xBA,0xAE,0xDC,0xE6,0xAF,0x48,0xA0,0x3B,0xBF,0xD2,0x5E,
             0x8C,0xD0,0x36,0x41,0x41,0x02,0x01,0x01,0xA1,0x44,0x03,0x42,0x00
         ]
-        //unsigned char *ptr = privkey;
         var ptr: Int = 0
-        //memcpy(ptr, begin, sizeof(begin));
         for i in 0 ..< begin.count {
             privkey[ptr+i] = begin[i]
         }
-        //ptr += sizeof(begin);
         ptr += begin.count
-        //memcpy(ptr, key32, 32);
         for i in 0 ..< 32 {
             privkey[ptr+i] = key32[i]
         }
-        //ptr += 32;
         ptr += 32
-        //memcpy(ptr, middle, sizeof(middle));
         for i in 0 ..< middle.count {
             privkey[ptr+i] = middle[i]
         }
-        //ptr += sizeof(middle);
         ptr += middle.count
-        pubkeylen = 65;
+        pubkeylen = 65
         var q = [UInt8](repeating: 0, count: 65)
-        let _ = secp256k1_ec_pubkey_serialize(ctx, &q, &pubkeylen, pubkey, .SECP256K1_EC_UNCOMPRESSED);
+        let _ = secp256k1_ec_pubkey_serialize(ctx, &q, &pubkeylen, pubkey, .SECP256K1_EC_UNCOMPRESSED)
         for i in 0 ..< 65 {
             privkey[ptr+i] = q[i]
         }
         ptr += Int(pubkeylen)
-        privkeylen = UInt(ptr) // ptr - privkey;
+        privkeylen = UInt(ptr)
     }
     return true
 }

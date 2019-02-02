@@ -34,7 +34,6 @@ func run_context_tests() {
     var sigr = secp256k1_scalar()
     var sigs = secp256k1_scalar()
     
-    //memset(&zero_pubkey, 0, sizeof(zero_pubkey));
     zero_pubkey.clear()
     
     ecount = 0;

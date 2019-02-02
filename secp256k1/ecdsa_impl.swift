@@ -54,36 +54,37 @@ fileprivate func secp256k1_der_read_len(_ sigp: [UInt8], _ sigp_idx: inout Int, 
     if sigp_idx >= sigend {
         return -1
     }
-    b1 = Int(sigp[sigp_idx]); sigp_idx += 1
+    b1 = Int(sigp[sigp_idx])
+	sigp_idx += 1
     
-    if (b1 == 0xFF) {
+    if b1 == 0xFF {
         /* X.690-0207 8.1.3.5.c the value 0xFF shall not be used. */
         return -1
     }
-    if ((b1 & 0x80) == 0) {
+    if (b1 & 0x80) == 0 {
         /* X.690-0207 8.1.3.4 short form length octets */
         return b1
     }
-    if (b1 == 0x80) {
+    if b1 == 0x80 {
         /* Indefinite length is not allowed in DER. */
         return -1
     }
     /* X.690-207 8.1.3.5 long form length octets */
     lenleft = b1 & 0x7F
-    if (lenleft > Int(sigend) - sigp_idx) {
+    if lenleft > Int(sigend) - sigp_idx {
         return -1
     }
-    if (sigp[sigp_idx] == 0) {
+    if sigp[sigp_idx] == 0 {
         /* Not the shortest possible length encoding. */
         return -1
     }
-    if (lenleft > MemoryLayout<size_t>.size  /*sizeof(size_t) */) {
+    if lenleft > MemoryLayout<size_t>.size  /*sizeof(size_t) */ {
         /* The resulting length would exceed the range of a size_t, so
          * certainly longer than the passed array size.
          */
-        return -1;
+        return -1
     }
-    while (lenleft > 0) {
+    while lenleft > 0 {
         ret = (ret << 8) | Int(sigp[sigp_idx])
         if ret + lenleft > Int(sigend) - sigp_idx {
             /* Result exceeds the length of the passed array. */
@@ -92,7 +93,7 @@ fileprivate func secp256k1_der_read_len(_ sigp: [UInt8], _ sigp_idx: inout Int, 
         sigp_idx += 1
         lenleft -= 1
     }
-    if (ret < 128) {
+    if ret < 128 {
         /* Not the shortest possible length encoding. */
         return -1;
     }
@@ -104,43 +105,43 @@ func secp256k1_der_parse_integer(_ r:inout secp256k1_scalar, _ sig: [UInt8], _ s
     var overflow:Bool = false
     var ra:[UInt8] = [UInt8](repeating:0, count:32)
     var rlen:Int
-    if (sig_idx == sigend || sig[sig_idx] != 0x02) {
+    if sig_idx == sigend || sig[sig_idx] != 0x02 {
         /* Not a primitive integer (X.690-0207 8.3.1). */
         return false
     }
     sig_idx += 1
-    rlen = secp256k1_der_read_len(sig, &sig_idx, sigend);
-    if (rlen <= 0 || sig_idx + rlen > sigend) {
+    rlen = secp256k1_der_read_len(sig, &sig_idx, sigend)
+    if rlen <= 0 || sig_idx + rlen > sigend {
         /* Exceeds bounds or not at least length 1 (X.690-0207 8.3.1).  */
         return false
     }
-    if (sig[sig_idx] == 0x00 && rlen > 1 && ((sig[sig_idx+1]) & 0x80) == 0x00) {
+    if sig[sig_idx] == 0x00 && rlen > 1 && ((sig[sig_idx+1]) & 0x80) == 0x00 {
         /* Excessive 0x00 padding. */
         return false
     }
-    if (sig[sig_idx] == 0xFF && rlen > 1 && ((sig[sig_idx+1]) & 0x80) == 0x80) {
+    if sig[sig_idx] == 0xFF && rlen > 1 && ((sig[sig_idx+1]) & 0x80) == 0x80 {
         /* Excessive 0xFF padding. */
         return false
     }
-    if ((sig[sig_idx] & 0x80) == 0x80) {
+    if (sig[sig_idx] & 0x80) == 0x80 {
         /* Negative. */
         overflow = true
     }
-    while (rlen > 0 && sig[sig_idx] == 0) {
+    while rlen > 0 && sig[sig_idx] == 0 {
         /* Skip leading zero bytes */
         rlen -= 1
         sig_idx += 1
     }
-    if (rlen > 32) {
+    if rlen > 32 {
         overflow = true
     }
-    if (!overflow) {
+    if !overflow {
         for i in 0 ..< rlen {
             ra[32+i-rlen] = sig[i+sig_idx]
         }
         secp256k1_scalar_set_b32(&r, ra, &overflow);
     }
-    if (overflow) {
+    if overflow {
         secp256k1_scalar_set_int(&r, 0);
     }
     sig_idx += rlen
@@ -174,19 +175,16 @@ func secp256k1_ecdsa_sig_parse(
         /* Garbage after tuple. */
         return false
     }
-    
     if (!secp256k1_der_parse_integer(&rr, sig, &sig_idx, UInt(sigend))) {
         return false
     }
     if (!secp256k1_der_parse_integer(&rs, sig, &sig_idx, UInt(sigend))) {
         return false
     }
-    
     if sig_idx != sigend {
         /* Trailing garbage inside tuple. */
         return false
     }
-    
     return true
 }
 
@@ -226,11 +224,9 @@ func secp256k1_ecdsa_sig_serialize(
     for i in 0 ..< lenR {
         sig[4+i] = r[rp_idx+i]
     }
-    //memcpy(sig+4, rp, lenR)
-        
+
     sig[4+lenR] = 0x02
     sig[5+lenR] = UInt8(lenS)
-    //memcpy(sig+lenR+6, sp, lenS)
     for i in 0 ..< lenS {
         sig[lenR+6+i] = s[sp_idx+i]
     }

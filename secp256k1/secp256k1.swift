@@ -283,24 +283,23 @@ public struct secp256k1_context : CustomDebugStringConvertible {
  *  See also secp256k1_context_randomize.
  */
 public func secp256k1_context_create(_ flags: SECP256K1_FLAGS) -> secp256k1_context? {
-    var ret: secp256k1_context = secp256k1_context()
+    var ctx: secp256k1_context = secp256k1_context()
     
     if !flags.contains(.SECP256K1_FLAGS_TYPE_CONTEXT) {
-        secp256k1_callback_call(ret.illegal_callback, "Invalid flags");
+        secp256k1_callback_call(ctx.illegal_callback, "Invalid flags");
         return nil
     }
     
-    secp256k1_ecmult_context_init(&ret.ecmult_ctx);
-    secp256k1_ecmult_gen_context_init(&ret.ecmult_gen_ctx);
+    secp256k1_ecmult_context_init(&ctx.ecmult_ctx);
+    secp256k1_ecmult_gen_context_init(&ctx.ecmult_gen_ctx);
     
     if flags.contains(.SECP256K1_FLAGS_BIT_CONTEXT_SIGN) {
-        secp256k1_ecmult_gen_context_build(&ret.ecmult_gen_ctx, ret.error_callback);
+        secp256k1_ecmult_gen_context_build(&ctx.ecmult_gen_ctx, ctx.error_callback);
     }
     if flags.contains(.SECP256K1_FLAGS_BIT_CONTEXT_VERIFY) {
-        secp256k1_ecmult_context_build(&ret.ecmult_ctx, ret.error_callback);
+        secp256k1_ecmult_context_build(&ctx.ecmult_ctx, ctx.error_callback);
     }
-    
-    return ret
+    return ctx
 }
 
 /** Copies a secp256k1 context object.
@@ -462,11 +461,11 @@ public func secp256k1_ec_pubkey_parse(_ ctx: secp256k1_context, _ pubkey: inout 
     var Q = secp256k1_ge()
     let _ = ctx.ARG_CHECK(input.count != 0, "")
     pubkey.clear()
-    if (!secp256k1_eckey_pubkey_parse(&Q, input, inputlen)) {
+    if !secp256k1_eckey_pubkey_parse(&Q, input, inputlen) {
         return false
     }
-    secp256k1_pubkey_save(&pubkey, &Q);
-    secp256k1_ge_clear(&Q);
+    secp256k1_pubkey_save(&pubkey, &Q)
+    secp256k1_ge_clear(&Q)
     return true
 }
 
@@ -491,23 +490,26 @@ public func secp256k1_ec_pubkey_serialize(_ ctx: secp256k1_context, _ output: in
     var len: UInt
     var ret: Bool = false
     
-    if !ctx.ARG_CHECK(outputlen >= (flags.contains(.SECP256K1_FLAGS_BIT_COMPRESSION) ? 33 : 65), "invalid outputlen and flags") { return false }
+    if !ctx.ARG_CHECK(outputlen >= (flags.contains(.SECP256K1_FLAGS_BIT_COMPRESSION) ? 33 : 65), "invalid outputlen and flags") {
+		return false
+	}
     len = outputlen
     outputlen = 0
     if !ctx.ARG_CHECK(output.count >= len, "insufficient output length") { return false }
+	
     for i in 0 ..< output.count {
         output[i] = 0
     }
     if !ctx.ARG_CHECK(pubkey.is_valid_len(), "invalid pubkey") { return false }
     let val: Bool = (flags.intersection(.SECP256K1_FLAGS_TYPE_MASK) == SECP256K1_FLAGS.SECP256K1_FLAGS_TYPE_COMPRESSION)
     if !ctx.ARG_CHECK(val, "invalid flags") { return false }
-    if (secp256k1_pubkey_load(ctx, &Q, pubkey)) {
+    if secp256k1_pubkey_load(ctx, &Q, pubkey) {
         ret = secp256k1_eckey_pubkey_serialize(&Q, &output, &len, flags.contains(.SECP256K1_FLAGS_BIT_COMPRESSION))
-        if (ret) {
-            outputlen = len;
+        if ret {
+            outputlen = len
         }
     }
-    return ret;
+    return ret
 }
 
 func secp256k1_ecdsa_signature_load(_ ctx: secp256k1_context, _ r: inout secp256k1_scalar, _ s: inout secp256k1_scalar, _ sig: secp256k1_ecdsa_signature)
@@ -568,16 +570,15 @@ func secp256k1_ecdsa_signature_save(_ sig: inout secp256k1_ecdsa_signature, _ r:
  */
 public func secp256k1_ecdsa_signature_parse_der(_ ctx: secp256k1_context, _ sig: inout secp256k1_ecdsa_signature, _ input: [UInt8], _ inputlen: UInt) -> Bool
 {
-    var r: secp256k1_scalar = secp256k1_scalar()
-    var s: secp256k1_scalar = secp256k1_scalar()
     if !ctx.ARG_CHECK(sig.is_valid_len(), "invalid sig") { return false }
     if !ctx.ARG_CHECK(input.count >= inputlen, "invalid input") { return false }
     
+	var r: secp256k1_scalar = secp256k1_scalar()
+	var s: secp256k1_scalar = secp256k1_scalar()	
     if secp256k1_ecdsa_sig_parse(&r, &s, input, inputlen) {
         secp256k1_ecdsa_signature_save(&sig, r, s)
         return true
     } else {
-        //memset(sig, 0, sizeof(*sig));
         sig.clear()
         return false
     }
@@ -600,24 +601,23 @@ public func secp256k1_ecdsa_signature_parse_der(_ ctx: secp256k1_context, _ sig:
  */
 public func secp256k1_ecdsa_signature_parse_compact(_ ctx: secp256k1_context, _ sig: inout secp256k1_ecdsa_signature, _ input64: [UInt8]) -> Bool
 {
-    var r = secp256k1_scalar()
-    var s = secp256k1_scalar()
-    var ret: Bool = true
-    var overflow: Bool = false
-    
     if !ctx.ARG_CHECK(sig.is_valid_len(), "invalid sig") { return false }
     if !ctx.ARG_CHECK(input64.count >= 64, "invalid input64") { return false }
     
+	var r = secp256k1_scalar()
+	var s = secp256k1_scalar()			
+    var overflow: Bool = false	
     secp256k1_scalar_set_b32(&r, input64, &overflow);
+    var ret: Bool = true	
     ret = ret && !overflow
     secp256k1_scalar_set_b32(&s, Array(input64[32..<64]), &overflow);
     ret = ret && !overflow
-    if (ret) {
+    if ret {
         secp256k1_ecdsa_signature_save(&sig, r, s)
     } else {
         sig.clear()
     }
-    return ret;
+    return ret
 }
 
 /** Serialize an ECDSA signature in DER format.
@@ -639,8 +639,8 @@ public func secp256k1_ecdsa_signature_serialize_der(_ ctx: secp256k1_context, _ 
     if !ctx.ARG_CHECK(outputlen > 0, "invalid outputlen") { return false }
     if !ctx.ARG_CHECK(sig.is_valid_len(), "invalid sig") { return false }
 
-    secp256k1_ecdsa_signature_load(ctx, &r, &s, sig);
-    return secp256k1_ecdsa_sig_serialize(&output, &outputlen, r, s);
+    secp256k1_ecdsa_signature_load(ctx, &r, &s, sig)
+    return secp256k1_ecdsa_sig_serialize(&output, &outputlen, r, s)
 }
 
 /** Serialize an ECDSA signature in compact (64 byte) format.
@@ -660,7 +660,7 @@ public func secp256k1_ecdsa_signature_serialize_compact(_ ctx: secp256k1_context
     if !ctx.ARG_CHECK(output64.count >= 64, "invalid output64") { return false }
     if !ctx.ARG_CHECK(sig.is_valid_len(), "invalid sig") { return false }
     
-    secp256k1_ecdsa_signature_load(ctx, &r, &s, sig);
+    secp256k1_ecdsa_signature_load(ctx, &r, &s, sig)
     var v1 = [UInt8](repeating: 0, count: 32)
     var v2 = [UInt8](repeating: 0, count: 32)
     secp256k1_scalar_get_b32(&v1, r);
@@ -723,16 +723,16 @@ public func secp256k1_ecdsa_signature_normalize(_ ctx: secp256k1_context, _ sigo
     if !ctx.ARG_CHECK(sigout.is_valid_len(), "invalid sigout") { return false }
     if !ctx.ARG_CHECK(sigin.is_valid_len(), "invalid sigin") { return false }
 
-    secp256k1_ecdsa_signature_load(ctx, &r, &s, sigin);
-    ret = secp256k1_scalar_is_high(s);
+    secp256k1_ecdsa_signature_load(ctx, &r, &s, sigin)
+    ret = secp256k1_scalar_is_high(s)
     //if (sigout != nil) {
         if (ret) {
-            secp256k1_scalar_negate(&s, s);
+            secp256k1_scalar_negate(&s, s)
         }
         secp256k1_ecdsa_signature_save(&sigout, r, s)
     //}
     
-    return ret;
+    return ret
 }
 
 /** Verify an ECDSA signature.
@@ -785,7 +785,7 @@ func nonce_function_rfc6979(
     _ counter: UInt) -> Bool
 {
     var keydata:[UInt8] = [UInt8](repeating: 0, count: 112)
-    var keylen: Int = 64;
+    var keylen: Int = 64
     var rng = secp256k1_rfc6979_hmac_sha256_t()
     /* We feed a byte array to the PRNG as input, consisting of:
      * - the private key (32 bytes) and message (32 bytes), see RFC 6979 3.2d.
@@ -805,20 +805,20 @@ func nonce_function_rfc6979(
         for i in 0..<32 {
             keydata[i + 64] = data[i]
         }
-        keylen = 96;
+        keylen = 96
     }
     if let algo16 = algo16 {
         for i in 0..<16 {
             keydata[keylen + i] = algo16[i]
         }
-        keylen += 16;
+        keylen += 16
     }
-    secp256k1_rfc6979_hmac_sha256_initialize(&rng, keydata, UInt(keylen));
+    secp256k1_rfc6979_hmac_sha256_initialize(&rng, keydata, UInt(keylen))
     keydata.clear(count: 112)
     for _ in 0 ... counter {
-        secp256k1_rfc6979_hmac_sha256_generate(&rng, &nonce32, outlen: 32);
+        secp256k1_rfc6979_hmac_sha256_generate(&rng, &nonce32, outlen: 32)
     }
-    secp256k1_rfc6979_hmac_sha256_finalize(&rng);
+    secp256k1_rfc6979_hmac_sha256_finalize(&rng)
     return true
 }
 
@@ -856,7 +856,7 @@ public func secp256k1_ecdsa_sign(_ ctx: secp256k1_context,
     var sec = secp256k1_scalar()
     var non = secp256k1_scalar()
     var msg = secp256k1_scalar()
-    var ret: Bool = false
+    var ret: Bool = false		
     var overflow: Bool = false
     
     if !ctx.ARG_CHECK(secp256k1_ecmult_gen_context_is_built(ctx.ecmult_gen_ctx), "invalid gen ctx") { return false }
@@ -868,41 +868,42 @@ public func secp256k1_ecdsa_sign(_ ctx: secp256k1_context,
     if let v = noncefp {
         v_noncefp = v
     } else {
-        v_noncefp = secp256k1_nonce_function_default;
+        v_noncefp = secp256k1_nonce_function_default
     }
 
-    secp256k1_scalar_set_b32(&sec, seckey, &overflow);
+    secp256k1_scalar_set_b32(&sec, seckey, &overflow)
+	
     /* Fail if the secret key is invalid. */
-    if (!overflow && !secp256k1_scalar_is_zero(sec)) {
+    if !overflow && !secp256k1_scalar_is_zero(sec) {
         var nonce32: [UInt8] = [UInt8](repeating: 0, count: 32)
-        var count: UInt = 0;
+        var count: UInt = 0
         var dummy: Bool = false
-        secp256k1_scalar_set_b32(&msg, msg32, &dummy);
-        while (true) {
+        secp256k1_scalar_set_b32(&msg, msg32, &dummy)
+        while true {
             ret = v_noncefp(&nonce32, msg32, seckey, nil, noncedata, count)
-            if (!ret) {
-                break;
+            if !ret {
+                break
             }
-            secp256k1_scalar_set_b32(&non, nonce32, &overflow);
-            if (!overflow && !secp256k1_scalar_is_zero(non)) {
+            secp256k1_scalar_set_b32(&non, nonce32, &overflow)
+            if !overflow && !secp256k1_scalar_is_zero(non) {
                 var dummy: Int = 0
-                if (secp256k1_ecdsa_sig_sign(ctx.ecmult_gen_ctx, &r, &s, sec, msg, non, &dummy)) {
+                if secp256k1_ecdsa_sig_sign(ctx.ecmult_gen_ctx, &r, &s, sec, msg, non, &dummy) {
                     break;
                 }
             }
             count += 1
         }
         nonce32 = [UInt8](repeating: 0, count: 32)
-        secp256k1_scalar_clear(&msg);
-        secp256k1_scalar_clear(&non);
-        secp256k1_scalar_clear(&sec);
+        secp256k1_scalar_clear(&msg)
+        secp256k1_scalar_clear(&non)
+        secp256k1_scalar_clear(&sec)
     }
-    if (ret) {
-        secp256k1_ecdsa_signature_save(&signature, r, s);
+    if ret {
+        secp256k1_ecdsa_signature_save(&signature, r, s)
     } else {
         signature.clear()
     }
-    return ret;
+    return ret
 }
 
 /** Verify an ECDSA secret key.
@@ -915,12 +916,11 @@ public func secp256k1_ecdsa_sign(_ ctx: secp256k1_context,
 public func secp256k1_ec_seckey_verify(_ ctx: secp256k1_context, _ seckey: [UInt8]) -> Bool
 {
     var sec = secp256k1_scalar()
-    var ret: Bool
     var overflow: Bool = false
     if !ctx.ARG_CHECK(seckey.count >= 32, "insufficient seckey length") { return false }
     
     secp256k1_scalar_set_b32(&sec, seckey, &overflow);
-    ret = !overflow && !secp256k1_scalar_is_zero(sec);
+    let ret: Bool = !overflow && !secp256k1_scalar_is_zero(sec);
     secp256k1_scalar_clear(&sec);
     return ret;
 }
@@ -939,7 +939,6 @@ public func secp256k1_ec_pubkey_create(_ ctx: secp256k1_context, _ pubkey: inout
     var p = secp256k1_ge()
     var sec = secp256k1_scalar()
     var overflow: Bool = false
-    var ret: Bool = false
     if !ctx.ARG_CHECK(pubkey.data.count >= 32, "insufficient pubkey length") { return false }
     pubkey.clear()
     if !ctx.ARG_CHECK(secp256k1_ecmult_gen_context_is_built(ctx.ecmult_gen_ctx), "invalid ctx") {
@@ -947,15 +946,15 @@ public func secp256k1_ec_pubkey_create(_ ctx: secp256k1_context, _ pubkey: inout
     }
     if !ctx.ARG_CHECK(seckey.count >= 32, "insufficient seckey length") { return false }
     
-    secp256k1_scalar_set_b32(&sec, seckey, &overflow);
-    ret = !overflow && !secp256k1_scalar_is_zero(sec)
-    if (ret) {
+    secp256k1_scalar_set_b32(&sec, seckey, &overflow)
+    let ret: Bool = !overflow && !secp256k1_scalar_is_zero(sec)
+    if ret {
         secp256k1_ecmult_gen(ctx.ecmult_gen_ctx, &pj, sec)
-        secp256k1_ge_set_gej(&p, &pj);
-        secp256k1_pubkey_save(&pubkey, &p);
+        secp256k1_ge_set_gej(&p, &pj)
+        secp256k1_pubkey_save(&pubkey, &p)
     }
-    secp256k1_scalar_clear(&sec);
-    return ret;
+    secp256k1_scalar_clear(&sec)
+    return ret
 }
 
 /** Negates a private key in place.
@@ -966,10 +965,9 @@ public func secp256k1_ec_pubkey_create(_ ctx: secp256k1_context, _ pubkey: inout
  */
 public func secp256k1_ec_privkey_negate(_ ctx: secp256k1_context, _ seckey: inout [UInt8]) -> Bool
 {
-    var sec = secp256k1_scalar()
-    
     if !ctx.ARG_CHECK(seckey.count >= 32, "invalid seckey") { return false }
     
+	var sec = secp256k1_scalar()
     var dummy: Bool = false
     secp256k1_scalar_set_b32(&sec, seckey, &dummy);
     secp256k1_scalar_negate(&sec, sec);
@@ -986,18 +984,16 @@ public func secp256k1_ec_privkey_negate(_ ctx: secp256k1_context, _ seckey: inou
  */
 public func secp256k1_ec_pubkey_negate(_ ctx: secp256k1_context, _ pubkey: inout secp256k1_pubkey) -> Bool
 {
-    var ret: Bool = false
-    var p = secp256k1_ge()
-    
     if !ctx.ARG_CHECK(pubkey.is_valid_len(), "invalid pubkey") { return false }
     
-    ret = secp256k1_pubkey_load(ctx, &p, pubkey);
+	var p = secp256k1_ge()
+	let ret: Bool = secp256k1_pubkey_load(ctx, &p, pubkey);
     pubkey.clear()
-    if (ret) {
-        secp256k1_ge_neg(&p, p);
-        secp256k1_pubkey_save(&pubkey, &p);
+    if ret {
+        secp256k1_ge_neg(&p, p)
+        secp256k1_pubkey_save(&pubkey, &p)
     }
-    return ret;
+    return ret
 }
 
 /** Tweak a private key by adding tweak to it.
@@ -1013,24 +1009,23 @@ public func secp256k1_ec_privkey_tweak_add(_ ctx: secp256k1_context, _ seckey: i
 {
     var term = secp256k1_scalar()
     var sec = secp256k1_scalar()
-    var ret: Bool = false
     var overflow: Bool = false
     if !ctx.ARG_CHECK(seckey.count >= 32, "insufficient seckey length") { return false }
     if !ctx.ARG_CHECK(tweak.count >= 32, "insufficient tweak length") { return false }
     
-    secp256k1_scalar_set_b32(&term, tweak, &overflow);
+    secp256k1_scalar_set_b32(&term, tweak, &overflow)
     var dummy: Bool = false
-    secp256k1_scalar_set_b32(&sec, seckey, &dummy);
+    secp256k1_scalar_set_b32(&sec, seckey, &dummy)
     
-    ret = !overflow && secp256k1_eckey_privkey_tweak_add(&sec, term);
+    let ret: Bool = !overflow && secp256k1_eckey_privkey_tweak_add(&sec, term)
     seckey.clear(count:32)
-    if (ret) {
-        secp256k1_scalar_get_b32(&seckey, sec);
+    if ret {
+        secp256k1_scalar_get_b32(&seckey, sec)
     }
     
-    secp256k1_scalar_clear(&sec);
-    secp256k1_scalar_clear(&term);
-    return ret;
+    secp256k1_scalar_clear(&sec)
+    secp256k1_scalar_clear(&term)
+    return ret
 }
 
 /** Tweak a public key by adding tweak times the generator to it.
@@ -1053,17 +1048,17 @@ public func secp256k1_ec_pubkey_tweak_add(_ ctx: secp256k1_context, _ pubkey: in
     if !ctx.ARG_CHECK(pubkey.is_valid_len(), "invalid pubkey") { return false }
     if !ctx.ARG_CHECK(tweak.count >= 32, "insufficient tweak length") { return false }
     
-    secp256k1_scalar_set_b32(&term, tweak, &overflow);
-    ret = !overflow && secp256k1_pubkey_load(ctx, &p, pubkey);
+    secp256k1_scalar_set_b32(&term, tweak, &overflow)
+    ret = !overflow && secp256k1_pubkey_load(ctx, &p, pubkey)
     pubkey.clear()
-    if (ret) {
-        if (secp256k1_eckey_pubkey_tweak_add(ctx.ecmult_ctx, &p, term)) {
-            secp256k1_pubkey_save(&pubkey, &p);
+    if ret {
+        if secp256k1_eckey_pubkey_tweak_add(ctx.ecmult_ctx, &p, term) {
+            secp256k1_pubkey_save(&pubkey, &p)
         } else {
             ret = false
         }
     }
-    return ret;
+    return ret
 }
 
 /** Tweak a private key by multiplying it by a tweak.
@@ -1082,18 +1077,18 @@ public func secp256k1_ec_privkey_tweak_mul(_ ctx: secp256k1_context, _ seckey: i
     if !ctx.ARG_CHECK(seckey.count >= 32, "insufficient seckey length") { return false }
     if !ctx.ARG_CHECK(tweak.count >= 32, "insufficient tweak length") { return false }
     
-    secp256k1_scalar_set_b32(&factor, tweak, &overflow);
+    secp256k1_scalar_set_b32(&factor, tweak, &overflow)
     var dummy: Bool = false
-    secp256k1_scalar_set_b32(&sec, seckey, &dummy);
-    ret = !overflow && secp256k1_eckey_privkey_tweak_mul(&sec, factor);
+    secp256k1_scalar_set_b32(&sec, seckey, &dummy)
+    ret = !overflow && secp256k1_eckey_privkey_tweak_mul(&sec, factor)
     seckey.clear(count: 32)
-    if (ret) {
-        secp256k1_scalar_get_b32(&seckey, sec);
+    if ret {
+        secp256k1_scalar_get_b32(&seckey, sec)
     }
     
-    secp256k1_scalar_clear(&sec);
-    secp256k1_scalar_clear(&factor);
-    return ret;
+    secp256k1_scalar_clear(&sec)
+    secp256k1_scalar_clear(&factor)
+    return ret
 }
 
 /** Tweak a public key by multiplying it by a tweak value.
@@ -1117,7 +1112,7 @@ public func secp256k1_ec_pubkey_tweak_mul(_ ctx: secp256k1_context, _ pubkey: in
     secp256k1_scalar_set_b32(&factor, tweak, &overflow);
     ret = !overflow && secp256k1_pubkey_load(ctx, &p, pubkey);
     pubkey.clear()
-    if (ret) {
+    if ret {
         if (secp256k1_eckey_pubkey_tweak_mul(ctx.ecmult_ctx, &p, factor)) {
             secp256k1_pubkey_save(&pubkey, &p);
         } else {
@@ -1149,7 +1144,7 @@ public func secp256k1_ec_pubkey_tweak_mul(_ ctx: secp256k1_context, _ pubkey: in
  */
 public func secp256k1_context_randomize(_ ctx: inout secp256k1_context, _ seed32: [UInt8]?) -> Bool {
     if !ctx.ARG_CHECK(secp256k1_ecmult_gen_context_is_built(ctx.ecmult_gen_ctx), "invalid ctx") { return false }
-    secp256k1_ecmult_gen_blind(&ctx.ecmult_gen_ctx, seed32);
+    secp256k1_ecmult_gen_blind(&ctx.ecmult_gen_ctx, seed32)
     return true
 }
 
@@ -1172,16 +1167,16 @@ public func secp256k1_ec_pubkey_combine(_ ctx: secp256k1_context, _ pubnonce: in
     if !ctx.ARG_CHECK(n >= 1, "invalid n") { return false }
     if !ctx.ARG_CHECK(pubnonces.count >= n, "insufficient pubnonces length") { return false }
 
-    secp256k1_gej_set_infinity(&Qj);
+    secp256k1_gej_set_infinity(&Qj)
     
     for i in 0 ..< Int(n) {
-        let _ = secp256k1_pubkey_load(ctx, &Q, pubnonces[i]);
-        secp256k1_gej_add_ge(&Qj, Qj, Q);
+        let _ = secp256k1_pubkey_load(ctx, &Q, pubnonces[i])
+        secp256k1_gej_add_ge(&Qj, Qj, Q)
     }
-    if (secp256k1_gej_is_infinity(Qj)) {
+    if secp256k1_gej_is_infinity(Qj) {
         return false
     }
-    secp256k1_ge_set_gej(&Q, &Qj);
-    secp256k1_pubkey_save(&pubnonce, &Q);
+    secp256k1_ge_set_gej(&Q, &Qj)
+    secp256k1_pubkey_save(&pubnonce, &Q)
     return true
 }

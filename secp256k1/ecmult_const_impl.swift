@@ -135,7 +135,7 @@ func secp256k1_ecmult_const(_ r: inout secp256k1_gej, _ a: secp256k1_ge, _ scala
     let sc: secp256k1_scalar = scalar;
     
     /* build wnaf representation for q. */
-    skew_1   = secp256k1_wnaf_const(&wnaf_1, sc, WINDOW_A - 1);
+    skew_1 = secp256k1_wnaf_const(&wnaf_1, sc, WINDOW_A - 1);
     
     /* Calculate odd multiples of a.
      * All multiples are brought to the same Z 'denominator', which is stored

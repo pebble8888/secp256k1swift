@@ -340,7 +340,7 @@ public func secp256k1_ecdsa_recover(
     VERIFY_CHECK(recid >= 0 && recid < 4);  /* should have been caught in parse_compact */
     var dummy_overflow: Bool = false
     secp256k1_scalar_set_b32(&m, msg32, &dummy_overflow)
-    if (secp256k1_ecdsa_sig_recover(ctx.ecmult_ctx, r, s, &q, m, recid)) {
+    if secp256k1_ecdsa_sig_recover(ctx.ecmult_ctx, r, s, &q, m, recid) {
         secp256k1_pubkey_save(&pubkey, &q)
         return true
     } else {
