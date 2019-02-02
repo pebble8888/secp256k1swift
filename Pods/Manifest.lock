@@ -1,10 +1,14 @@
 PODS:
-  - BigInt (3.0.2):
+  - BigInt (3.1.0):
     - SipHash (~> 1.2)
-  - SipHash (1.2.0)
+  - SipHash (1.2.2)
 
 DEPENDENCIES:
   - BigInt (from `https://github.com/attaswift/BigInt.git`)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - SipHash
 
 EXTERNAL SOURCES:
   BigInt:
@@ -12,13 +16,13 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   BigInt:
-    :commit: 2256c581048079b5c20a003a5d7eeaec01e756de
+    :commit: 018a5925f60f9e0523edd261de394a0898fe95b7
     :git: https://github.com/attaswift/BigInt.git
 
 SPEC CHECKSUMS:
-  BigInt: e9c681a5e230e75d1e3243ae762305f208585135
-  SipHash: c6e9e43e9c531b5bc6602545130c26194a6d31ce
+  BigInt: 76b5dfdfa3e2e478d4ffdf161aeede5502e2742f
+  SipHash: fad90a4683e420c52ef28063063dbbce248ea6d4
 
 PODFILE CHECKSUM: c6c9f9a4e3209bc2e8c7c882ae3950910d5ee306
 
-COCOAPODS: 1.4.0.beta.2
+COCOAPODS: 1.6.0.beta.2
