@@ -124,10 +124,8 @@ func secp256k1_ge_set_all_gej_var(_ r: inout [secp256k1_ge], _ a: [secp256k1_gej
         }
     }
     
-    //azi = (secp256k1_fe *)checked_malloc(cb, sizeof(secp256k1_fe) * count);
     azi = [secp256k1_fe](repeating: secp256k1_fe(), count: count)
     secp256k1_fe_inv_all_var(&azi, az, UInt(count));
-    //free(az);
     
     count = 0;
     for i in 0..<Int(len) {
@@ -137,7 +135,6 @@ func secp256k1_ge_set_all_gej_var(_ r: inout [secp256k1_ge], _ a: [secp256k1_gej
             count += 1
         }
     }
-    //free(azi);
 }
 
 func secp256k1_ge_set_table_gej_var(_ r: inout [secp256k1_ge], _ a: [secp256k1_gej], _ zr: [secp256k1_fe], _ len: UInt) {

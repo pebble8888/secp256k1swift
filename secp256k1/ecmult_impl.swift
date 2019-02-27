@@ -160,8 +160,7 @@ func secp256k1_ecmult_context_clone(_ dst: inout secp256k1_ecmult_context,
     } else {
         let count = ECMULT_TABLE_SIZE(WINDOW_G)
         //let size = sizeof((dst.pre_g)[0]) * ECMULT_TABLE_SIZE(WINDOW_G);
-        dst.pre_g = [/*Pre_G */ secp256k1_ge_storage](repeating: /*Pre_G*/ secp256k1_ge_storage(), count: count) // (secp256k1_ge_storage (*)[])checked_malloc(cb, size);
-        //memcpy(dst.pre_g, src.pre_g, size);
+        dst.pre_g = [/*Pre_G */ secp256k1_ge_storage](repeating: /*Pre_G*/ secp256k1_ge_storage(), count: count)
         dst.pre_g = src.pre_g
     }
 }
@@ -171,7 +170,6 @@ func secp256k1_ecmult_context_is_built(_ ctx: secp256k1_ecmult_context) -> Bool 
 }
 
 func secp256k1_ecmult_context_clear(_ ctx: inout secp256k1_ecmult_context) {
-    //free(ctx.pre_g);
     ctx.pre_g.removeAll()
     secp256k1_ecmult_context_init(&ctx);
 }

@@ -103,16 +103,12 @@ func secp256k1_ecmult_gen_context_clone(_ dst: inout secp256k1_ecmult_gen_contex
                                         _ cb: secp256k1_callback)
 {
     if src.prec.count == 0 {
-        //dst.prec = nil
         dst.prec.removeAll()
     } else {
         #if USE_ECMULT_STATIC_PRECOMPUTATION
-            //(void)cb;
             dst.prec = src.prec;
         #else
-            //dst.prec = (secp256k1_ge_storage (*)[64][16])checked_malloc(cb, sizeof(*dst->prec));
             dst.prec = [[secp256k1_ge_storage]](repeating:[secp256k1_ge_storage](repeating: secp256k1_ge_storage(), count: 16), count: 64)
-            //memcpy(dst->prec, src->prec, sizeof(*dst->prec));
             dst.prec = src.prec
         #endif
         dst.initial = src.initial;
@@ -123,7 +119,6 @@ func secp256k1_ecmult_gen_context_clone(_ dst: inout secp256k1_ecmult_gen_contex
 func secp256k1_ecmult_gen_context_clear(_ ctx: inout secp256k1_ecmult_gen_context) {
     #if USE_ECMULT_STATIC_PRECOMPUTATION
     #else
-        //free(ctx.prec);
     #endif
     secp256k1_scalar_clear(&ctx.blind)
     secp256k1_gej_clear(&ctx.initial)

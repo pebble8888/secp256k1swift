@@ -110,9 +110,9 @@ func test_ge() {
      *
      * When the endomorphism code is compiled in, p5 = lambda*p1 and p6 = lambda^2*p1 are added as well.
      */
-    var ge = [secp256k1_ge](repeating: secp256k1_ge(), count: 1 + 4 * runs) //  *ge = (secp256k1_ge *)checked_malloc(&ctx.error_callback, sizeof(secp256k1_ge) * (1 + 4 * runs));
-    var gej = [secp256k1_gej](repeating: secp256k1_gej(), count: 1 + 4 * runs) // *gej = (secp256k1_gej *)checked_malloc(&ctx.error_callback, sizeof(secp256k1_gej) * (1 + 4 * runs));
-    var zinv = [secp256k1_fe](repeating: secp256k1_fe(), count: 1 + 4 * runs) // *zinv = (secp256k1_fe *)checked_malloc(&ctx.error_callback, sizeof(secp256k1_fe) * (1 + 4 * runs));
+    var ge = [secp256k1_ge](repeating: secp256k1_ge(), count: 1 + 4 * runs)
+    var gej = [secp256k1_gej](repeating: secp256k1_gej(), count: 1 + 4 * runs)
+    var zinv = [secp256k1_fe](repeating: secp256k1_fe(), count: 1 + 4 * runs)
     var zf = secp256k1_fe()
     var zfi2 = secp256k1_fe()
     var zfi3 = secp256k1_fe()
@@ -152,7 +152,7 @@ func test_ge() {
 
     /* Compute z inverses. */
     do {
-        var zs = [secp256k1_fe](repeating: secp256k1_fe(), count: 1 + 4 * runs) // = checked_malloc(&ctx.error_callback, sizeof(secp256k1_fe) * (1 + 4 * runs));
+        var zs = [secp256k1_fe](repeating: secp256k1_fe(), count: 1 + 4 * runs)
         for i in 0 ..< 4 * runs + 1 {
             if (i == 0) {
                 /* The point at infinity does not have a meaningful z inverse. Any should do. */
@@ -164,7 +164,6 @@ func test_ge() {
             }
         }
         secp256k1_fe_inv_all_var(&zinv, zs, UInt(4 * runs + 1));
-        //free(zs);
     }
 
     /* Generate random zf, and zfi2 = 1/zf^2, zfi3 = 1/zf^3 */
@@ -264,7 +263,7 @@ func test_ge() {
     /* Test adding all points together in random order equals infinity. */
     do {
         var sum: secp256k1_gej = SECP256K1_GEJ_CONST_INFINITY;
-        var gej_shuffled = [secp256k1_gej](repeating: secp256k1_gej(), count: 4 * runs + 1) // = (secp256k1_gej *)checked_malloc(&ctx.error_callback, (4 * runs + 1) * sizeof(secp256k1_gej));
+        var gej_shuffled = [secp256k1_gej](repeating: secp256k1_gej(), count: 4 * runs + 1)
         for i in 0 ..< 4 * runs + 1 {
             gej_shuffled[i] = gej[i];
         }
@@ -281,14 +280,13 @@ func test_ge() {
             secp256k1_gej_add_var(&sum, sum, gej_shuffled[i], &dummy);
         }
         CHECK(secp256k1_gej_is_infinity(sum));
-        //free(gej_shuffled);
     }
 
     /* Test batch gej -> ge conversion with and without known z ratios. */
     do {
-        var zr = [secp256k1_fe](repeating: secp256k1_fe(), count: 4 * runs + 1) // *zr = (secp256k1_fe *)checked_malloc(&ctx.error_callback, (4 * runs + 1) * sizeof(secp256k1_fe));
-        var ge_set_table = [secp256k1_ge](repeating: secp256k1_ge(), count: Int(4 * runs + 1)) // *ge_set_table = (secp256k1_ge *)checked_malloc(&ctx.error_callback, (4 * runs + 1) * sizeof(secp256k1_ge));
-        var ge_set_all = [secp256k1_ge](repeating: secp256k1_ge(), count: Int(4 * runs + 1)) // *ge_set_all = (secp256k1_ge *)checked_malloc(&ctx.error_callback, (4 * runs + 1) * sizeof(secp256k1_ge));
+        var zr = [secp256k1_fe](repeating: secp256k1_fe(), count: 4 * runs + 1)
+        var ge_set_table = [secp256k1_ge](repeating: secp256k1_ge(), count: Int(4 * runs + 1))
+        var ge_set_all = [secp256k1_ge](repeating: secp256k1_ge(), count: Int(4 * runs + 1))
         for i in 0 ..< 4 * runs + 1 {
             /* Compute gej[i + 1].z / gez[i].z (with gej[n].z taken to be 1). */
             if (i < 4 * runs) {
@@ -304,14 +302,7 @@ func test_ge() {
             ge_equals_gej(ge_set_table[i], gej[i]);
             ge_equals_gej(ge_set_all[i], gej[i]);
         }
-        //free(ge_set_table);
-        //free(ge_set_all);
-        //free(zr);
     }
-
-    //free(ge);
-    //free(gej);
-    //free(zinv);
 }
 
 func test_add_neg_y_diff_x() {

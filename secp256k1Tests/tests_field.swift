@@ -109,7 +109,6 @@ fileprivate func fe_memcmp(_ a: secp256k1_fe, _ b: secp256k1_fe) -> Int {
     t.magnitude = a.magnitude;
     t.normalized = a.normalized;
 #endif
-    //return memcmp(a, &t, sizeof(secp256k1_fe));
     return a.equal(t) ? 0 : 1
 }
 

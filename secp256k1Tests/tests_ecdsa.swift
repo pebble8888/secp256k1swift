@@ -137,7 +137,7 @@ func is_empty_signature(_ sig: secp256k1_ecdsa_signature) -> Bool {
 }
 
 func test_ecdsa_end_to_end() {
-    var extra = [UInt8](repeating: 0, count: 32) // = {0x00};
+    var extra = [UInt8](repeating: 0, count: 32)
     var privkey = [UInt8](repeating: 0, count: 32)
     var message = [UInt8](repeating: 0, count: 32)
     var privkey2 = [UInt8](repeating: 0, count: 32)
@@ -170,7 +170,6 @@ func test_ecdsa_end_to_end() {
     
     /* Verify exporting and importing public key. */
     CHECK(secp256k1_ec_pubkey_serialize(ctx, &pubkeyc, &pubkeyclen, pubkey, secp256k1_rand_bits(1) == 1 ? .SECP256K1_EC_COMPRESSED : .SECP256K1_EC_UNCOMPRESSED));
-    //memset(&pubkey, 0, sizeof(pubkey));
     pubkey.clear()
     CHECK(secp256k1_ec_pubkey_parse(ctx, &pubkey, pubkeyc, pubkeyclen) == true);
     
@@ -330,7 +329,7 @@ func test_random_pubkeys() {
         if (res) {
             ge_equals_ge(elem, elem2);
             CHECK(secp256k1_eckey_pubkey_serialize(&elem, &out, &size, false));
-            CHECK(l_in.equal(index1: 1, out, index2: 1, count: 64)) // memcmp(&l_in[1], &out[1], 64) == 0);
+            CHECK(l_in.equal(index1: 1, out, index2: 1, count: 64))
         }
     }
 }

@@ -130,7 +130,6 @@ func ecdsa_signature_parse_der_lax(_ ctx: inout secp256k1_context, _ sig: inout 
     if (rlen > 32) {
         overflow = true
     } else {
-        //memcpy(tmpsig + 32 - rlen, input + rpos, rlen);
         for i in 0 ..< rlen {
             tmpsig[32 - rlen + i] = input[rpos + i]
         }
@@ -145,7 +144,6 @@ func ecdsa_signature_parse_der_lax(_ ctx: inout secp256k1_context, _ sig: inout 
     if (slen > 32) {
         overflow = true
     } else {
-        //memcpy(tmpsig + 64 - slen, input + spos, slen);
         for i in 0 ..< slen {
             tmpsig[64 - slen + i] = input[spos + i]
         }
@@ -155,7 +153,6 @@ func ecdsa_signature_parse_der_lax(_ ctx: inout secp256k1_context, _ sig: inout 
         overflow = !secp256k1_ecdsa_signature_parse_compact(ctx, &sig, tmpsig);
     }
     if (overflow) {
-        //memset(tmpsig, 0, 64);
         for i in 0..<64 {
             tmpsig[i] = 0
         }
