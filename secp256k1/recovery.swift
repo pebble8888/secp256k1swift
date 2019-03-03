@@ -51,23 +51,8 @@ func secp256k1_ecdsa_recoverable_signature_load(
     _ sig: secp256k1_ecdsa_recoverable_signature)
 {
     
-    /*
-    if (sizeof(secp256k1_scalar) == 32) {
-     */
-        /* When the secp256k1_scalar type is exactly 32 byte, use its
-         * representation inside secp256k1_ecdsa_signature, as conversion is very fast.
-         * Note that secp256k1_ecdsa_signature_save must use the same representation. */
-        //memcpy(r, &sig->data[0], 32);
-        //memcpy(s, &sig->data[32], 32);
-        UInt8ToUInt32LE(&r.d, 0, sig.data, 0, 32)
-        UInt8ToUInt32LE(&s.d, 0, sig.data, 32, 32)
-        /*
-    } else {
-    var dummy_overflow: Bool = false
-    secp256k1_scalar_set_b32(&r, Array(sig.data[0..<32]), &dummy_overflow)
-    secp256k1_scalar_set_b32(&s, Array(sig.data[32..<64]), &dummy_overflow)
-    }
-     */
+    UInt8ToUInt32LE(&r.d, 0, sig.data, 0, 32)
+    UInt8ToUInt32LE(&s.d, 0, sig.data, 32, 32)
     recid = Int(sig.data[64])
 }
 
@@ -77,29 +62,12 @@ func secp256k1_ecdsa_recoverable_signature_save(
     _ s: secp256k1_scalar,
     _ recid: Int)
 {
-    /*
-    if (sizeof(secp256k1_scalar) == 32) {
-     */
-    //memcpy(&sig->data[0], r, 32);
-    //memcpy(&sig->data[32], s, 32);
     for i in 0 ..< 8 {
         UInt32LEToUInt8(&sig.data, 4 * i, r.d[i])
     }
     for i in 0 ..< 8 {
         UInt32LEToUInt8(&sig.data, 32 + 4 * i, s.d[i])
     }
-    /*
-    } else {
-        var v1 = [UInt8](repeating: 0, count: 32)
-        var v2 = [UInt8](repeating: 0, count: 32)
-        secp256k1_scalar_get_b32(&v1, r)
-        secp256k1_scalar_get_b32(&v2, s)
-        for i in 0 ..< 32 {
-            sig.data[i] = v1[i]
-            sig.data[32+i] = v2[i]
-        }
-     }
-    */
     sig.data[64] = UInt8(recid)
 }
 
@@ -157,7 +125,6 @@ public func secp256k1_ecdsa_recoverable_signature_serialize_compact(
     
     if !ctx.ARG_CHECK(output64.count >= 64, "invalid output64") { return false }
     if !ctx.ARG_CHECK(sig.is_valid_len(), "invalid sig") { return false }
-    //ARG_CHECK(recid != NULL);
     
     secp256k1_ecdsa_recoverable_signature_load(ctx, &r, &s, &recid, sig);
     var v1 = [UInt8](repeating: 0, count: 32)

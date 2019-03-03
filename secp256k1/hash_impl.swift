@@ -195,7 +195,6 @@ func secp256k1_sha256_write(_ hash: inout secp256k1_sha256_t, _ data: [UInt8], _
     var data_pos: UInt = 0
     while l_len >= 64 - bufsize {
         /* Fill the buffer, and process it. */
-        //memcpy(((unsigned char*)hash.buf) + bufsize, data, 64 - bufsize);
         UInt8ToUInt32LE(&hash.buf, bufsize, data, Int(data_pos), 64 - bufsize)
         
         data_pos += (64 - bufsize)
@@ -206,7 +205,6 @@ func secp256k1_sha256_write(_ hash: inout secp256k1_sha256_t, _ data: [UInt8], _
     }
     if l_len > 0 {
         /* Fill the buffer with what remains. */
-        //memcpy(((unsigned char*)hash.buf) + bufsize, data, len);
         UInt8ToUInt32LE(&hash.buf, bufsize, data, Int(data_pos), l_len)
     }
 }
@@ -229,7 +227,6 @@ func secp256k1_sha256_finalize(_ hash: inout secp256k1_sha256_t, _ out32: inout 
         out[i] = BE32(hash.s[i]);
         hash.s[i] = 0;
     }
-    //memcpy(out32, (const unsigned char*)out, 32);
     for i in 0..<8 {
         UInt32LEToUInt8(&out32, i*4, out[i])
     }

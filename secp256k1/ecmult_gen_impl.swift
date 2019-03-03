@@ -200,7 +200,6 @@ func secp256k1_ecmult_gen_blind(_ ctx: inout secp256k1_ecmult_gen_context, _ see
     
     secp256k1_rfc6979_hmac_sha256_initialize(&rng, keydata, seed32 != nil ? 64 : 32);
 
-    //memset(keydata, 0, sizeof(keydata));
     for i in 0 ..< keydata.count {
         keydata[i] = 0
     }

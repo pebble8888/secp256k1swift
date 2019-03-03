@@ -222,7 +222,6 @@ func test_ecdsa_recovery_end_to_end() {
     CHECK(secp256k1_ecdsa_recoverable_signature_convert(ctx, &signature[4], rsignature[4]) == true);
     CHECK(signature[4] == signature[0]);
     CHECK(secp256k1_ecdsa_verify(ctx, signature[4], message, pubkey) == true);
-    //memset(&rsignature[4], 0, sizeof(rsignature[4]));
     rsignature[4].clear()
     CHECK(secp256k1_ecdsa_recoverable_signature_parse_compact(ctx, &rsignature[4], sig, recid) == true);
     CHECK(secp256k1_ecdsa_recoverable_signature_convert(ctx, &signature[4], rsignature[4]) == true);

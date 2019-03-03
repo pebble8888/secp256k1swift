@@ -67,7 +67,6 @@ func precomputed_nonce_function(_ nonce32: inout [UInt8],
                                 _ data: [UInt8]?,
                                 _ counter: UInt) -> Bool
 {
-    //memcpy(nonce32, data, 32);
     guard let data = data else { fatalError() }
     for i in 0 ..< 32 {
         nonce32[i] = data[i]
@@ -98,7 +97,6 @@ func nonce_function_test_retry(_ nonce32: inout [UInt8],
 {
     /* Dummy nonce generator that produces unacceptable nonces for the first several counter values. */
     if (counter < 3) {
-        //memset(nonce32, counter==0 ? 0 : 255, 32);
         for i in 0 ..< 32 {
             nonce32[i] = counter == 0 ? 0 : 255
         }
@@ -114,7 +112,6 @@ func nonce_function_test_retry(_ nonce32: inout [UInt8],
             0xBA,0xAE,0xDC,0xE6,0xAF,0x48,0xA0,0x3B,
             0xBF,0xD2,0x5E,0x8C,0xD0,0x36,0x41,0x41
         ]
-        //memcpy(nonce32, order, 32);
         for i in 0 ..< 32 {
             nonce32[i] = order[i]
         }
@@ -133,7 +130,7 @@ func nonce_function_test_retry(_ nonce32: inout [UInt8],
 
 func is_empty_signature(_ sig: secp256k1_ecdsa_signature) -> Bool {
     //static const unsigned char res[sizeof(secp256k1_ecdsa_signature)] = {0};
-    return sig.is_zero() // memcmp(sig, res, sizeof(secp256k1_ecdsa_signature)) == 0;
+    return sig.is_zero()
 }
 
 func test_ecdsa_end_to_end() {
@@ -174,12 +171,11 @@ func test_ecdsa_end_to_end() {
     CHECK(secp256k1_ec_pubkey_parse(ctx, &pubkey, pubkeyc, pubkeyclen) == true);
     
     /* Verify negation changes the key and changes it back */
-    //memcpy(&pubkey_tmp, &pubkey, sizeof(pubkey));
     pubkey_tmp = pubkey
     CHECK(secp256k1_ec_pubkey_negate(ctx, &pubkey_tmp) == true);
-    CHECK(pubkey_tmp != pubkey) //memcmp(&pubkey_tmp, &pubkey, sizeof(pubkey)) != 0);
+    CHECK(pubkey_tmp != pubkey)
     CHECK(secp256k1_ec_pubkey_negate(ctx, &pubkey_tmp) == true);
-    CHECK(pubkey_tmp == pubkey) // memcmp(&pubkey_tmp, &pubkey, sizeof(pubkey)) == 0);
+    CHECK(pubkey_tmp == pubkey)
     
     /* Verify private key import and export. */
     CHECK(ec_privkey_export_der(ctx, &seckey, &seckeylen, privkey, secp256k1_rand_bits(1) != 0))
@@ -200,7 +196,7 @@ func test_ecdsa_end_to_end() {
             return;
         }
         CHECK(secp256k1_ec_pubkey_create(ctx, &pubkey2, privkey) == true);
-        CHECK(pubkey == pubkey2) // memcmp(&pubkey, &pubkey2, sizeof(pubkey)) == 0);
+        CHECK(pubkey == pubkey2)
     }
     
     /* Optionally tweak the keys using multiplication. */
@@ -217,7 +213,7 @@ func test_ecdsa_end_to_end() {
             return;
         }
         CHECK(secp256k1_ec_pubkey_create(ctx, &pubkey2, privkey) == true);
-        CHECK(pubkey == pubkey2) // memcmp(&pubkey, &pubkey2, sizeof(pubkey)) == 0);
+        CHECK(pubkey == pubkey2)
     }
     
     /* Sign. */
@@ -306,7 +302,7 @@ func test_random_pubkeys() {
         /* If the pubkey can be parsed, it should round-trip... */
         CHECK(secp256k1_eckey_pubkey_serialize(&elem, &out, &size, len == 33));
         CHECK(size == len);
-        CHECK(l_in.equal(index1: 1, l_in, index2: 1, count: Int(len)-1)) // memcmp(&l_in[1], &out[1], len-1) == 0);
+        CHECK(l_in.equal(index1: 1, l_in, index2: 1, count: Int(len)-1))
         /* ... except for the type of hybrid inputs. */
         if ((l_in[0] != 6) && (l_in[0] != 7)) {
             CHECK(l_in[0] == out[0]);
@@ -470,8 +466,6 @@ func test_ecdsa_der_parse(_ sig: [UInt8], _ siglen: UInt, _ certainly_der: Bool,
 
 func assign_big_endian(_ ptr: inout [UInt8], from: UInt = 0, _ ptrlen: UInt, _ val: UInt32) {
     for i in Int(from) ..< Int(from + ptrlen) {
-        //let shift: Int = Int(ptrlen) - 1 - i + from;
-        //let shift: Int = i - Int(from)
         let shift = Int(ptrlen) + Int(from) - 1 - i
         if shift >= 4 {
             ptr[i] = 0
@@ -487,7 +481,6 @@ func damage_array(_ sig: inout [UInt8], _ len: inout Int) {
     if (action < 1 && len > 3) {
         /* Delete a byte. */
         pos = Int(secp256k1_rand_int(UInt32(len)))
-        //memmove(sig + pos, sig + pos + 1, len - pos - 1);
         for i in pos ..< Int(len) - 1 {
             sig[i] = sig[i+1]
         }
@@ -495,7 +488,6 @@ func damage_array(_ sig: inout [UInt8], _ len: inout Int) {
     } else if (action < 2 && len < 2048) {
         /* Insert a byte. */
         pos = Int(secp256k1_rand_int(UInt32(1 + Int(len))))
-        //memmove(sig + pos + 1, sig + pos, len - pos);
         for i in stride(from: Int(len) - 1, through: pos, by: -1){
             sig[1+i] = sig[i]
         }
@@ -1031,7 +1023,6 @@ func test_ecdsa_edge_cases() {
         CHECK(ecount == 5);
         CHECK(secp256k1_ecdsa_signature_parse_compact(ctx, &sig, signature) == true);
         CHECK(ecount == 5);
-        // memset(signature, 255, 64);
         for i in 0 ..< 64 {
             signature[i] = 255
         }
@@ -1043,15 +1034,11 @@ func test_ecdsa_edge_cases() {
     /* Nonce function corner cases. */
     for t in 0 ..< 2 {
         let zero = [UInt8](repeating: 0, count:32)
-        //int i;
-        //unsigned char key[32];
         var key = [UInt8](repeating: 0xff, count: 32)
         var msg = [UInt8](repeating: 0, count: 32)
         var sig2 = secp256k1_ecdsa_signature()
         var sr = [secp256k1_scalar](repeating: secp256k1_scalar(), count: 512)
         var ss = secp256k1_scalar()
-        //const unsigned char *extra;
-        //extra = t == 0 ? NULL : zero;
         var extra: [UInt8]?
         if t == 0 {
             extra = nil
@@ -1059,14 +1046,11 @@ func test_ecdsa_edge_cases() {
             extra = zero
         }
         
-        //memset(msg, 0, 32);
         msg[31] = 1;
         /* High key results in signature failure. */
-        //memset(key, 0xFF, 32);
         CHECK(secp256k1_ecdsa_sign(ctx, &sig, msg, key, nil, extra) == false);
         CHECK(is_empty_signature(sig));
         /* Zero key results in signature failure. */
-        //memset(key, 0, 32);
         for i in 0 ..< 32 {
             key[i] = 0
         }
@@ -1081,11 +1065,11 @@ func test_ecdsa_edge_cases() {
         CHECK(!is_empty_signature(sig));
         CHECK(secp256k1_ecdsa_sign(ctx, &sig2, msg, key, nonce_function_rfc6979, extra) == true);
         CHECK(!is_empty_signature(sig2));
-        CHECK(sig == sig2) //memcmp(&sig, &sig2, sizeof(sig)) == 0);
+        CHECK(sig == sig2)
         /* The default nonce function is deterministic. */
         CHECK(secp256k1_ecdsa_sign(ctx, &sig2, msg, key, nil, extra) == true);
         CHECK(!is_empty_signature(sig2));
-        CHECK(sig == sig2) // memcmp(&sig, &sig2, sizeof(sig)) == 0);
+        CHECK(sig == sig2)
         /* The default nonce function changes output with different messages. */
         for i in 0 ..< 256 {
             msg[0] = UInt8(i)
@@ -1113,16 +1097,11 @@ func test_ecdsa_edge_cases() {
     
     do {
         /* Check that optional nonce arguments do not have equivalent effect. */
-        //const unsigned char zeros[32] = {0};
         let zeros = [UInt8](repeating: 0, count: 32)
-        //unsigned char nonce[32];
         var nonce = [UInt8](repeating: 0, count:32)
         var nonce2 = [UInt8](repeating: 0, count:32)
         var nonce3 = [UInt8](repeating: 0, count:32)
         var nonce4 = [UInt8](repeating: 0, count:32)
-        //unsigned char nonce2[32];
-        //unsigned char nonce3[32];
-        //unsigned char nonce4[32];
         //VG_UNDEF(nonce,32);
         //VG_UNDEF(nonce2,32);
         //VG_UNDEF(nonce3,32);
@@ -1145,7 +1124,6 @@ func test_ecdsa_edge_cases() {
     
     /* Privkey export where pubkey is the point at infinity. */
     do {
-        //unsigned char privkey[300];
         var privkey = [UInt8](repeating: 0, count: 300)
         let seckey : [UInt8] = [
             0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,

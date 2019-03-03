@@ -389,57 +389,23 @@ public func secp256k1_context_set_error_callback(_ ctx: inout secp256k1_context,
 func secp256k1_pubkey_load(_ ctx: secp256k1_context, _ ge: inout secp256k1_ge, _ pubkey: secp256k1_pubkey) -> Bool
 {
     assert(pubkey.is_valid_len())
-    /*
-    if (sizeof(secp256k1_ge_storage) == 64) {
-     */
-        /* When the secp256k1_ge_storage type is exactly 64 byte, use its
-         * representation inside secp256k1_pubkey, as conversion is very fast.
-         * Note that secp256k1_pubkey_save must use the same representation. */
-        var s = secp256k1_ge_storage()
-        UInt8ToUInt32LE(&s.x.n, 0, pubkey.data, 0, 32)
-        UInt8ToUInt32LE(&s.y.n, 0, pubkey.data, 32, 32)
-        secp256k1_ge_from_storage(&ge, s);
-    /*
-    } else {
-        /* Otherwise, fall back to 32-byte big endian for X and Y. */
-        var x = secp256k1_fe()
-        var y = secp256k1_fe()
-        let _ = secp256k1_fe_set_b32(&x, Array(pubkey.data[0..<32]))
-        let _ = secp256k1_fe_set_b32(&y, Array(pubkey.data[32..<64]))
-        secp256k1_ge_set_xy(&ge, x, y);
-    }
-     */
+    var s = secp256k1_ge_storage()
+    UInt8ToUInt32LE(&s.x.n, 0, pubkey.data, 0, 32)
+    UInt8ToUInt32LE(&s.y.n, 0, pubkey.data, 32, 32)
+    secp256k1_ge_from_storage(&ge, s);
     if !ctx.ARG_CHECK(!secp256k1_fe_is_zero(ge.x), "invalid ge") { return false }
     return true
 }
 
 func secp256k1_pubkey_save(_ pubkey: inout secp256k1_pubkey, _ ge: inout secp256k1_ge) {
-    /*
-    if (sizeof(secp256k1_ge_storage) == 64) {
-     */
-        var s = secp256k1_ge_storage()
-        secp256k1_ge_to_storage(&s, ge);
-        for i in 0 ..< 8 {
-            UInt32LEToUInt8(&pubkey.data, 4*i, s.x.n[i])
-        }
-        for i in 0 ..< 8 {
-            UInt32LEToUInt8(&pubkey.data, 32 + 4*i, s.y.n[i])
-        }
-    /*
-    } else {
-    //VERIFY_CHECK(!secp256k1_ge_is_infinity(ge));
-    secp256k1_fe_normalize_var(&ge.x);
-    secp256k1_fe_normalize_var(&ge.y);
-    var v1 = [UInt8](repeating: 0, count: 32)
-    var v2 = [UInt8](repeating: 0, count: 32)
-    secp256k1_fe_get_b32(&v1, ge.x)
-    secp256k1_fe_get_b32(&v2, ge.y)
-    for i in 0..<32 {
-        pubkey.data[i] = v1[i]
-        pubkey.data[32+i] = v2[i]
+    var s = secp256k1_ge_storage()
+    secp256k1_ge_to_storage(&s, ge);
+    for i in 0 ..< 8 {
+        UInt32LEToUInt8(&pubkey.data, 4*i, s.x.n[i])
     }
+    for i in 0 ..< 8 {
+        UInt32LEToUInt8(&pubkey.data, 32 + 4*i, s.y.n[i])
     }
-     */
 }
 
 /** Parse a variable-length public key into the pubkey object.
@@ -459,7 +425,7 @@ func secp256k1_pubkey_save(_ pubkey: inout secp256k1_pubkey, _ ge: inout secp256
 public func secp256k1_ec_pubkey_parse(_ ctx: secp256k1_context, _ pubkey: inout secp256k1_pubkey, _ input: [UInt8], _ inputlen: UInt) -> Bool
 {
     var Q = secp256k1_ge()
-    let _ = ctx.ARG_CHECK(input.count != 0, "")
+	if !ctx.ARG_CHECK(input.count != 0, "") { return false }
     pubkey.clear()
     if !secp256k1_eckey_pubkey_parse(&Q, input, inputlen) {
         return false
@@ -514,43 +480,21 @@ public func secp256k1_ec_pubkey_serialize(_ ctx: secp256k1_context, _ output: in
 
 func secp256k1_ecdsa_signature_load(_ ctx: secp256k1_context, _ r: inout secp256k1_scalar, _ s: inout secp256k1_scalar, _ sig: secp256k1_ecdsa_signature)
 {
-    //(void)ctx;
-    /*
-    if (sizeof(secp256k1_scalar) == 32) {
-        /* When the secp256k1_scalar type is exactly 32 byte, use its
-         * representation inside secp256k1_ecdsa_signature, as conversion is very fast.
-         * Note that secp256k1_ecdsa_signature_save must use the same representation. */
-        memcpy(r, &sig->data[0], 32);
-        memcpy(s, &sig->data[32], 32);
-    } else {
-     */
-        var dummy: Bool = false
-        secp256k1_scalar_set_b32(&r, sig.data, &dummy)
-        secp256k1_scalar_set_b32(&s, Array(sig.data[32..<64]), &dummy)
-    /*
-    }
-     */
+    var dummy: Bool = false
+    secp256k1_scalar_set_b32(&r, sig.data, &dummy)
+    secp256k1_scalar_set_b32(&s, Array(sig.data[32..<64]), &dummy)
 }
 
 func secp256k1_ecdsa_signature_save(_ sig: inout secp256k1_ecdsa_signature, _ r: secp256k1_scalar, _ s: secp256k1_scalar)
 {
-    /*
-    if (sizeof(secp256k1_scalar) == 32) {
-        memcpy(&sig->data[0], r, 32);
-        memcpy(&sig->data[32], s, 32);
-    } else {
-     */
-        var v1 = [UInt8](repeating: 0, count: 32)
-        var v2 = [UInt8](repeating: 0, count: 32)
-        secp256k1_scalar_get_b32(&v1, r);
-        secp256k1_scalar_get_b32(&v2, s);
-        for i in 0..<32 {
-            sig.data[i] = v1[i]
-            sig.data[32+i] = v2[i]
-        }
-    /*
+    var v1 = [UInt8](repeating: 0, count: 32)
+    var v2 = [UInt8](repeating: 0, count: 32)
+    secp256k1_scalar_get_b32(&v1, r);
+    secp256k1_scalar_get_b32(&v2, s);
+    for i in 0..<32 {
+        sig.data[i] = v1[i]
+        sig.data[32+i] = v2[i]
     }
-    */
 }
 
 /** Parse a DER ECDSA signature.
@@ -725,12 +669,10 @@ public func secp256k1_ecdsa_signature_normalize(_ ctx: secp256k1_context, _ sigo
 
     secp256k1_ecdsa_signature_load(ctx, &r, &s, sigin)
     ret = secp256k1_scalar_is_high(s)
-    //if (sigout != nil) {
-        if (ret) {
-            secp256k1_scalar_negate(&s, s)
-        }
-        secp256k1_ecdsa_signature_save(&sigout, r, s)
-    //}
+    if ret {
+        secp256k1_scalar_negate(&s, s)
+    }
+    secp256k1_ecdsa_signature_save(&sigout, r, s)
     
     return ret
 }
