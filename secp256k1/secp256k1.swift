@@ -1051,12 +1051,12 @@ public func secp256k1_ec_pubkey_tweak_mul(_ ctx: secp256k1_context, _ pubkey: in
     if !ctx.ARG_CHECK(pubkey.is_valid_len(), "invalid pubkey") { return false }
     if !ctx.ARG_CHECK(tweak.count >= 32, "insufficient tweak length") { return false }
     
-    secp256k1_scalar_set_b32(&factor, tweak, &overflow);
-    ret = !overflow && secp256k1_pubkey_load(ctx, &p, pubkey);
+    secp256k1_scalar_set_b32(&factor, tweak, &overflow)
+    ret = !overflow && secp256k1_pubkey_load(ctx, &p, pubkey)
     pubkey.clear()
     if ret {
         if (secp256k1_eckey_pubkey_tweak_mul(ctx.ecmult_ctx, &p, factor)) {
-            secp256k1_pubkey_save(&pubkey, &p);
+            secp256k1_pubkey_save(&pubkey, &p)
         } else {
             ret = false
         }

@@ -41,14 +41,14 @@ struct secp256k1_scalar : CustomDebugStringConvertible
     #endif
 }
 
-func SECP256K1_SCALAR_CONST(_ d7:UInt32,
-                            _ d6:UInt32,
-                            _ d5:UInt32,
-                            _ d4:UInt32,
-                            _ d3:UInt32,
-                            _ d2:UInt32,
-                            _ d1:UInt32,
-                            _ d0:UInt32) -> secp256k1_scalar
+func SECP256K1_SCALAR_CONST(_ d7: UInt32,
+                            _ d6: UInt32,
+                            _ d5: UInt32,
+                            _ d4: UInt32,
+                            _ d3: UInt32,
+                            _ d2: UInt32,
+                            _ d1: UInt32,
+                            _ d0: UInt32) -> secp256k1_scalar
 {
     var s = secp256k1_scalar()
     s.d[0] = d0

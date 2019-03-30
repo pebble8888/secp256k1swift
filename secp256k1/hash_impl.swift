@@ -70,15 +70,15 @@ func BE32(_ p: UInt32) -> UInt32 {
 }
 
 func secp256k1_sha256_initialize(_ hash: inout secp256k1_sha256_t) {
-    hash.s[0] = 0x6a09e667;
-    hash.s[1] = 0xbb67ae85;
-    hash.s[2] = 0x3c6ef372;
-    hash.s[3] = 0xa54ff53a;
-    hash.s[4] = 0x510e527f;
-    hash.s[5] = 0x9b05688c;
-    hash.s[6] = 0x1f83d9ab;
-    hash.s[7] = 0x5be0cd19;
-    hash.bytes = 0;
+    hash.s[0] = 0x6a09e667
+    hash.s[1] = 0xbb67ae85
+    hash.s[2] = 0x3c6ef372
+    hash.s[3] = 0xa54ff53a
+    hash.s[4] = 0x510e527f
+    hash.s[5] = 0x9b05688c
+    hash.s[6] = 0x1f83d9ab
+    hash.s[7] = 0x5be0cd19
+    hash.bytes = 0
 }
 
 /** Perform one SHA-256 transformation, processing 16 big endian 32-bit words. */
@@ -317,13 +317,13 @@ func secp256k1_rfc6979_hmac_sha256_generate(_ rng: inout secp256k1_rfc6979_hmac_
     let zero: [UInt8] = [0x00]
     if (rng.retry) {
         var hmac = secp256k1_hmac_sha256_t()
-        secp256k1_hmac_sha256_initialize(&hmac, rng.k, 32);
-        secp256k1_hmac_sha256_write(&hmac, rng.v, 32);
-        secp256k1_hmac_sha256_write(&hmac, zero, 1);
-        secp256k1_hmac_sha256_finalize(&hmac, &rng.k);
-        secp256k1_hmac_sha256_initialize(&hmac, rng.k, 32);
-        secp256k1_hmac_sha256_write(&hmac, rng.v, 32);
-        secp256k1_hmac_sha256_finalize(&hmac, &rng.v);
+        secp256k1_hmac_sha256_initialize(&hmac, rng.k, 32)
+        secp256k1_hmac_sha256_write(&hmac, rng.v, 32)
+        secp256k1_hmac_sha256_write(&hmac, zero, 1)
+        secp256k1_hmac_sha256_finalize(&hmac, &rng.k)
+        secp256k1_hmac_sha256_initialize(&hmac, rng.k, 32)
+        secp256k1_hmac_sha256_write(&hmac, rng.v, 32)
+        secp256k1_hmac_sha256_finalize(&hmac, &rng.v)
     }
     
     var outlen = outlen
@@ -331,11 +331,11 @@ func secp256k1_rfc6979_hmac_sha256_generate(_ rng: inout secp256k1_rfc6979_hmac_
     while outlen > 0 {
         var hmac = secp256k1_hmac_sha256_t()
         var now: Int = Int(outlen)
-        secp256k1_hmac_sha256_initialize(&hmac, rng.k, 32);
-        secp256k1_hmac_sha256_write(&hmac, rng.v, 32);
-        secp256k1_hmac_sha256_finalize(&hmac, &rng.v);
-        if (now > 32) {
-            now = 32;
+        secp256k1_hmac_sha256_initialize(&hmac, rng.k, 32)
+        secp256k1_hmac_sha256_write(&hmac, rng.v, 32)
+        secp256k1_hmac_sha256_finalize(&hmac, &rng.v)
+        if now > 32 {
+            now = 32
         }
         for i in 0..<now {
             out[i+outidx] = rng.v[i]

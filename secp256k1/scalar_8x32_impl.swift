@@ -426,7 +426,6 @@ fileprivate struct CA {
 }
 
 func secp256k1_scalar_reduce_512(_ r: inout secp256k1_scalar, _ l: [UInt32]) {
-   
     var c: UInt64
     let n0 = l[8]
     let n1 = l[9]
@@ -779,9 +778,9 @@ func secp256k1_scalar_shr_int(_ r: inout secp256k1_scalar, _ n: Int) -> UInt32 {
 }
 
 func secp256k1_scalar_sqr(_ r: inout secp256k1_scalar, _ a: secp256k1_scalar) {
-    var l: [UInt32] = [UInt32](repeating: 0, count: 16)
-    secp256k1_scalar_sqr_512(&l, a);
-    secp256k1_scalar_reduce_512(&r, l);
+    var l = [UInt32](repeating: 0, count: 16)
+    secp256k1_scalar_sqr_512(&l, a)
+    secp256k1_scalar_reduce_512(&r, l)
 }
 
 #if USE_ENDOMORPHISM
@@ -818,22 +817,22 @@ func secp256k1_scalar_eq(_ a: secp256k1_scalar, _ b: secp256k1_scalar) -> Bool {
 }
 
 func secp256k1_scalar_mul_shift_var(_ r: inout secp256k1_scalar, _ a: secp256k1_scalar, _ b: secp256k1_scalar, _ shift: UInt) {
-    var l: [UInt32] = [UInt32](repeating: 0, count: 16)
+    var l = [UInt32](repeating: 0, count: 16)
     var shiftlimbs: Int
     var shiftlow: UInt
     var shifthigh: UInt
-    VERIFY_CHECK(shift >= 256);
-    secp256k1_scalar_mul_512(&l, a, b);
+    VERIFY_CHECK(shift >= 256)
+    secp256k1_scalar_mul_512(&l, a, b)
     shiftlimbs = Int(shift >> 5)
-    shiftlow = shift & 0x1F;
-    shifthigh = 32 - shiftlow;
-    r.d[0] = shift < 512 ? (l[0 + shiftlimbs] >> shiftlow | (shift < 480 && shiftlow != 0 ? (l[1 + shiftlimbs] << shifthigh) : 0)) : 0;
-    r.d[1] = shift < 480 ? (l[1 + shiftlimbs] >> shiftlow | (shift < 448 && shiftlow != 0 ? (l[2 + shiftlimbs] << shifthigh) : 0)) : 0;
-    r.d[2] = shift < 448 ? (l[2 + shiftlimbs] >> shiftlow | (shift < 416 && shiftlow != 0 ? (l[3 + shiftlimbs] << shifthigh) : 0)) : 0;
-    r.d[3] = shift < 416 ? (l[3 + shiftlimbs] >> shiftlow | (shift < 384 && shiftlow != 0 ? (l[4 + shiftlimbs] << shifthigh) : 0)) : 0;
-    r.d[4] = shift < 384 ? (l[4 + shiftlimbs] >> shiftlow | (shift < 352 && shiftlow != 0 ? (l[5 + shiftlimbs] << shifthigh) : 0)) : 0;
-    r.d[5] = shift < 352 ? (l[5 + shiftlimbs] >> shiftlow | (shift < 320 && shiftlow != 0 ? (l[6 + shiftlimbs] << shifthigh) : 0)) : 0;
-    r.d[6] = shift < 320 ? (l[6 + shiftlimbs] >> shiftlow | (shift < 288 && shiftlow != 0 ? (l[7 + shiftlimbs] << shifthigh) : 0)) : 0;
+    shiftlow = shift & 0x1F
+    shifthigh = 32 - shiftlow
+    r.d[0] = shift < 512 ? (l[0 + shiftlimbs] >> shiftlow | (shift < 480 && shiftlow != 0 ? (l[1 + shiftlimbs] << shifthigh) : 0)) : 0
+    r.d[1] = shift < 480 ? (l[1 + shiftlimbs] >> shiftlow | (shift < 448 && shiftlow != 0 ? (l[2 + shiftlimbs] << shifthigh) : 0)) : 0
+    r.d[2] = shift < 448 ? (l[2 + shiftlimbs] >> shiftlow | (shift < 416 && shiftlow != 0 ? (l[3 + shiftlimbs] << shifthigh) : 0)) : 0
+    r.d[3] = shift < 416 ? (l[3 + shiftlimbs] >> shiftlow | (shift < 384 && shiftlow != 0 ? (l[4 + shiftlimbs] << shifthigh) : 0)) : 0
+    r.d[4] = shift < 384 ? (l[4 + shiftlimbs] >> shiftlow | (shift < 352 && shiftlow != 0 ? (l[5 + shiftlimbs] << shifthigh) : 0)) : 0
+    r.d[5] = shift < 352 ? (l[5 + shiftlimbs] >> shiftlow | (shift < 320 && shiftlow != 0 ? (l[6 + shiftlimbs] << shifthigh) : 0)) : 0
+    r.d[6] = shift < 320 ? (l[6 + shiftlimbs] >> shiftlow | (shift < 288 && shiftlow != 0 ? (l[7 + shiftlimbs] << shifthigh) : 0)) : 0
     r.d[7] = shift < 288 ? (l[7 + shiftlimbs] >> shiftlow) : 0
     let v: Int = (Int(shift) - 1) & 0x1f
     let u: UInt32 = (l[(Int(shift) - 1) >> 5] >> v) & 1

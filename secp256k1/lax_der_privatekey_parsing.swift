@@ -23,31 +23,31 @@ func ec_privkey_import_der(_ ctx: secp256k1_context, _ out32: inout [UInt8], _ p
         out32[i] = 0
     }
     /* sequence header */
-    if (end < privkey_idx+1 || privkey[privkey_idx] != 0x30) {
+    if end < privkey_idx+1 || privkey[privkey_idx] != 0x30 {
         return false
     }
     privkey_idx += 1
     /* sequence length constructor */
-    if (end < privkey_idx+1 || !((privkey[privkey_idx] & 0x80) != 0)) {
+    if end < privkey_idx+1 || !((privkey[privkey_idx] & 0x80) != 0) {
         return false
     }
     lenb = Int(privkey[privkey_idx] & ~UInt8(0x80));
     privkey_idx += 1
-    if (lenb < 1 || lenb > 2) {
+    if lenb < 1 || lenb > 2 {
         return false
     }
-    if (end < privkey_idx+lenb) {
+    if end < privkey_idx+lenb {
         return false
     }
     
     /* sequence length */
     len = Int(privkey[privkey_idx+lenb-1] | UInt8(lenb > 1 ? privkey[privkey_idx+lenb-2] << 8 : 0))
     privkey_idx += lenb;
-    if (end < privkey_idx+len) {
+    if end < privkey_idx+len {
         return false
     }
     /* sequence element 0: version number (=1) */
-    if (end < privkey_idx+3 || privkey[privkey_idx+0] != 0x02 || privkey[privkey_idx+1] != 0x01 || privkey[privkey_idx+2] != 0x01) {
+    if end < privkey_idx+3 || privkey[privkey_idx+0] != 0x02 || privkey[privkey_idx+1] != 0x01 || privkey[privkey_idx+2] != 0x01 {
         return false
     }
     privkey_idx += 3
@@ -59,7 +59,7 @@ func ec_privkey_import_der(_ ctx: secp256k1_context, _ out32: inout [UInt8], _ p
         out32[Int(i)+32-Int(privkey[privkey_idx+1])] = privkey[Int(privkey_idx)+2+Int(i)]
     }
     
-    if (!secp256k1_ec_seckey_verify(ctx, out32)) {
+    if !secp256k1_ec_seckey_verify(ctx, out32) {
         for i in 0 ..< 32 {
             out32[i] = 0
         }
@@ -75,12 +75,12 @@ func ec_privkey_export_der(_ ctx: secp256k1_context,
                            _ compressed: Bool) -> Bool
 {
     var pubkey = secp256k1_pubkey()
-    var pubkeylen: UInt = 0;
-    if (!secp256k1_ec_pubkey_create(ctx, &pubkey, key32)) {
-        privkeylen = 0;
+    var pubkeylen: UInt = 0
+    if !secp256k1_ec_pubkey_create(ctx, &pubkey, key32) {
+        privkeylen = 0
         return false
     }
-    if (compressed) {
+    if compressed {
         let begin: [UInt8] = [
             0x30,0x81,0xD3,0x02,0x01,0x01,0x04,0x20
         ]
