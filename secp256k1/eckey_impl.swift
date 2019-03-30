@@ -67,7 +67,7 @@ func secp256k1_eckey_pubkey_serialize(_ elem: inout secp256k1_ge, _ pub: inout [
     return true
 }
 
-func secp256k1_eckey_privkey_tweak_add(_ key: inout secp256k1_scalar , _ tweak: secp256k1_scalar) -> Bool {
+func secp256k1_eckey_privkey_tweak_add(_ key: inout secp256k1_scalar, _ tweak: secp256k1_scalar) -> Bool {
     let _ = secp256k1_scalar_add(&key, key, tweak);
     if secp256k1_scalar_is_zero(key) {
         return false

@@ -16,8 +16,8 @@ import Foundation
 #if VERIFY
 // verify magnitude
 func secp256k1_fe_verify(_ a: secp256k1_fe) {
-    let m:Int = a.normalized ? 1 : 2 * a.magnitude
-    var r:Bool = true
+    let m: Int = a.normalized ? 1 : 2 * a.magnitude
+    var r: Bool = true
     r = r && (a.n[0] <= 0x3FFFFFF * m)
     r = r && (a.n[1] <= 0x3FFFFFF * m)
     r = r && (a.n[2] <= 0x3FFFFFF * m)
@@ -32,9 +32,9 @@ func secp256k1_fe_verify(_ a: secp256k1_fe) {
     r = r && (a.magnitude <= 32)
     if (a.normalized) {
         r = r && (a.magnitude <= 1)
-        if (r && (a.n[9] == 0x03FFFFF)) {
-            let mid:UInt32 = a.n[8] & a.n[7] & a.n[6] & a.n[5] & a.n[4] & a.n[3] & a.n[2]
-            if (mid == 0x3FFFFFF) {
+        if r && (a.n[9] == 0x03FFFFF) {
+            let mid: UInt32 = a.n[8] & a.n[7] & a.n[6] & a.n[5] & a.n[4] & a.n[3] & a.n[2]
+            if mid == 0x3FFFFFF {
                 r = r && ((a.n[1] + 0x40 + ((a.n[0] + 0x3D1) >> 26)) <= 0x3FFFFFF)
             }
         }
@@ -45,20 +45,20 @@ func secp256k1_fe_verify(_ a: secp256k1_fe) {
 
 // normalize
 func secp256k1_fe_normalize(_ r: inout secp256k1_fe) {
-    var t0:UInt32 = r.n[0]
-    var t1:UInt32 = r.n[1]
-    var t2:UInt32 = r.n[2]
-    var t3:UInt32 = r.n[3]
-    var t4:UInt32 = r.n[4]
-    var t5:UInt32 = r.n[5]
-    var t6:UInt32 = r.n[6]
-    var t7:UInt32 = r.n[7]
-    var t8:UInt32 = r.n[8]
-    var t9:UInt32 = r.n[9]
+    var t0: UInt32 = r.n[0]
+    var t1: UInt32 = r.n[1]
+    var t2: UInt32 = r.n[2]
+    var t3: UInt32 = r.n[3]
+    var t4: UInt32 = r.n[4]
+    var t5: UInt32 = r.n[5]
+    var t6: UInt32 = r.n[6]
+    var t7: UInt32 = r.n[7]
+    var t8: UInt32 = r.n[8]
+    var t9: UInt32 = r.n[9]
     
     /* Reduce t9 at the start so there will be at most a single carry from the first pass */
-    var m:UInt32;
-    var x:UInt32 = t9 >> 22; t9 &= 0x03FFFFF
+    var m: UInt32
+    var x: UInt32 = t9 >> 22; t9 &= 0x03FFFFF
     
     /* The first pass ensures the magnitude is 1, ... */
     t0 += x * 0x3D1; t1 += (x << 6);

@@ -36,7 +36,7 @@ func secp256k1_ecmult_odd_multiples_table(_ n: Int, _ prej: inout [secp256k1_gej
     var a_ge = secp256k1_ge()
     var d_ge = secp256k1_ge()
 
-    VERIFY_CHECK(!a.infinity);
+    VERIFY_CHECK(!a.infinity)
     
     var dummy = secp256k1_fe()
     secp256k1_gej_double_var(&d, a, &dummy)
@@ -45,26 +45,26 @@ func secp256k1_ecmult_odd_multiples_table(_ n: Int, _ prej: inout [secp256k1_gej
      * Perform the additions on an isomorphism where 'd' is affine: drop the z coordinate
      * of 'd', and scale the 1P starting value's x/y coordinates without changing its z.
      */
-    d_ge.x = d.x;
-    d_ge.y = d.y;
+    d_ge.x = d.x
+    d_ge.y = d.y
     d_ge.infinity = false
     
-    secp256k1_ge_set_gej_zinv(&a_ge, a, d.z);
-    prej[0].x = a_ge.x;
-    prej[0].y = a_ge.y;
-    prej[0].z = a.z;
+    secp256k1_ge_set_gej_zinv(&a_ge, a, d.z)
+    prej[0].x = a_ge.x
+    prej[0].y = a_ge.y
+    prej[0].z = a.z
     prej[0].infinity = false
     
-    zr[0] = d.z;
+    zr[0] = d.z
     for i in 1..<n {
-        secp256k1_gej_add_ge_var(&prej[i], prej[i-1], d_ge, &zr[i]);
+        secp256k1_gej_add_ge_var(&prej[i], prej[i-1], d_ge, &zr[i])
     }
     
     /*
      * Each point in 'prej' has a z coordinate too small by a factor of 'd.z'. Only
      * the final point's z coordinate is actually used though, so just update that.
      */
-    secp256k1_fe_mul(&prej[n-1].z, prej[n-1].z, d.z);
+    secp256k1_fe_mul(&prej[n-1].z, prej[n-1].z, d.z)
 }
 
 /** Fill a table 'pre' with precomputed odd multiples of a.
@@ -83,37 +83,37 @@ func secp256k1_ecmult_odd_multiples_table(_ n: Int, _ prej: inout [secp256k1_gej
  *  happen once).
  */
 func secp256k1_ecmult_odd_multiples_table_globalz_windowa(_ pre: inout [secp256k1_ge], _ globalz: inout secp256k1_fe, _ a: secp256k1_gej) {
-    var prej: [secp256k1_gej] = [secp256k1_gej](repeating: secp256k1_gej(), count: ECMULT_TABLE_SIZE(WINDOW_A))
-    var zr: [secp256k1_fe] = [secp256k1_fe](repeating: secp256k1_fe(), count: ECMULT_TABLE_SIZE(WINDOW_A))
+    var prej = [secp256k1_gej](repeating: secp256k1_gej(), count: ECMULT_TABLE_SIZE(WINDOW_A))
+    var zr = [secp256k1_fe](repeating: secp256k1_fe(), count: ECMULT_TABLE_SIZE(WINDOW_A))
     
     /* Compute the odd multiples in Jacobian form. */
-    secp256k1_ecmult_odd_multiples_table(ECMULT_TABLE_SIZE(WINDOW_A), &prej, &zr, a);
+    secp256k1_ecmult_odd_multiples_table(ECMULT_TABLE_SIZE(WINDOW_A), &prej, &zr, a)
     /* Bring them to the same Z denominator. */
-    secp256k1_ge_globalz_set_table_gej(UInt(ECMULT_TABLE_SIZE(WINDOW_A)), &pre, &globalz, prej, zr);
+    secp256k1_ge_globalz_set_table_gej(UInt(ECMULT_TABLE_SIZE(WINDOW_A)), &pre, &globalz, prej, zr)
 }
 
 func secp256k1_ecmult_odd_multiples_table_storage_var(_ n: Int, _ pre: inout [secp256k1_ge_storage], _ a: secp256k1_gej, _ cb: secp256k1_callback?) {
-    var prej: [secp256k1_gej] = [secp256k1_gej](repeating: secp256k1_gej(), count: n)
-    var prea: [secp256k1_ge] = [secp256k1_ge](repeating: secp256k1_ge(), count: n)
-    var zr: [secp256k1_fe] = [secp256k1_fe](repeating: secp256k1_fe(), count: n)
+    var prej = [secp256k1_gej](repeating: secp256k1_gej(), count: n)
+    var prea = [secp256k1_ge](repeating: secp256k1_ge(), count: n)
+    var zr = [secp256k1_fe](repeating: secp256k1_fe(), count: n)
 
     /* Compute the odd multiples in Jacobian form. */
-    secp256k1_ecmult_odd_multiples_table(n, &prej, &zr, a);
+    secp256k1_ecmult_odd_multiples_table(n, &prej, &zr, a)
     /* Convert them in batch to affine coordinates. */
-    secp256k1_ge_set_table_gej_var(&prea, prej, zr, UInt(n));
+    secp256k1_ge_set_table_gej_var(&prea, prej, zr, UInt(n))
     /* Convert them to compact storage form. */
     for i in 0..<n {
-        secp256k1_ge_to_storage(&pre[i], prea[i]);
+        secp256k1_ge_to_storage(&pre[i], prea[i])
     }
 }
 
 /** The following two macro retrieves a particular odd multiple from a table
  *  of precomputed multiples. */
 func ECMULT_TABLE_GET_GE(_ r: inout secp256k1_ge, _ pre: [secp256k1_ge], _ n: Int, _ w: Int){
-    VERIFY_CHECK(((n) & 1) == 1);
-    VERIFY_CHECK((n) >= -((1 << ((w)-1)) - 1));
-    VERIFY_CHECK((n) <=  ((1 << ((w)-1)) - 1));
-    if (n > 0) {
+    VERIFY_CHECK(((n) & 1) == 1)
+    VERIFY_CHECK((n) >= -((1 << ((w)-1)) - 1))
+    VERIFY_CHECK((n) <=  ((1 << ((w)-1)) - 1))
+    if n > 0 {
         r = pre[(n-1)/2]
     } else {
         secp256k1_ge_neg(&r, pre[(-n-1)/2])
@@ -121,41 +121,41 @@ func ECMULT_TABLE_GET_GE(_ r: inout secp256k1_ge, _ pre: [secp256k1_ge], _ n: In
 }
 
 func ECMULT_TABLE_GET_GE_STORAGE(_ r: inout secp256k1_ge, _ pre: [secp256k1_ge_storage], _ n: Int, _ w: Int) {
-    VERIFY_CHECK(((n) & 1) == 1);
-    VERIFY_CHECK((n) >= -((1 << ((w)-1)) - 1));
-    VERIFY_CHECK((n) <=  ((1 << ((w)-1)) - 1));
-    if ((n) > 0) {
+    VERIFY_CHECK(((n) & 1) == 1)
+    VERIFY_CHECK((n) >= -((1 << ((w)-1)) - 1))
+    VERIFY_CHECK((n) <=  ((1 << ((w)-1)) - 1))
+    if n > 0 {
         secp256k1_ge_from_storage(&r, pre[(n-1)/2])
     } else {
         secp256k1_ge_from_storage(&r, pre[(-n-1)/2])
-        secp256k1_ge_neg(&r, r);
+        secp256k1_ge_neg(&r, r)
     }
 }
 
 func secp256k1_ecmult_context_init(_ ctx: inout secp256k1_ecmult_context) {
-    ctx.pre_g.removeAll() //= nil
+    ctx.pre_g.removeAll()
 }
 
 func secp256k1_ecmult_context_build(_ ctx: inout secp256k1_ecmult_context, _ cb: secp256k1_callback?) {
     var gj = secp256k1_gej()
     
-    if (ctx.pre_g.count > 0 /* != nil */ ) {
+    if ctx.pre_g.count > 0 /* != nil */ {
         return;
     }
     
     /* get the generator */
-    secp256k1_gej_set_ge(&gj, secp256k1_ge_const_g);
+    secp256k1_gej_set_ge(&gj, secp256k1_ge_const_g)
     
     ctx.pre_g = [/*Pre_G */ secp256k1_ge_storage](repeating: /*Pre_G */ secp256k1_ge_storage(), count: ECMULT_TABLE_SIZE(WINDOW_G))
 
     /* precompute the tables with odd multiples */
-    secp256k1_ecmult_odd_multiples_table_storage_var(ECMULT_TABLE_SIZE(WINDOW_G), &ctx.pre_g, gj, cb);
+    secp256k1_ecmult_odd_multiples_table_storage_var(ECMULT_TABLE_SIZE(WINDOW_G), &ctx.pre_g, gj, cb)
 }
 
 func secp256k1_ecmult_context_clone(_ dst: inout secp256k1_ecmult_context,
     _ src: secp256k1_ecmult_context,
     _ cb: secp256k1_callback) {
-    if (src.pre_g.count == 0 /*== nil */) {
+    if src.pre_g.count == 0 /*== nil */ {
         dst.pre_g.removeAll() // = nil
     } else {
         let count = ECMULT_TABLE_SIZE(WINDOW_G)
@@ -171,7 +171,7 @@ func secp256k1_ecmult_context_is_built(_ ctx: secp256k1_ecmult_context) -> Bool 
 
 func secp256k1_ecmult_context_clear(_ ctx: inout secp256k1_ecmult_context) {
     ctx.pre_g.removeAll()
-    secp256k1_ecmult_context_init(&ctx);
+    secp256k1_ecmult_context_init(&ctx)
 }
 
 /** Convert a number to WNAF notation. The number becomes represented by sum(2^i * wnaf[i], i=0..bits),
@@ -183,56 +183,56 @@ func secp256k1_ecmult_context_clear(_ ctx: inout secp256k1_ecmult_context) {
  */
 func secp256k1_ecmult_wnaf(_ wnaf: inout [Int], _ len: Int, _ a: secp256k1_scalar, _ w: Int) -> Int {
     var s: secp256k1_scalar = a
-    var last_set_bit: Int = -1;
-    var bit: Int = 0;
-    var sign: Int = 1;
-    var carry: Int = 0;
+    var last_set_bit: Int = -1
+    var bit: Int = 0
+    var sign: Int = 1
+    var carry: Int = 0
     
-    //VERIFY_CHECK(wnaf != NULL);
-    VERIFY_CHECK(0 <= len && len <= 256);
-    //VERIFY_CHECK(a != NULL);
-    VERIFY_CHECK(2 <= w && w <= 31);
+    //VERIFY_CHECK(wnaf != NULL)
+    VERIFY_CHECK(0 <= len && len <= 256)
+    //VERIFY_CHECK(a != NULL)
+    VERIFY_CHECK(2 <= w && w <= 31)
     
     for i in 0 ..< len {
         wnaf[i] = 0
     }
     
     if secp256k1_scalar_get_bits(s, 255, 1) != 0 {
-        secp256k1_scalar_negate(&s, s);
-        sign = -1;
+        secp256k1_scalar_negate(&s, s)
+        sign = -1
     }
     
-    while (bit < len) {
-        var now:Int
-        var word:Int
-        if (secp256k1_scalar_get_bits(s, UInt(bit), 1) == /*(unsigned int)*/ carry) {
+    while bit < len {
+        var now: Int
+        var word: Int
+        if secp256k1_scalar_get_bits(s, UInt(bit), 1) == /*(unsigned int)*/ carry {
             bit += 1
-            continue;
+            continue
         }
         
-        now = w;
-        if (now > len - bit) {
+        now = w
+        if now > len - bit {
             now = len - bit;
         }
         
-        word = Int(secp256k1_scalar_get_bits_var(s, UInt(bit), UInt(now))) + carry;
+        word = Int(secp256k1_scalar_get_bits_var(s, UInt(bit), UInt(now))) + carry
         
-        carry = (word >> (w-1)) & 1;
-        word -= carry << w;
+        carry = (word >> (w-1)) & 1
+        word -= carry << w
         
-        wnaf[bit] = sign * word;
-        last_set_bit = bit;
+        wnaf[bit] = sign * word
+        last_set_bit = bit
         
-        bit += now;
+        bit += now
     }
     #if VERIFY
-        CHECK(carry == 0);
-        while (bit < 256) {
+        CHECK(carry == 0)
+        while bit < 256 {
             CHECK(secp256k1_scalar_get_bits(s, UInt(bit), 1) == 0)
             bit += 1
         }
     #endif
-    return last_set_bit + 1;
+    return last_set_bit + 1
 }
 
 /**
@@ -247,18 +247,18 @@ func secp256k1_ecmult(_ ctx: secp256k1_ecmult_context,
     _ a: secp256k1_gej,
     _ na: secp256k1_scalar,
     _ ng: secp256k1_scalar) {
-    var pre_a:[secp256k1_ge] = [secp256k1_ge](repeating: secp256k1_ge(), count: ECMULT_TABLE_SIZE(WINDOW_A))
+    var pre_a = [secp256k1_ge](repeating: secp256k1_ge(), count: ECMULT_TABLE_SIZE(WINDOW_A))
     var tmpa = secp256k1_ge()
     var Z = secp256k1_fe()
-    var wnaf_na: [Int] = [Int](repeating: 0, count: 256)
+    var wnaf_na = [Int](repeating: 0, count: 256)
     var bits_na: Int
-    var wnaf_ng: [Int] = [Int](repeating: 0, count: 256)
+    var wnaf_ng = [Int](repeating: 0, count: 256)
     var bits_ng: Int
     var bits: Int
     
     /* build wnaf representation for na. */
-    bits_na = secp256k1_ecmult_wnaf(&wnaf_na, 256, na, WINDOW_A);
-    bits = bits_na;
+    bits_na = secp256k1_ecmult_wnaf(&wnaf_na, 256, na, WINDOW_A)
+    bits = bits_na
     
     /* Calculate odd multiples of a.
      * All multiples are brought to the same Z 'denominator', which is stored
@@ -270,36 +270,36 @@ func secp256k1_ecmult(_ ctx: secp256k1_ecmult_context,
      * of 1/Z, so we can use secp256k1_gej_add_zinv_var, which uses the same
      * isomorphism to efficiently add with a known Z inverse.
      */
-    secp256k1_ecmult_odd_multiples_table_globalz_windowa(&pre_a, &Z, a);
+    secp256k1_ecmult_odd_multiples_table_globalz_windowa(&pre_a, &Z, a)
     
-    bits_ng = secp256k1_ecmult_wnaf(&wnaf_ng, 256, ng, WINDOW_G);
-    if (bits_ng > bits) {
-        bits = bits_ng;
+    bits_ng = secp256k1_ecmult_wnaf(&wnaf_ng, 256, ng, WINDOW_G)
+    if bits_ng > bits {
+        bits = bits_ng
     }
     
-    secp256k1_gej_set_infinity(&r);
+    secp256k1_gej_set_infinity(&r)
     
-    for i in stride(from: bits - 1, through: 0, by: -1){
+    for i in stride(from: bits - 1, through: 0, by: -1) {
         var n: Int
         var dummy = secp256k1_fe()
-        secp256k1_gej_double_var(&r, r, &dummy);
-        if (i < bits_na) {
+        secp256k1_gej_double_var(&r, r, &dummy)
+        if i < bits_na {
             n = wnaf_na[i]
             if n != 0 {
-                ECMULT_TABLE_GET_GE(&tmpa, pre_a, n, WINDOW_A);
-                secp256k1_gej_add_ge_var(&r, r, tmpa, &dummy);
+                ECMULT_TABLE_GET_GE(&tmpa, pre_a, n, WINDOW_A)
+                secp256k1_gej_add_ge_var(&r, r, tmpa, &dummy)
             }
         }
-        if (i < bits_ng) {
+        if i < bits_ng {
             n = wnaf_ng[i]
             if n != 0 {
-                ECMULT_TABLE_GET_GE_STORAGE(&tmpa, ctx.pre_g, n, WINDOW_G);
-                secp256k1_gej_add_zinv_var(&r, r, tmpa, Z);
+                ECMULT_TABLE_GET_GE_STORAGE(&tmpa, ctx.pre_g, n, WINDOW_G)
+                secp256k1_gej_add_zinv_var(&r, r, tmpa, Z)
             }
         }
     }
     
-    if (!r.infinity) {
+    if !r.infinity {
         secp256k1_fe_mul(&r.z, r.z, Z);
     }
 }

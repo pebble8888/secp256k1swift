@@ -36,9 +36,9 @@ struct secp256k1_fe : CustomDebugStringConvertible {
         #endif
     }
     
-    init(_ n0:UInt32, _ n1:UInt32, _ n2:UInt32, _ n3:UInt32,
-         _ n4:UInt32, _ n5:UInt32, _ n6:UInt32, _ n7:UInt32,
-         _ n8:UInt32, _ n9:UInt32)
+    init(_ n0: UInt32, _ n1: UInt32, _ n2: UInt32, _ n3: UInt32,
+         _ n4: UInt32, _ n5: UInt32, _ n6: UInt32, _ n7: UInt32,
+         _ n8: UInt32, _ n9: UInt32)
     {
         n = [UInt32](repeating: 0, count: 10)
         n[0] = n0
@@ -72,8 +72,8 @@ struct secp256k1_fe : CustomDebugStringConvertible {
 }
 
 /* Unpacks a constant into a overlapping multi-limbed FE element. */
-func SECP256K1_FE_CONST_INNER(_ d7:UInt32, _ d6:UInt32, _ d5:UInt32, _ d4:UInt32,
-                              _ d3:UInt32, _ d2:UInt32, _ d1:UInt32, _ d0:UInt32) -> secp256k1_fe
+func SECP256K1_FE_CONST_INNER(_ d7: UInt32, _ d6: UInt32, _ d5: UInt32, _ d4: UInt32,
+                              _ d3: UInt32, _ d2: UInt32, _ d1: UInt32, _ d0: UInt32) -> secp256k1_fe
 {
     let n0 = (d0) & 0x3FFFFFF
     let n1 = (d0 >> 26) | ((d1 & 0xFFFFF) << 6)
@@ -88,14 +88,14 @@ func SECP256K1_FE_CONST_INNER(_ d7:UInt32, _ d6:UInt32, _ d5:UInt32, _ d4:UInt32
     return secp256k1_fe(n0, n1, n2, n3, n4, n5, n6, n7, n8, n9)
 }
 
-func SECP256K1_FE_CONST(_ d7:UInt32, _ d6:UInt32, _ d5:UInt32, _ d4:UInt32,
-                        _ d3:UInt32, _ d2:UInt32, _ d1:UInt32, _ d0:UInt32) -> secp256k1_fe
+func SECP256K1_FE_CONST(_ d7: UInt32, _ d6: UInt32, _ d5: UInt32, _ d4: UInt32,
+                        _ d3: UInt32, _ d2: UInt32, _ d1: UInt32, _ d0: UInt32) -> secp256k1_fe
 {
     return SECP256K1_FE_CONST_INNER(d7, d6, d5, d4, d3, d2, d1, d0)
 }
 
-func SECP256K1_FE_STORAGE_CONST(_ d7:UInt32, _ d6:UInt32, _ d5:UInt32, _ d4:UInt32,
-                                _ d3:UInt32, _ d2:UInt32, _ d1:UInt32, _ d0:UInt32) -> secp256k1_fe_storage
+func SECP256K1_FE_STORAGE_CONST(_ d7: UInt32, _ d6: UInt32, _ d5: UInt32, _ d4: UInt32,
+                                _ d3: UInt32, _ d2: UInt32, _ d1: UInt32, _ d0: UInt32) -> secp256k1_fe_storage
 {
     return secp256k1_fe_storage(d0, d1, d2, d3, d4, d5, d6, d7)
 }
@@ -105,8 +105,8 @@ struct secp256k1_fe_storage : CustomDebugStringConvertible {
     init(){
         n = [UInt32](repeating: 0, count: 8)
     }
-    init(_ n0:UInt32, _ n1:UInt32, _ n2:UInt32, _ n3:UInt32,
-         _ n4:UInt32, _ n5:UInt32, _ n6:UInt32, _ n7:UInt32) {
+    init(_ n0: UInt32, _ n1: UInt32, _ n2: UInt32, _ n3: UInt32,
+         _ n4: UInt32, _ n5: UInt32, _ n6: UInt32, _ n7: UInt32) {
         n = [UInt32](repeating:0, count:8)
         n[0] = n0
         n[1] = n1

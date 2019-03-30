@@ -194,25 +194,25 @@ func secp256k1_ecdsa_sig_serialize(
     _ a_ar: secp256k1_scalar,
     _ a_as: secp256k1_scalar) -> Bool
 {
-    var r:[UInt8] = [UInt8](repeating:0, count:32)
-    var s:[UInt8] = [UInt8](repeating:0, count:32)
+    var r = [UInt8](repeating:0, count:32)
+    var s = [UInt8](repeating:0, count:32)
     var rp_idx: Int = 0
     var sp_idx: Int = 0
-    var lenR:Int = 33
-    var lenS:Int = 33
+    var lenR: Int = 33
+    var lenS: Int = 33
     secp256k1_scalar_get_b32(&r, a_ar);
     secp256k1_scalar_get_b32(&s, a_as);
     r.insert(0, at: 0)
     s.insert(0, at: 0)
-    while (lenR > 1 && r[rp_idx] == 0 && r[1+rp_idx] < 0x80) {
+    while  lenR > 1 && r[rp_idx] == 0 && r[1+rp_idx] < 0x80 {
         lenR -= 1
         rp_idx += 1
     }
-    while (lenS > 1 && s[sp_idx] == 0 && s[1+sp_idx] < 0x80) {
+    while lenS > 1 && s[sp_idx] == 0 && s[1+sp_idx] < 0x80 {
         lenS -= 1
         sp_idx += 1
     }
-    if (size < 6 + lenS + lenR) {
+    if size < 6 + lenS + lenR {
         size = 6 + UInt(lenS) + UInt(lenR)
         return false
     }
@@ -240,7 +240,7 @@ func secp256k1_ecdsa_sig_verify(
     _ pubkey: secp256k1_ge,
     _ message: secp256k1_scalar) -> Bool
 {
-    var c:[UInt8] = [UInt8](repeating: 0, count: 32)
+    var c = [UInt8](repeating: 0, count: 32)
     var sn = secp256k1_scalar()
     var u1 = secp256k1_scalar()
     var u2 = secp256k1_scalar()
@@ -248,31 +248,31 @@ func secp256k1_ecdsa_sig_verify(
     var pubkeyj = secp256k1_gej()
     var pr = secp256k1_gej()
     
-    if (secp256k1_scalar_is_zero(sigr) || secp256k1_scalar_is_zero(sigs)) {
+    if secp256k1_scalar_is_zero(sigr) || secp256k1_scalar_is_zero(sigs) {
         return false
     }
     
     // sn = sigs ^ -1
-    secp256k1_scalar_inverse_var(&sn, sigs);
+    secp256k1_scalar_inverse_var(&sn, sigs)
     // u1 = message * (sigs ^ -1)
-    secp256k1_scalar_mul(&u1, sn, message);
+    secp256k1_scalar_mul(&u1, sn, message)
     // u2 = sigr * (sigs ^ -1)
-    secp256k1_scalar_mul(&u2, sn, sigr);
+    secp256k1_scalar_mul(&u2, sn, sigr)
     // affine to jacobian
-    secp256k1_gej_set_ge(&pubkeyj, pubkey);
+    secp256k1_gej_set_ge(&pubkeyj, pubkey)
     // calc jacobian point
     // G: base point
     // A: public point
     // pr = u1 * G + u2 * A 
-    secp256k1_ecmult(ctx, &pr, pubkeyj, u2, u1);
-    if (secp256k1_gej_is_infinity(pr)) {
+    secp256k1_ecmult(ctx, &pr, pubkeyj, u2, u1)
+    if secp256k1_gej_is_infinity(pr) {
         return false
     }
     
     // transform sigr to BigEndian 32 bytes
-    secp256k1_scalar_get_b32(&c, sigr);
+    secp256k1_scalar_get_b32(&c, sigr)
     // transform BigEndian 32 bytes to x point
-    let _ = secp256k1_fe_set_b32(&xr, c);
+    let _ = secp256k1_fe_set_b32(&xr, c)
     
     /** We now have the recomputed R point in pr, and its claimed x coordinate (modulo n)
      *  in xr. Naively, we would extract the x coordinate from pr (requiring a inversion modulo p),
@@ -291,16 +291,16 @@ func secp256k1_ecdsa_sig_verify(
      *  secp256k1_gej_eq_x implements the (xr * pr.z^2 mod p == pr.x) test.
      */
     // equal affine x point to jacobian pr
-    if (secp256k1_gej_eq_x_var(xr, pr)) {
+    if secp256k1_gej_eq_x_var(xr, pr) {
         /* xr * pr.z^2 mod p == pr.x, so the signature is valid. */
         return true
     }
-    if (secp256k1_fe_cmp_var(xr, secp256k1_ecdsa_const_p_minus_order) >= 0) {
+    if secp256k1_fe_cmp_var(xr, secp256k1_ecdsa_const_p_minus_order) >= 0 {
         /* xr + n >= p, so we can skip testing the second case. */
         return false
     }
     secp256k1_fe_add(&xr, secp256k1_ecdsa_const_order_as_fe);
-    if (secp256k1_gej_eq_x_var(xr, pr)) {
+    if secp256k1_gej_eq_x_var(xr, pr) {
         /* (xr + n) * pr.z^2 mod p == pr.x, so the signature is valid. */
         return true
     }
@@ -319,7 +319,7 @@ func secp256k1_ecdsa_sig_sign(
     _ nonce: secp256k1_scalar,
     _ recid: inout Int) -> Bool
 {
-    var b: [UInt8] = [UInt8](repeating: 0, count: 32)
+    var b = [UInt8](repeating: 0, count: 32)
     var rp = secp256k1_gej()
     var r = secp256k1_ge()
     var n = secp256k1_scalar()
